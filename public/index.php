@@ -177,6 +177,7 @@ $app->delete('/files/{id}', [$fileController, 'delete'])->add($authMiddleware);
 
 // Me (protégées)
 $app->get('/me/quota', [$fileController, 'quota'])->add($authMiddleware);
+$app->get('/me/activity', [$fileController, 'activity'])->add($authMiddleware);
 
 // Stats (protégée)
 $app->get('/stats', [$fileController, 'stats'])->add($authMiddleware);

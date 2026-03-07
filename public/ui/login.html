@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ObsiLock - Votre Coffre-Fort Numérique Sécurisé</title>
+    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <!-- ÉCRAN D'AUTHENTIFICATION -->
+        <div id="auth-screen" class="auth-container">
+            <div class="auth-card fade-in">
+
+                <div class="shield-logo">
+                    <!-- SVG icon for shield -->
+                    <svg width="80" height="100" viewBox="0 0 24 24" fill="none" stroke="#a2d121" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <rect x="8" y="11" width="8" height="6" rx="1" fill="#1c1f23"></rect>
+                        <path d="M10 11V9a2 2 0 1 1 4 0v2"></path>
+                    </svg>
+                </div>
+
+                <div class="brand-name">ObsiLock</div>
+
+                <h2>Connexion à votre<br>espace sécurisé</h2>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" placeholder="Mot de Passe" required>
+                    </div>
+                    <button type="submit" class="btn-login">Se Connecter</button>
+                </form>
+
+                <div class="auth-links">
+                    <a href="#">Mot de passe oublié ?</a>
+                    <a href="#" style="margin-top: 1.5rem;">Créer un compte</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉCRAN DASHBOARD -->
+        <div id="dashboard-screen" class="dashboard hidden">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="side-logo">
+                    <svg width="40" height="50" viewBox="0 0 24 24" fill="none" stroke="#a2d121" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="M10 11V9a2 2 0 1 1 4 0v2"></path>
+                    </svg>
+                </div>
+                <div class="nav-icons">
+                    <div class="nav-icon active" title="Dossiers">📁</div>
+                    <div class="nav-icon" title="Mes Fichiers">📄</div>
+                    <div class="nav-icon" title="Partages">🔗</div>
+                </div>
+                <div style="flex-grow: 1;"></div>
+                <div class="nav-icon" title="Paramètres">⚙️</div>
+                <div class="nav-icon" id="logout-btn" title="Déconnexion">🚪</div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="content-header">
+                    <h1 style="font-size: 2rem; font-weight: 500;">DashBoard</h1>
+                    <div class="search-bar">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Rechercher">
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Section Dossiers -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">Dossier</div>
+                                <div class="card-subtitle" id="folder-count">0 dossiers</div>
+                            </div>
+                        </div>
+                        <div class="items-row" id="folder-list">
+                            <!-- JS will populate folders -->
+                        </div>
+                        <button class="btn-add" id="new-folder-btn">Ajouter un nouveau dossier</button>
+                    </div>
+
+                    <!-- Section Fichiers -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">Fichier</div>
+                                <div class="card-subtitle" id="file-count">0 fichiers</div>
+                            </div>
+                        </div>
+                        <div class="items-row" id="file-list">
+                            <!-- JS will populate files -->
+                        </div>
+                        <button class="btn-add" id="upload-btn">Ajouter un nouveau fichier</button>
+                        <input type="file" id="file-input" class="hidden">
+                    </div>
+
+                    <!-- Activité -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Activité récente</div>
+                        </div>
+                        <div class="activity-list" id="activity-list"
+                            style="color: var(--text-muted); font-size: 0.9rem;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom: 1rem;">
+                                <span>📁 Projet ouvert</span> <span>15h32</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom: 1rem;">
+                                <span>📄 Fichier déplacé</span> <span>14h58</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span>🗑 Élément supprimé</span> <span>13h20</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Partages / Envois -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Consulter mes envois <span
+                                    style="color:var(--primary-color);">🔗</span></div>
+                        </div>
+                        <div class="items-row">
+                            <!-- Placeholder -->
+                            <div class="thumb-item">
+                                <div class="thumb-icon">📁</div>
+                                <div class="thumb-name">Projet X</div>
+                            </div>
+                        </div>
+                        <button class="btn-add">Consulter</button>
+                    </div>
+                </div>
+
+                <!-- Footer Quota -->
+                <div class="quota-footer">
+                    <span id="quota-label">0go/1go</span>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="quota-fill"></div>
+                    </div>
+                </div>
+
+                <div class="bottom-actions">
+                    <div class="action-label">Envoyer un dossier/fichier</div>
+                    <div class="upload-btns">
+                        <button class="btn-action">Envoyer un dossier</button>
+                        <button class="btn-action" onclick="document.getElementById('file-input').click()">Envoyer un
+                            fichier</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>

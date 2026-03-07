@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<?import javafx.scene.control.Pagination?>
+<VBox prefHeight="540"
+      prefWidth="720"
+      spacing="15"
+      style="-fx-background-color: #E5E5E5; -fx-background-radius: 8;"
+      xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.coffrefort.client.controllers.FileDetailsController">
+
+    <padding>
+        <Insets bottom="20" left="25" right="25" top="20"/>
+    </padding>
+
+    <!-- En-tête -->
+    <HBox spacing="12">
+
+        <!-- Bande rouge avec icône -->
+        <VBox alignment="CENTER"
+              prefWidth="48"
+              style="-fx-background-color: #980b0b; -fx-background-radius: 8;">
+            <padding>
+                <Insets bottom="10"
+                        left="10"
+                        right="10"
+                        top="10"/>
+            </padding>
+
+            <Text text="📄"
+                  fill="white"
+                  style="-fx-font-size: 24px;"/>
+        </VBox>
+
+        <!-- Titre + sous-titre -->
+        <VBox alignment="CENTER_LEFT"
+              spacing="4"
+              HBox.hgrow="ALWAYS">
+            <Text text="Détail du fichier"
+                  fill="#980b0b"
+                  style="-fx-font-weight: bold; -fx-font-size: 18px;"/>
+
+            <Label fx:id="fileNameLabel"
+                   text="NomDuFichier.ext"
+                   wrapText="true"
+                   style="-fx-text-fill: #333333; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+            <Label fx:id="fileMetaLabel"
+                   text="0.0 MB • Modifié le 2025-01-01"
+                   wrapText="true"
+                   style="-fx-text-fill: #666666; -fx-font-size: 12px;"/>
+        </VBox>
+
+        <!-- Bouton remplacer -->
+        <Button fx:id="replaceButton"
+                text="Remplacer…"
+                onAction="#onReplace"
+                style="-fx-background-color: #980b0b;
+                        -fx-text-fill: white;
+                        -fx-background-radius: 4;
+                        -fx-cursor: hand;
+                        -fx-padding: 8 18;
+                        -fx-font-weight: bold;">
+            <font>
+                <Font size="12"/>
+            </font>
+            <effect>
+                <DropShadow radius="10.0">
+                    <color>
+                        <Color red="0.60"
+                               green="0.05"
+                               blue="0.05"
+                               opacity="0.35"/>
+                    </color>
+                </DropShadow>
+            </effect>
+        </Button>
+    </HBox>
+
+    <Separator>
+        <VBox.margin>
+            <Insets bottom="5"
+                    top="10"/>
+        </VBox.margin>
+    </Separator>
+
+    <!-- Zone progression (cachée par défaut) -->
+    <VBox fx:id="progressBox"
+          spacing="8"
+          visible="false"
+          managed="false"
+          style="-fx-padding: 10; -fx-background-color: #f5f5f5; -fx-background-radius: 6;">
+
+        <Label fx:id="uploadStatusLabel"
+               text="Upload..."
+               wrapText="true"
+               style="-fx-text-fill: #666666; -fx-font-size: 12px;"/>
+
+        <ProgressBar fx:id="uploadProgressBar"
+                     prefWidth="660"
+                     prefHeight="10"
+                     progress="0.0"
+                     style="-fx-accent: #980b0b; -fx-background-radius: 6;">
+            <effect>
+                <DropShadow height="5.0"
+                            offsetX="1.0"
+                            offsetY="1.0"
+                            radius="2.0"
+                            width="5.0">
+                    <color>
+                        <Color red="0.6"
+                               green="0.04"
+                               blue="0.04"
+                               opacity="0.2" />
+                    </color>
+                </DropShadow>
+            </effect>
+        </ProgressBar>
+
+        <!-- message erreur (caché par défaut) -->
+        <Label fx:id="errorLabel"
+               visible="false"
+               managed="false"
+               alignment="CENTER"
+               prefWidth="660"
+               wrapText="true"
+               textAlignment="CENTER"
+               style="-fx-background-color: #ffe5e5;
+                    -fx-text-fill: #980b0b;
+                    -fx-font-weight: bold;
+                    -fx-padding: 8;
+                    -fx-background-radius: 6;"
+               text="Erreur"/>
+    </VBox>
+
+    <!-- Bloc versions -->
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Text text="Historique des versions"
+              fill="#980b0b"
+              style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="versionsCountLabel"
+               text="0 version(s)"
+               style="-fx-text-fill: #666666; -fx-font-size: 12px;"/>
+    </HBox>
+
+    <TableView fx:id="versionsTable"
+               prefHeight="320"
+               style="-fx-background-radius: 6;
+                    -fx-border-radius: 6;
+                    -fx-border-color: #cccccc;">
+
+        <columns>
+            <TableColumn fx:id="versionCol" text="Version" prefWidth="90"/>
+            <TableColumn fx:id="sizeCol" text="Taille" prefWidth="120"/>
+            <TableColumn fx:id="dateCol" text="Créée le" prefWidth="180"/>
+            <TableColumn fx:id="checksumCol" text="Checksum" prefWidth="270"/>
+        </columns>
+
+        <placeholder>
+            <VBox alignment="CENTER" spacing="8">
+                <Text text="Aucune version disponible"
+                      fill="#999999"
+                      style="-fx-font-size: 13px;"/>
+                <Text text="Cliquez sur 'Remplacer…' pour créer une nouvelle version"
+                      fill="#cccccc"
+                      style="-fx-font-size: 12px;"/>
+            </VBox>
+        </placeholder>
+
+        <effect>
+            <DropShadow height="5" offsetX="1" offsetY="1" radius="2" width="5">
+                <color>
+                    <Color red="0.8" green="0.8" blue="0.8" opacity="0.30"/>
+                </color>
+            </DropShadow>
+        </effect>
+    </TableView>
+
+    <!-- Pagination -->
+    <Pagination fx:id="pagination" maxPageIndicatorCount="7"/>
+
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <!-- Actions versions CENTRÉES -->
+    <HBox alignment="CENTER" spacing="12">
+
+        <Button fx:id="copyChecksumButton"
+                text="Copier checksum"
+                onAction="#onCopyChecksum"
+                disable="true"
+                style="-fx-background-color: #cccccc;
+                        -fx-text-fill: #333333;
+                        -fx-background-radius: 4;
+                        -fx-cursor: hand;
+                        -fx-padding: 8 16;">
+            <font>
+                <Font size="12"/>
+            </font>
+        </Button>
+
+        <Button fx:id="openLocalFolderButton"
+                text="Ouvrir dossier local"
+                onAction="#onOpenLocalFolder"
+                disable="true"
+                style="-fx-background-color: #cccccc;
+                        -fx-text-fill: #333333;
+                        -fx-background-radius: 4;
+                        -fx-cursor: hand;
+                        -fx-padding: 8 16;">
+            <font>
+                <Font size="12"/>
+            </font>
+        </Button>
+
+        <Button fx:id="downloadVersionButton"
+                text="Télécharger cette version"
+                onAction="#onDownloadVersion"
+                disable="true"
+                style="-fx-background-color: #cccccc;
+                        -fx-text-fill: #333333;
+                        -fx-background-radius: 4;
+                        -fx-cursor: hand;
+                        -fx-padding: 8 16;">
+            <font>
+                <Font size="12"/>
+            </font>
+        </Button>
+    </HBox>
+</VBox>

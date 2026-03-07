@@ -399,6 +399,9 @@ class FileController
     /**
      * POST /files/{id}/versions - Upload une nouvelle version
      */
+    /**
+     * POST /files/{id}/versions - Upload une nouvelle version
+     */
     public function uploadVersion(Request $request, Response $response, array $args): Response
     {
         if (!isset($this->versions)) {
@@ -446,55 +449,99 @@ class FileController
             return $response->withStatus(413)->withHeader('Content-Type', 'application/json');
         }
 
-        // Générer un nom unique pour le stockage
-        $extension = pathinfo($file['filename'], PATHINFO_EXTENSION);
-        $storedName = uniqid('v_', true) . '.' . $extension;
-        $targetPath = $this->uploadDir . DIRECTORY_SEPARATOR . $storedName;
-
-        // Déplacer le fichier
-        $uploadedFile->moveTo($targetPath);
-
-        // Calculer le checksum
-        $checksum = hash_file('sha256', $targetPath);
-
-        // Créer la nouvelle version
-        $versionData = [
-            'stored_name' => $storedName,
-            'size' => $newFileSize,
-            'checksum' => $checksum,
-            'mime_type' => $uploadedFile->getClientMediaType()
-        ];
-
-        $versionId = $this->versions->create($fileId, $versionData);
-
-        if (!$versionId) {
-            if (file_exists($targetPath)) {
-                unlink($targetPath);
-            }
-            
-            $response->getBody()->write(json_encode(['error' => 'Failed to create version']));
-            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        // Organisation par user_id/YYYY/MM/ (comme l'upload standard)
+        $uploadPath = sprintf(
+            '%s/%d/%s/%s',
+            $this->uploadDir,
+            $userId,
+            date('Y'),
+            date('m')
+        );
+        
+        // Créer dossiers si nécessaire
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
         }
 
-        // Mettre à jour le quota
-        $this->users->updateQuota($userId, $userInfo['quota_used'] + $newFileSize);
-
-        // Récupérer la version créée
-        $version = $this->versions->getById($versionId);
+        // Générer un nom unique avec timestamp pour le stockage
+        // Le timestamp est nécessaire pour retrouver le dossier date lors du téléchargement
+        $storedName = uniqid('v_', true) . '_' . time();
         
-        $response->getBody()->write(json_encode([
-            'message' => 'New version uploaded successfully',
-            'version' => [
-                'id' => $version['id'],
-                'file_id' => $fileId,
-                'version' => $version['version'],
-                'size' => $version['size'],
-                'checksum' => $version['checksum'],
-                'created_at' => $version['created_at']
-            ]
-        ]));
+        $tempPath = $uploadPath . '/' . $storedName . '.tmp';
+        $encryptedPath = $uploadPath . '/' . $storedName . '.enc';
 
-        return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
+        try {
+            // 1. Sauvegarde temporaire
+            $uploadedFile->moveTo($tempPath);
+
+            // 2. Calcul checksum
+            $checksum = hash_file('sha256', $tempPath);
+
+            // 3. Chiffrement
+            $encryption = new \App\Service\EncryptionService();
+            $encryptionData = $encryption->encryptFile($tempPath, $encryptedPath);
+
+            // 4. Suppression fichier temporaire
+            unlink($tempPath);
+
+            // 5. Créer la nouvelle version via le modèle (ou manuellement pour être sûr des colonnes)
+            // On le fait manuellement ici car FileVersion::create semble avoir des noms de colonnes obsolètes (iv vs nonce)
+            
+            // Récupérer le dernier numéro de version
+            $lastVersion = $this->versions->getLastVersionNumber($fileId);
+            $newVersion = $lastVersion + 1;
+
+            $this->db->insert('file_versions', [
+                'file_id' => $fileId,
+                'version' => $newVersion,
+                'stored_name' => $storedName . '.enc',
+                'size' => $newFileSize,
+                'checksum' => $checksum,
+                'mime_type' => $uploadedFile->getClientMediaType(),
+                'nonce' => $encryptionData['chunk_nonce_start'],
+                'key_envelope' => $encryptionData['key_envelope'],
+                'key_nonce' => $encryptionData['nonce']
+            ]);
+            
+            $versionId = $this->db->id();
+
+            if (!$versionId) {
+                if (file_exists($encryptedPath)) unlink($encryptedPath);
+                throw new \Exception("Impossible de créer l'entrée de version en base de données");
+            }
+
+            // Mettre à jour current_version dans files
+            $this->files->update($fileId, ['current_version' => $newVersion]);
+
+            // Mettre à jour le quota
+            $this->users->updateQuota($userId, $userInfo['quota_used'] + $newFileSize);
+
+            // Récupérer la version créée pour la réponse
+            $version = $this->versions->getById($versionId);
+            
+            $response->getBody()->write(json_encode([
+                'message' => 'New version uploaded and encrypted successfully',
+                'version' => [
+                    'id' => $version['id'],
+                    'file_id' => $fileId,
+                    'version' => $version['version'],
+                    'size' => $version['size'],
+                    'checksum' => $version['checksum'],
+                    'created_at' => $version['created_at'],
+                    'encrypted' => true
+                ]
+            ]));
+
+            return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
+
+        } catch (\Exception $e) {
+            // Nettoyage en cas d'erreur
+            if (file_exists($tempPath)) unlink($tempPath);
+            if (file_exists($encryptedPath)) unlink($encryptedPath);
+            
+            $response->getBody()->write(json_encode(['error' => 'Error processing version: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
     }
 
     /**
@@ -565,9 +612,27 @@ class FileController
             return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
         }
 
-        $filePath = $this->uploadDir . DIRECTORY_SEPARATOR . $version['stored_name'];
+        // Reconstruction chemin basé sur le timestamp dans stored_name
+        $storedNameWithoutExt = str_replace('.enc', '', $version['stored_name']);
+        $parts = explode('_', $storedNameWithoutExt);
+        $timestamp = end($parts);
+        
+        // Validation simple du timestamp
+        if (!is_numeric($timestamp)) {
+             // Fallback pour compatibilité avec anciens fichiers (s'ils sont plats)
+             $encryptedPath = $this->uploadDir . DIRECTORY_SEPARATOR . $version['stored_name'];
+        } else {
+            $date = date('Y/m', (int)$timestamp);
+            $encryptedPath = sprintf(
+                '%s/%d/%s/%s',
+                $this->uploadDir,
+                $user['user_id'],
+                $date,
+                $version['stored_name']
+            );
+        }
 
-        if (!file_exists($filePath)) {
+        if (!file_exists($encryptedPath)) {
             $response->getBody()->write(json_encode(['error' => 'File not found on server']));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
@@ -577,13 +642,99 @@ class FileController
             . '_v' . $version['version'] 
             . '.' . pathinfo($filename, PATHINFO_EXTENSION);
 
-        $stream = fopen($filePath, 'rb');
-        $response->getBody()->write(stream_get_contents($stream));
-        fclose($stream);
+        try {
+            // Déchiffrement
+            $tempPath = sys_get_temp_dir() . '/' . uniqid('dec_v_', true);
+            
+            $encryption = new \App\Service\EncryptionService();
+            $encryption->decryptFile(
+                $encryptedPath,
+                $tempPath,
+                $version['key_envelope'],
+                $version['key_nonce'],
+                $version['nonce']
+            );
+            
+            // Streaming du fichier déchiffré
+            $stream = fopen($tempPath, 'rb');
+            $response->getBody()->write(stream_get_contents($stream));
+            fclose($stream);
+            
+            $decryptedSize = filesize($tempPath);
 
-        return $response
-            ->withHeader('Content-Type', 'application/octet-stream')
-            ->withHeader('Content-Disposition', 'attachment; filename="' . $filenameWithVersion . '"')
-            ->withHeader('Content-Length', filesize($filePath));
+            // Nettoyage
+            unlink($tempPath);
+            
+            return $response
+                ->withHeader('Content-Type', $file['mime_type'] ?? 'application/octet-stream')
+                ->withHeader('Content-Disposition', 'attachment; filename="' . $filenameWithVersion . '"')
+                ->withHeader('Content-Length', (string)$decryptedSize);
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode(['error' => 'Decryption error: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    /**
+     * GET /me/activity - Journal d'activité unifié
+     */
+    public function activity(Request $request, Response $response): Response
+    {
+        $user = $request->getAttribute('user');
+        $userId = $user['user_id'];
+        $params = $request->getQueryParams();
+        
+        $limit = isset($params['limit']) ? (int)$params['limit'] : 20;
+
+        // 1. Récupérer les uploads
+        $uploads = $this->db->select('upload_logs', '*', [
+            'user_id' => $userId,
+            'ORDER' => ['uploaded_at' => 'DESC'],
+            'LIMIT' => $limit
+        ]);
+
+        $activity = [];
+
+        // Formater uploads
+        foreach ($uploads as $log) {
+            $activity[] = [
+                'type' => 'upload',
+                'details' => $log['filename'],
+                'success' => (bool)$log['success'],
+                'info' => $log['error_message'] ?: number_format($log['size'] / 1024, 2) . ' KB',
+                'date' => $log['uploaded_at']
+            ];
+        }
+
+        // 2. Récupérer les téléchargements (via modèle DownloadLog)
+        $downloadLogModel = new \App\Model\DownloadLog($this->db);
+        $downloads = $downloadLogModel->getByUser($userId, $limit);
+
+        // Formater downloads
+        foreach ($downloads as $log) {
+            // share_label est ajouté par la jointure dans getByUser
+            $activity[] = [
+                'type' => 'download',
+                'details' => $log['share_label'] ?: 'Partage #' . $log['share_id'],
+                'success' => (bool)$log['success'],
+                'info' => isset($log['message']) ? $log['message'] : ($log['ip'] ?? 'Unknown IP'),
+                'date' => $log['downloaded_at']
+            ];
+        }
+
+        // 3. Trier par date décroissante
+        usort($activity, function($a, $b) {
+            return strtotime($b['date']) - strtotime($a['date']);
+        });
+
+        // 4. Limiter au nombre demandé
+        $activity = array_slice($activity, 0, $limit);
+
+        $response->getBody()->write(json_encode([
+            'data' => $activity
+        ]));
+
+        return $response->withHeader('Content-Type', 'application/json');
     }
 }

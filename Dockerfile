@@ -4,7 +4,12 @@ FROM php:8.2-apache
 RUN a2enmod rewrite
 
 # Installer les extensions PHP nécessaires
-RUN docker-php-ext-install pdo pdo_mysql
+# Installer les dépendances système et extensions PHP nécessaires
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    unzip \
+    && docker-php-ext-install pdo pdo_mysql zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Configurer le DocumentRoot vers /var/www/html/public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public

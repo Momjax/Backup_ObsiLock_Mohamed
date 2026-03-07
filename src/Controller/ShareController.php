@@ -24,8 +24,11 @@ class ShareController
     private FileRepository $fileRepo;
     private FolderRepository $folderRepo;
 
+    private $db;
+
     public function __construct($database)
     {
+        $this->db = $database;
         $this->shareModel = new Share($database);
         $this->logModel = new DownloadLog($database);
         $this->fileRepo = new FileRepository($database);
@@ -258,6 +261,9 @@ class ShareController
     /**
      * POST /s/{token}/download - Télécharger via partage public (PUBLIC)
      */
+    /**
+     * POST /s/{token}/download - Télécharger via partage public (PUBLIC)
+     */
     public function downloadPublic(Request $request, Response $response, array $args): Response
     {
         $token = $args['token'];
@@ -269,12 +275,8 @@ class ShareController
         $share = $this->shareModel->getByToken($token);
 
         if (!$share) {
-            // Log échec
             $this->logModel->create(0, $ip, $userAgent, false, 'Share not found');
-            
-            $response->getBody()->write(json_encode([
-                'error' => 'Share not found'
-            ]));
+            $response->getBody()->write(json_encode(['error' => 'Share not found']));
             return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
         }
 
@@ -282,81 +284,207 @@ class ShareController
         $validation = $this->shareModel->isValid($share);
         
         if (!$validation['valid']) {
-            // Log échec avec raison
             $this->logModel->create($share['id'], $ip, $userAgent, false, $validation['reason']);
-            
-            $statusCode = 410;
             $errorMessages = [
                 'revoked' => 'This share has been revoked',
                 'expired' => 'This share has expired',
                 'no_uses_left' => 'This share has no remaining uses'
             ];
             $errorMessage = $errorMessages[$validation['reason']] ?? 'This share is no longer valid';
-
-            $response->getBody()->write(json_encode([
-                'error' => $errorMessage
-            ]));
-            return $response->withStatus($statusCode)->withHeader('Content-Type', 'application/json');
+            $response->getBody()->write(json_encode(['error' => $errorMessage]));
+            return $response->withStatus(410)->withHeader('Content-Type', 'application/json');
         }
 
-        // Décrémenter le compteur (si max_uses défini)
+        // Décrémenter le compteur
         if ($share['max_uses'] !== null) {
-            $decremented = $this->shareModel->decrementUses($share['id']);
-            if (!$decremented) {
-                // Condition de course: plus d'utilisations
-                $this->logModel->create($share['id'], $ip, $userAgent, false, 'No uses left (race condition)');
-                
-                $response->getBody()->write(json_encode([
-                    'error' => 'This share has no remaining uses'
-                ]));
+            if (!$this->shareModel->decrementUses($share['id'])) {
+                $this->logModel->create($share['id'], $ip, $userAgent, false, 'No uses left');
+                $response->getBody()->write(json_encode(['error' => 'This share has no remaining uses']));
                 return $response->withStatus(410)->withHeader('Content-Type', 'application/json');
             }
         }
 
-        // Télécharger le fichier
+        $uploadDir = getenv('UPLOAD_DIR') ?: '/var/www/html/storage/uploads';
+
+        // TÉLÉCHARGEMENT FICHIER UNIQUE
         if ($share['kind'] === 'file') {
             $file = $this->fileRepo->find($share['target_id']);
             
             if (!$file) {
                 $this->logModel->create($share['id'], $ip, $userAgent, false, 'File not found');
-                
-                $response->getBody()->write(json_encode([
-                    'error' => 'File not found'
-                ]));
+                $response->getBody()->write(json_encode(['error' => 'File not found']));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
 
-            $filePath = __DIR__ . '/../../storage/uploads/' . $file['stored_name'];
+            // Récupérer la version courante pour les clés de chiffrement
+            // On utilise la connexion DB brute car on n'a pas FileVersion injecté
+            $version = $this->db->get('file_versions', '*', [
+                'file_id' => $file['id'],
+                'version' => $file['current_version'] ?? 1
+            ]);
 
-            if (!file_exists($filePath)) {
-                $this->logModel->create($share['id'], $ip, $userAgent, false, 'File not found on disk');
+            if (!$version) {
+                // Fallback: essayer de trouver une v1
+                 $version = $this->db->get('file_versions', '*', [
+                    'file_id' => $file['id'],
+                    'version' => 1
+                ]);
+            }
+
+            // Si toujours rien, impossible de déchiffrer
+            if (!$version) {
+                 $this->logModel->create($share['id'], $ip, $userAgent, false, 'Encryption metadata missing');
+                 $response->getBody()->write(json_encode(['error' => 'File metadata corrupted']));
+                 return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Reconstruction chemin
+            $storedName = $version['stored_name'];
+            $storedNameWithoutExt = str_replace('.enc', '', $storedName);
+            $parts = explode('_', $storedNameWithoutExt);
+            $timestamp = end($parts);
+            
+            if (!is_numeric($timestamp)) {
+                 $encryptedPath = $uploadDir . DIRECTORY_SEPARATOR . $storedName;
+            } else {
+                $date = date('Y/m', (int)$timestamp);
+                $encryptedPath = sprintf('%s/%d/%s/%s', $uploadDir, $file['user_id'], $date, $storedName);
+            }
+
+            if (!file_exists($encryptedPath)) {
+                $this->logModel->create($share['id'], $ip, $userAgent, false, 'File missing on disk');
+                $response->getBody()->write(json_encode(['error' => 'File not found on server']));
+                return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+
+            try {
+                // Déchiffrement temporaire
+                $tempPath = sys_get_temp_dir() . '/' . uniqid('share_dec_', true);
+                $encryption = new \App\Service\EncryptionService();
+                $encryption->decryptFile(
+                    $encryptedPath,
+                    $tempPath,
+                    $version['key_envelope'],
+                    $version['key_nonce'],
+                    $version['nonce']
+                );
+
+                $this->logModel->create($share['id'], $ip, $userAgent, true, null);
+
+                // Stream
+                $stream = fopen($tempPath, 'rb');
+                $response->getBody()->write(stream_get_contents($stream));
+                fclose($stream);
                 
-                $response->getBody()->write(json_encode([
-                    'error' => 'File not found on server'
-                ]));
+                $fileSize = filesize($tempPath);
+                unlink($tempPath); // Nettoyage immédiat
+
+                return $response
+                    ->withHeader('Content-Type', $file['mime_type'] ?? 'application/octet-stream')
+                    ->withHeader('Content-Disposition', 'attachment; filename="' . $file['filename'] . '"')
+                    ->withHeader('Content-Length', (string)$fileSize);
+
+            } catch (\Exception $e) {
+                if (isset($tempPath) && file_exists($tempPath)) unlink($tempPath);
+                $this->logModel->create($share['id'], $ip, $userAgent, false, 'Decryption error: ' . $e->getMessage());
+                $response->getBody()->write(json_encode(['error' => 'Download failed']));
+                return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+
+        } else {
+            // TÉLÉCHARGEMENT DOSSIER (ZIP)
+            $folder = $this->folderRepo->find($share['target_id']);
+            if (!$folder) {
+                $response->getBody()->write(json_encode(['error' => 'Folder not found']));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Récupérer les fichiers du dossier
+            $files = $this->fileRepo->listByUser($folder['user_id'], $folder['id']);
+            
+            if (empty($files)) {
+                $response->getBody()->write(json_encode(['error' => 'Folder is empty']));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+
+            $zipPath = sys_get_temp_dir() . '/' . uniqid('folder_', true) . '.zip';
+            $zip = new \ZipArchive();
+            
+            if ($zip->open($zipPath, \ZipArchive::CREATE) !== TRUE) {
+                $response->getBody()->write(json_encode(['error' => 'Could not create zip']));
+                return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+
+            $encryption = new \App\Service\EncryptionService();
+            $tempFiles = []; // Pour supprimer après
+
+            foreach ($files as $file) {
+                 // Récupérer version courante
+                 $version = $this->db->get('file_versions', '*', [
+                    'file_id' => $file['id'],
+                    'version' => $file['current_version'] ?? 1
+                ]);
+
+                if (!$version) continue; // Skip corrupted files
+
+                // Chemin chiffré
+                $storedName = $version['stored_name'];
+                $parts = explode('_', str_replace('.enc', '', $storedName));
+                $timestamp = end($parts);
+                
+                if (!is_numeric($timestamp)) {
+                     $encryptedPath = $uploadDir . DIRECTORY_SEPARATOR . $storedName;
+                } else {
+                    $date = date('Y/m', (int)$timestamp);
+                    $encryptedPath = sprintf('%s/%d/%s/%s', $uploadDir, $file['user_id'], $date, $storedName);
+                }
+
+                if (!file_exists($encryptedPath)) continue;
+
+                try {
+                    $tempDecrypted = sys_get_temp_dir() . '/' . uniqid('zip_entry_', true);
+                    $encryption->decryptFile(
+                        $encryptedPath,
+                        $tempDecrypted,
+                        $version['key_envelope'],
+                        $version['key_nonce'],
+                        $version['nonce']
+                    );
+                    
+                    // Ajouter au ZIP
+                    $zip->addFile($tempDecrypted, $file['filename']);
+                    $tempFiles[] = $tempDecrypted;
+                } catch (\Exception $e) {
+                    // Skip failed file or log warning
+                    continue;
+                }
+            }
+
+            $zip->close();
+
+            // Nettoyer fichiers temporaires déchiffrés
+            foreach ($tempFiles as $tf) {
+                if (file_exists($tf)) unlink($tf);
+            }
+
+            if (!file_exists($zipPath)) {
+                $response->getBody()->write(json_encode(['error' => 'Zip creation failed']));
                 return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
             }
 
             // Log succès
-            $this->logModel->create($share['id'], $ip, $userAgent, true, null);
+            $this->logModel->create($share['id'], $ip, $userAgent, true, 'ZIP download');
 
-            // Stream le fichier
+            // Stream ZIP
             $response = $response
-                ->withHeader('Content-Type', 'application/octet-stream')
-                ->withHeader('Content-Disposition', 'attachment; filename="' . $file['filename'] . '"')
-                ->withHeader('Content-Length', filesize($filePath));
-
-            $response->getBody()->write(file_get_contents($filePath));
-            return $response;
-
-        } else {
-            // TODO: Téléchargement de dossier (zip)
-            $this->logModel->create($share['id'], $ip, $userAgent, false, 'Folder download not implemented');
+                ->withHeader('Content-Type', 'application/zip')
+                ->withHeader('Content-Disposition', 'attachment; filename="' . $folder['name'] . '.zip"')
+                ->withHeader('Content-Length', (string)filesize($zipPath));
             
-            $response->getBody()->write(json_encode([
-                'error' => 'Folder download not yet implemented'
-            ]));
-            return $response->withStatus(501)->withHeader('Content-Type', 'application/json');
+            $response->getBody()->write(file_get_contents($zipPath));
+            unlink($zipPath);
+
+            return $response;
         }
     }
 

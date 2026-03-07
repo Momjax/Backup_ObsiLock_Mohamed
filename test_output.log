@@ -1,0 +1,42 @@
+Testing API at: http://localhost:80
+
+--- 1. Authentication ---
+Registering user: test_1771432108@example.com
+Register Status: 201
+Logging in...
+Login Status: 200 (Token received)
+
+--- 2. Upload File (V1) ---
+Upload V1 Status: 201
+File uploaded with ID: 12
+
+--- 3. Upload Version (V2) ---
+Upload V2 Status: 201
+Response Body: {"message":"New version uploaded and encrypted successfully","version":{"id":20,"file_id":12,"versio...
+
+--- 4. Download V2 (Decryption Test) ---
+Download V2 Status: 200
+SUCCESS: V2 Content matches original (Decryption works!)
+
+--- 5. Share Folder (ZIP Test) ---
+Folder Created ID: 11
+File in Folder Upload Status: 201
+Share Created Token: QQx8z3rhh1oU_23fSuL5TbErEpe-PRKUTC3m0goHXOg
+Downloading ZIP from /s/QQx8z3rhh1oU_23fSuL5TbErEpe-PRKUTC3m0goHXOg/download ...
+ZIP Download Status: 200
+SUCCESS: Response looks like a ZIP file (starts with PK)
+Saved to test_download.zip
+
+--- 6. Activity Log ---
+Activity Status: 200
+SUCCESS: Activity log retrieved. Count: 3
+Array
+(
+    [type] => upload
+    [details] => test_v1.txt
+    [success] => 1
+    [info] => 0.04 KB
+    [date] => 2026-02-18 16:28:28
+)
+
+--- End of Tests ---

@@ -36,6 +36,11 @@ class FileRepository
         $this->db->delete('files', ['id' => $id]);
     }
 
+    public function update(int $id, array $data): void
+    {
+        $this->db->update('files', $data, ['id' => $id]);
+    }
+
     public function totalSize(int $userId): int
     {
         return (int)$this->db->sum('files', 'size', ['user_id' => $userId]) ?: 0;

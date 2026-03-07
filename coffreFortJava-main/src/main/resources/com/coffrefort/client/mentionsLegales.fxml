@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox prefHeight="650"
+      prefWidth="720"
+      spacing="15"
+      style="-fx-background-color: #E5E5E5; -fx-background-radius: 8;"
+      xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.coffrefort.client.controllers.MentionsLegalesController">
+
+    <padding>
+        <Insets bottom="20" left="25" right="25" top="20" />
+    </padding>
+
+    <!-- En-tête -->
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <!-- Bande rouge avec icône -->
+        <VBox alignment="CENTER"
+              prefWidth="48"
+              style="-fx-background-color: #980b0b; -fx-background-radius: 8;">
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="10" />
+            </padding>
+            <Text fill="white" style="-fx-font-size: 24px;" text="⚖️" />
+        </VBox>
+
+        <!-- Titre -->
+        <VBox alignment="CENTER_LEFT" spacing="4" HBox.hgrow="ALWAYS">
+            <Text fill="#980b0b" style="-fx-font-weight: bold; -fx-font-size: 18px;" text="Mentions légales" />
+            <Text fill="#666666" style="-fx-font-size: 12px;" text="Application CryptoVault" />
+        </VBox>
+
+        <!-- Logo (optionnel) -->
+        <ImageView fitHeight="120.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@/images/Logo_CryptoVault.png" />
+            </image>
+        </ImageView>
+    </HBox>
+
+    <Separator>
+        <VBox.margin>
+            <Insets bottom="5" top="10" />
+        </VBox.margin>
+    </Separator>
+
+    <!-- Contenu scrollable -->
+    <ScrollPane fitToWidth="true"
+                style="-fx-background-color: transparent;"
+                VBox.vgrow="ALWAYS">
+        <content>
+            <VBox spacing="14"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 6;
+                         -fx-border-color: #cccccc;
+                         -fx-border-width: 1;
+                         -fx-border-radius: 6;">
+                <padding>
+                    <Insets bottom="18" left="18" right="18" top="18" />
+                </padding>
+
+                <!-- Intro -->
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="Les présentes mentions légales décrivent les informations relatives à l’éditeur, l’hébergement, la propriété intellectuelle et la protection des données personnelles liées à l’application CryptoVault." />
+
+                <Separator />
+
+                <!-- ========================= -->
+                <!-- INFORMATIONS LÉGALES -->
+                <!-- ========================= -->
+                <Text fill="#980b0b"
+                      style="-fx-font-weight: bold; -fx-font-size: 14px;"
+                      text="Informations légales" />
+
+                <!-- Carte: Éditeur -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #f7f7f7;
+                             -fx-background-radius: 8;
+                             -fx-padding: 12;
+                             -fx-border-color: #e0e0e0;
+                             -fx-border-radius: 8;">
+                    <Text fill="#980b0b"
+                          style="-fx-font-weight: bold; -fx-font-size: 13px;"
+                          text="Éditeur de l’application" />
+
+                    <HBox spacing="8">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #666666;" text="Raison sociale :" />
+                        <Label style="-fx-text-fill: #333333;" text="CryptoVault Inc" />
+                    </HBox>
+
+                    <HBox spacing="8">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #666666;" text="Directeur :" />
+                        <Label style="-fx-text-fill: #333333;" text="[Nom Prénom]" />
+                    </HBox>
+
+                    <HBox spacing="8">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #666666;" text="Qualité :" />
+                        <Label style="-fx-text-fill: #333333;" text="Directeur de l’établissement" />
+                    </HBox>
+                </VBox>
+
+                <!-- Carte: Siège social -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #f7f7f7;
+                             -fx-background-radius: 8;
+                             -fx-padding: 12;
+                             -fx-border-color: #e0e0e0;
+                             -fx-border-radius: 8;">
+                    <Text fill="#980b0b"
+                          style="-fx-font-weight: bold; -fx-font-size: 13px;"
+                          text="Siège social" />
+
+                    <HBox spacing="8">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #666666;" text="Société :" />
+                        <Label style="-fx-text-fill: #333333;" text="CryptoVault Inc" />
+                    </HBox>
+
+                    <Label wrapText="true"
+                           style="-fx-text-fill: #333333;"
+                           text="Adresse : [Adresse complète]&#10;[Code postal] [Ville]&#10;[Pays]" />
+                </VBox>
+
+                <!-- Carte: Contact -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #f7f7f7;
+                             -fx-background-radius: 8;
+                             -fx-padding: 12;
+                             -fx-border-color: #e0e0e0;
+                             -fx-border-radius: 8;">
+                    <Text fill="#980b0b"
+                          style="-fx-font-weight: bold; -fx-font-size: 13px;"
+                          text="Contact" />
+
+                    <HBox spacing="8">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #666666;" text="Téléphone :" />
+                        <Label style="-fx-text-fill: #333333;" text="+33 (0)1 88 32 19 55" />
+                    </HBox>
+
+                    <HBox spacing="8">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #666666;" text="Email :" />
+                        <Label style="-fx-text-fill: #333333;" text="contact@cryptovault.com" />
+                    </HBox>
+
+                    <HBox spacing="8">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #666666;" text="Site web :" />
+                        <Label style="-fx-text-fill: #333333;" text="www.cryptovault.fr" />
+                    </HBox>
+                </VBox>
+
+                <!-- ========================= -->
+                <!-- HÉBERGEMENT -->
+                <!-- ========================= -->
+                <Text fill="#980b0b"
+                      style="-fx-font-weight: bold; -fx-font-size: 14px;"
+                      text="Hébergement" />
+
+                <VBox spacing="8"
+                      style="-fx-background-color: #f7f7f7;
+                             -fx-background-radius: 8;
+                             -fx-padding: 12;
+                             -fx-border-color: #e0e0e0;
+                             -fx-border-radius: 8;">
+                    <Text fill="#980b0b"
+                          style="-fx-font-weight: bold; -fx-font-size: 13px;"
+                          text="Informations hébergeur" />
+
+                    <HBox spacing="8">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #666666;" text="Hébergeur :" />
+                        <Label style="-fx-text-fill: #333333;" text="AlwaysData" />
+                    </HBox>
+
+                    <Label wrapText="true"
+                           style="-fx-text-fill: #333333;"
+                           text="Adresse : 91, rue du Faubourg-Saint-Honoré&#10;75008 Paris, France" />
+
+                    <HBox spacing="8">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #666666;" text="Téléphone :" />
+                        <Label style="-fx-text-fill: #333333;" text="+33 1 84 16 23 40" />
+                    </HBox>
+
+                    <HBox spacing="8">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #666666;" text="Site web :" />
+                        <Label style="-fx-text-fill: #333333;" text="www.alwaysdata.com" />
+                    </HBox>
+                </VBox>
+
+                <!-- ========================= -->
+                <!-- PROPRIÉTÉ INTELLECTUELLE -->
+                <!-- ========================= -->
+                <Text fill="#980b0b"
+                      style="-fx-font-weight: bold; -fx-font-size: 14px;"
+                      text="Propriété intellectuelle" />
+
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="L’ensemble du contenu de CryptoVault (interfaces, textes, images, logos, icônes, sons, code et fonctionnalités) est la propriété exclusive de CryptoVault Inc et est protégé par les lois françaises et internationales relatives à la propriété intellectuelle." />
+
+                <!-- Warning box -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #ffe5e5;
+                             -fx-background-radius: 8;
+                             -fx-padding: 12;
+                             -fx-border-color: #f2bcbc;
+                             -fx-border-radius: 8;">
+                    <Text fill="#980b0b"
+                          style="-fx-font-weight: bold; -fx-font-size: 13px;"
+                          text="⚠ Interdictions strictes" />
+
+                    <Label wrapText="true"
+                           style="-fx-text-fill: #980b0b; -fx-font-size: 12px; -fx-font-weight: bold;"
+                           text="Toute reproduction, représentation, modification, publication ou adaptation, totale ou partielle, est strictement interdite sauf autorisation écrite préalable de CryptoVault Inc." />
+
+                    <Label wrapText="true"
+                           style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                           text="Toute exploitation non autorisée de l’application ou de l’un quelconque des éléments qu’elle contient pourra être considérée comme constitutive de contrefaçon et poursuivie conformément aux articles L.335-2 et suivants du Code de la propriété intellectuelle." />
+                </VBox>
+
+                <!-- ========================= -->
+                <!-- DONNÉES PERSONNELLES -->
+                <!-- ========================= -->
+                <Text fill="#980b0b"
+                      style="-fx-font-weight: bold; -fx-font-size: 14px;"
+                      text="Protection des données personnelles (RGPD)" />
+
+                <VBox spacing="10"
+                      style="-fx-background-color: #f7f7f7;
+                             -fx-background-radius: 8;
+                             -fx-padding: 12;
+                             -fx-border-color: #e0e0e0;
+                             -fx-border-radius: 8;">
+
+                    <Text fill="#980b0b"
+                          style="-fx-font-weight: bold; -fx-font-size: 13px;"
+                          text="Responsable du traitement" />
+                    <Label wrapText="true"
+                           style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                           text="CryptoVault Inc est responsable du traitement des données personnelles collectées et traitées dans le cadre de l’utilisation de l’application." />
+
+                    <Text fill="#980b0b"
+                          style="-fx-font-weight: bold; -fx-font-size: 13px;"
+                          text="Données collectées" />
+
+                    <Label wrapText="true"
+                           style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                           text="Dans le cadre du coffre-fort numérique, les catégories de données susceptibles d’être traitées incluent notamment :" />
+
+                    <Label wrapText="true"
+                           style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                           text="✓ Données d’identification des utilisateurs (email, rôle)&#10;✓ Données de connexion et d’utilisation (logs techniques)&#10;✓ Métadonnées et historique liés au stockage, au partage et aux téléchargements&#10;" />
+                </VBox>
+
+                <Text fill="#980b0b" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Finalités du traitement" />
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="Les données personnelles collectées sont utilisées pour :" />
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="• La gestion des comptes et l’authentification&#10;• Le stockage, l’organisation et le partage de fichiers&#10;• La sécurité de la plateforme (prévention fraude/bruteforce, traçabilité)&#10;• Le support et la maintenance&#10;• Le respect des obligations légales et réglementaires" />
+
+                <Text fill="#980b0b" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Base légale" />
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="Le traitement des données personnelles est fondé sur :" />
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="• L’exécution d’un contrat (fourniture du service)&#10;• L’intérêt légitime de CryptoVault Inc (sécurité, amélioration du service)&#10;• Le respect d’obligations légales (conservation de certains logs, le cas échéant)" />
+
+                <Text fill="#980b0b" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Durée de conservation" />
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="Les données sont conservées pendant la durée nécessaire aux finalités pour lesquelles elles ont été collectées :" />
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="• Données de compte : durée du compte + 2 ans&#10;• Données de connexion : jusqu’à 1 an (sécurité)&#10;• Historique d’actions (partages/téléchargements) : 6 mois&#10;" />
+
+                <!-- ========================= -->
+                <!-- RESPONSABILITÉ -->
+                <!-- ========================= -->
+                <Text fill="#980b0b"
+                      style="-fx-font-weight: bold; -fx-font-size: 14px;"
+                      text="Responsabilité et garanties" />
+
+                <Text fill="#980b0b" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Disponibilité du service" />
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="CryptoVault Inc s’efforce d’assurer au mieux la disponibilité du service. Cependant, aucune disponibilité de 100% ne peut être garantie, et CryptoVault Inc ne saurait être tenue responsable des interruptions, programmées ou non." />
+
+                <Text fill="#980b0b" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Exactitude des informations" />
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="CryptoVault Inc s’efforce de fournir des informations exactes et à jour. Toutefois, l’exactitude, la précision et l’exhaustivité des informations mises à disposition ne peuvent être garanties." />
+
+                <Text fill="#980b0b" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Limitation de responsabilité" />
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="CryptoVault Inc ne pourra être tenue responsable des dommages directs ou indirects causés au matériel de l’utilisateur lors de l’accès au service, et résultant soit de l’utilisation d’un matériel ne répondant pas aux spécifications requises, soit de l’apparition d’un bug ou d’une incompatibilité." />
+
+                <!-- ========================= -->
+                <!-- SÉCURITÉ -->
+                <!-- ========================= -->
+                <Text fill="#980b0b"
+                      style="-fx-font-weight: bold; -fx-font-size: 14px;"
+                      text="Sécurité" />
+
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="CryptoVault Inc met en œuvre des mesures techniques et organisationnelles appropriées pour protéger les données contre la destruction, la perte, l’altération, la divulgation ou l’accès non autorisé." />
+
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="Les mesures de sécurité incluent notamment :" />
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="• Chiffrement des données sensibles (selon configuration)&#10;• Authentification sécurisée&#10;• Journalisation et surveillance de sécurité&#10;• Sauvegardes régulières" />
+
+                <!-- ========================= -->
+                <!-- DROIT APPLICABLE -->
+                <!-- ========================= -->
+                <Text fill="#980b0b"
+                      style="-fx-font-weight: bold; -fx-font-size: 14px;"
+                      text="Droit applicable et juridiction" />
+
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="Les présentes mentions légales sont régies par le droit français. En cas de litige, et après tentative de résolution amiable, les tribunaux français seront seuls compétents." />
+
+                <!-- ========================= -->
+                <!-- CONTACT / RÉCLAMATIONS -->
+                <!-- ========================= -->
+                <Text fill="#980b0b"
+                      style="-fx-font-weight: bold; -fx-font-size: 14px;"
+                      text="Contact et réclamations" />
+
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="Pour toute question concernant ces mentions légales ou pour toute réclamation, vous pouvez nous contacter :" />
+
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="• Par email : contact@cryptovault.com&#10;• Par courrier : [Adresse complète]&#10;• Par téléphone : +33 (0)1 88 32 19 55" />
+
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="Vous avez également la possibilité de saisir la Commission Nationale de l'Informatique et des Libertés (CNIL) pour tout litige relatif à la protection des données personnelles :" />
+
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="CNIL&#10;3 Place de Fontenoy - TSA 80715&#10;75334 Paris Cedex 07&#10;Téléphone : +33 (0)1 53 73 22 22&#10;Site web : www.cnil.fr" />
+
+                <!-- ========================= -->
+                <!-- MODIFICATIONS -->
+                <!-- ========================= -->
+                <Text fill="#980b0b"
+                      style="-fx-font-weight: bold; -fx-font-size: 14px;"
+                      text="Modifications" />
+
+                <Label wrapText="true"
+                       style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+                       text="CryptoVault Inc se réserve le droit de modifier les présentes mentions légales à tout moment. Les modifications entreront en vigueur dès leur publication. Il est conseillé de consulter régulièrement cette page." />
+
+                <Label wrapText="true"
+                       style="-fx-text-fill: #666666; -fx-font-size: 11px;"
+                       text="Dernière mise à jour : 9 Février 2026" />
+
+                <!-- Version -->
+                <Separator />
+                <Label fx:id="versionLabel"
+                       wrapText="true"
+                       style="-fx-text-fill: #666666; -fx-font-size: 11px;"
+                       text="Version de l’application : [0.1.0] • Dernière mise à jour : [YYYY-MM-DD]" />
+            </VBox>
+        </content>
+    </ScrollPane>
+
+    <!-- Actions -->
+    <HBox alignment="CENTER_RIGHT" spacing="12">
+<!--        <Button fx:id="returnButton"-->
+<!--                onAction="#handleReturn"-->
+<!--                style="-fx-background-color: transparent;-->
+<!--                       -fx-border-color: #980b0b;-->
+<!--                       -fx-border-width: 2;-->
+<!--                       -fx-border-radius: 4;-->
+<!--                       -fx-cursor: hand;"-->
+<!--                text="Retour à la connexion">-->
+<!--            <font>-->
+<!--                <Font size="12" />-->
+<!--            </font>-->
+<!--        </Button>-->
+
+
+        <!-- Bouton Retour -->
+        <Button fx:id="returnButton"
+                alignment="CENTER"
+                contentDisplay="CENTER"
+                onAction="#handleReturn"
+                prefHeight="35.0"
+                prefWidth="200.0"
+                style="-fx-background-color: transparent;
+                       -fx-border-color: #980b0b;
+                       -fx-border-width: 2;
+                       -fx-border-radius: 4;
+                       -fx-cursor: hand;"
+                text="Retour à la connexion"
+                textFill="#980b0b">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Button>
+
+        <Button fx:id="closeButton"
+                text="Fermer"
+                onAction="#handleClose"
+                style="-fx-background-color: #980b0b;
+                       -fx-text-fill: white;
+                       -fx-background-radius: 4;
+                       -fx-cursor: hand;
+                       -fx-padding: 10 20;">
+
+            <font>
+                <Font size="12" />
+            </font>
+            <effect>
+                <DropShadow radius="10.0">
+                    <color>
+                        <Color red="0.60" green="0.05" blue="0.05" opacity="0.35" />
+                    </color>
+                </DropShadow>
+            </effect>
+        </Button>
+    </HBox>
+
+</VBox>

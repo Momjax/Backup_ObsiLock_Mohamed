@@ -121,11 +121,10 @@ class DownloadLog
                 LIMIT :limit OFFSET :offset";
 
         $stmt = $this->db->pdo->prepare($sql);
-        $stmt->execute([
-            'user_id' => $userId,
-            'limit' => $limit,
-            'offset' => $offset
-        ]);
+        $stmt->bindValue(':user_id', $userId, \PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+        $stmt->execute();
 
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }

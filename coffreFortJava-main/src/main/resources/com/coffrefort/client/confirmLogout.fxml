@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox prefHeight="220"
+      prefWidth="420"
+      spacing="15"
+      style="-fx-background-color: #E5E5E5; -fx-background-radius: 8;"
+      xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.coffrefort.client.controllers.ConfirmLogoutController">
+
+    <padding>
+        <Insets bottom="20"
+                left="25"
+                right="25"
+                top="20" />
+    </padding>
+
+    <!-- En-tête -->
+    <HBox spacing="12">
+        <!-- Bande rouge avec icône -->
+        <VBox alignment="CENTER"
+              prefWidth="48"
+              style="-fx-background-color: #980b0b; -fx-background-radius: 8;">
+            <padding>
+                <Insets bottom="10"
+                        left="10"
+                        right="10"
+                        top="10" />
+            </padding>
+
+            <Text fill="white"
+                  style="-fx-font-size: 24px;"
+                  text="🚪" />
+        </VBox>
+
+        <!-- Titre + sous-titre -->
+        <VBox alignment="CENTER_LEFT"
+              spacing="4">
+            <Text fill="#980b0b"
+                  style="-fx-font-weight: bold; -fx-font-size: 18px;"
+                  text="Confirmer la déconnexion" />
+
+            <Text fill="#666666"
+                  style="-fx-font-size: 11px;"
+                  text="Vous allez être déconnecté de CryptoVault." />
+        </VBox>
+    </HBox>
+
+    <Separator>
+        <VBox.margin>
+            <Insets bottom="5" top="10" />
+        </VBox.margin>
+    </Separator>
+
+    <!-- Zone de message -->
+    <VBox spacing="8">
+        <Label fx:id="infoLabel"
+               alignment="CENTER"
+               prefHeight="17.0"
+               prefWidth="369.0"
+               style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+               text="Voulez-vous vraiment vous déconnecter ? "
+               textAlignment="CENTER"
+               wrapText="true" />
+      <Label fx:id="infoLabel1"
+             alignment="CENTER"
+             layoutX="10.0"
+             layoutY="10.0"
+             prefHeight="17.0"
+             prefWidth="370.0"
+             style="-fx-text-fill: #333333; -fx-font-size: 12px;"
+             text=" Toutes les opérations en cours seront interrompues."
+             textAlignment="CENTER"
+             wrapText="true" />
+    </VBox>
+
+    <Region VBox.vgrow="ALWAYS" />
+
+    <!-- Boutons d'action -->
+    <HBox alignment="CENTER_RIGHT"
+          spacing="12">
+        <Button fx:id="cancelButton"
+                cancelButton="true"
+                onAction="#handleCancel"
+                style="-fx-background-color: #cccccc;
+                        -fx-text-fill: #333333;
+                        -fx-background-radius: 4;
+                        -fx-cursor: hand;
+                        -fx-padding: 8 20;"
+                text="Annuler">
+            <font>
+                <Font size="12" />
+            </font>
+        </Button>
+
+        <Button fx:id="confirmButton"
+                defaultButton="true"
+                onAction="#handleConfirm"
+                style="-fx-background-color: #980b0b;
+                        -fx-text-fill: white;
+                        -fx-background-radius: 4;
+                        -fx-cursor: hand;
+                        -fx-padding: 8 24;
+                        -fx-font-weight: bold;"
+                text="Se déconnecter">
+            <font>
+                <Font size="12" />
+            </font>
+            <effect>
+                <DropShadow radius="10.0">
+                    <color>
+                        <Color red="0.6"
+                               green="0.04"
+                               blue="0.04"
+                               opacity="0.4" />
+                    </color>
+                </DropShadow>
+            </effect>
+        </Button>
+    </HBox>
+
+</VBox>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="600"
+      prefWidth="800"
+      spacing="15"
+      style="-fx-background-color: #E5E5E5; -fx-background-radius: 8;"
+      xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.coffrefort.client.controllers.QuotaManagementController">
+
+    <padding>
+        <Insets bottom="20" left="25" right="25" top="20"/>
+    </padding>
+
+    <!-- En-tête -->
+    <HBox spacing="12">
+        <!-- Bande rouge avec icône -->
+        <VBox alignment="CENTER"
+              prefWidth="48"
+              style="-fx-background-color: #980b0b; -fx-background-radius: 8;">
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="10"/>
+            </padding>
+            <Text text="👥"
+                  fill="white"
+                  style="-fx-font-size: 24px;"/>
+        </VBox>
+
+        <!-- Titre + sous-titre -->
+        <VBox alignment="CENTER_LEFT" spacing="4" HBox.hgrow="ALWAYS">
+            <Text text="Gestion des quotas utilisateurs"
+                  fill="#980b0b"
+                  style="-fx-font-weight: bold; -fx-font-size: 18px;"/>
+
+            <Text text="Modifier les limites de stockage pour chaque utilisateur"
+                  fill="#666666"
+                  style="-fx-font-size: 12px;"/>
+        </VBox>
+    </HBox>
+
+    <Separator>
+        <VBox.margin>
+            <Insets bottom="5" top="10"/>
+        </VBox.margin>
+    </Separator>
+
+    <!-- Barre de recherche -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField"
+                   promptText="Rechercher un utilisateur par email..."
+                   HBox.hgrow="ALWAYS"
+                   style="-fx-font-size: 13px; -fx-padding: 8;">
+        </TextField>
+
+        <Button fx:id="searchButton"
+                text="🔍 Rechercher"
+                onAction="#handleSearch"
+                style="-fx-background-color: #980b0b;
+                       -fx-text-fill: white;
+                       -fx-background-radius: 4;
+                       -fx-cursor: hand;
+                       -fx-padding: 8 16;">
+            <font><Font size="12"/></font>
+        </Button>
+
+        <Button fx:id="refreshButton"
+                text="🔄 Actualiser"
+                onAction="#handleRefresh"
+                style="-fx-background-color: #666666;
+                       -fx-text-fill: white;
+                       -fx-background-radius: 4;
+                       -fx-cursor: hand;
+                       -fx-padding: 8 16;">
+            <font><Font size="12"/></font>
+        </Button>
+    </HBox>
+
+    <!-- Table des utilisateurs -->
+    <TableView fx:id="usersTable"
+               prefHeight="400"
+               VBox.vgrow="ALWAYS"
+               style="-fx-background-radius: 6;
+                      -fx-border-radius: 6;
+                      -fx-border-color: #cccccc;">
+
+        <columns>
+            <TableColumn fx:id="idCol" text="ID" prefWidth="50"/>
+<!--            <TableColumn fx:id="usernameCol" text="Nom d'utilisateur" prefWidth="150"/>-->
+            <TableColumn fx:id="emailCol" text="Email" prefWidth="200"/>
+            <TableColumn fx:id="quotaUsedCol" text="Espace utilisé" prefWidth="150"/>
+            <TableColumn fx:id="quotaMaxCol" text="Quota total" prefWidth="150"/>
+            <TableColumn fx:id="percentCol" text=" % " prefWidth="80"/>
+            <TableColumn fx:id="roleCol" text="Rôle" prefWidth="80"/>
+        </columns>
+
+        <placeholder>
+            <VBox alignment="CENTER" spacing="8">
+                <Text text="Aucun utilisateur trouvé"
+                      fill="#999999"
+                      style="-fx-font-size: 13px;"/>
+                <Text text="Cliquez sur 'Actualiser' pour charger la liste"
+                      fill="#cccccc"
+                      style="-fx-font-size: 12px;"/>
+            </VBox>
+        </placeholder>
+
+        <effect>
+            <DropShadow height="5" offsetX="1" offsetY="1" radius="2" width="5">
+                <color>
+                    <Color red="0.8" green="0.8" blue="0.8" opacity="0.30"/>
+                </color>
+            </DropShadow>
+        </effect>
+    </TableView>
+
+    <!-- Message d'information -->
+    <Label fx:id="infoLabel"
+           visible="false"
+           managed="false"
+           wrapText="true"
+           style="-fx-background-color: #e3f2fd;
+                  -fx-text-fill: #0d47a1;
+                  -fx-padding: 10;
+                  -fx-background-radius: 6;
+                  -fx-font-size: 12px;"
+           text="Information"/>
+
+    <!-- Boutons d'action -->
+    <HBox alignment="CENTER" spacing="12">
+        <Button fx:id="modifyQuotaButton"
+                text="✏️ Modifier le quota"
+                onAction="#handleModifyQuota"
+                disable="true"
+                style="-fx-background-color: #980b0b;
+                       -fx-text-fill: white;
+                       -fx-background-radius: 4;
+                       -fx-cursor: hand;
+                       -fx-padding: 10 20;
+                       -fx-font-weight: bold;">
+            <font><Font size="12"/></font>
+            <effect>
+                <DropShadow radius="10.0">
+                    <color>
+                        <Color red="0.60" green="0.05" blue="0.05" opacity="0.35"/>
+                    </color>
+                </DropShadow>
+            </effect>
+        </Button>
+
+        <Button fx:id="closeButton"
+                text="Fermer"
+                onAction="#handleClose"
+                style="-fx-background-color: #cccccc;
+                       -fx-text-fill: #333333;
+                       -fx-background-radius: 4;
+                       -fx-cursor: hand;
+                       -fx-padding: 10 20;">
+            <font><Font size="12"/></font>
+        </Button>
+    </HBox>
+</VBox>
