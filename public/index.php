@@ -200,6 +200,20 @@ $app->get('/s/{token}', [$shareController, 'getPublicMetadata']);
 $app->post('/s/{token}/download', [$shareController, 'downloadPublic']);
 $app->get('/s/{token}/download', [$shareController, 'downloadPublic']);
 
+// Page web de téléchargement partagé (PUBLIC)
+$app->get('/share', function ($request, $response) {
+    $params = $request->getQueryParams();
+    $token = $params['token'] ?? '';
+    $file = __DIR__ . '/ui/share.html';
+    if (file_exists($file)) {
+        $html = file_get_contents($file);
+        $response->getBody()->write($html);
+        return $response->withHeader('Content-Type', 'text/html; charset=UTF-8');
+    }
+    $response->getBody()->write('<h1>Page introuvable</h1>');
+    return $response->withStatus(404)->withHeader('Content-Type', 'text/html');
+});
+
 // ============================================
 // ROUTES JOUR 4 - Versioning
 // ============================================

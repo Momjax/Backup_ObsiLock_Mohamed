@@ -28,8 +28,8 @@ class SecurityHeadersMiddleware
             // Force HTTPS (strict transport security)
             ->withHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
             
-            // Content Security Policy (sécurité renforcée)
-            ->withHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'")
+            // Content Security Policy - permissif pour les pages HTML publiques
+            ->withHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data:; connect-src *; frame-ancestors 'none'")
             
             // Politique de référent (ne pas envoyer l'URL complète)
             ->withHeader('Referrer-Policy', 'strict-origin-when-cross-origin')

@@ -91,22 +91,15 @@
                textAlignment="CENTER"
                wrapText="true" />
 
-        <!-- Champ destinataire -->
-        <VBox spacing="6">
-            <Label style="-fx-text-fill: white;
-                    -fx-font-size: 12px;
-                    -fx-font-weight: bold;"
-                   text="Destinataire (email ou nom d'utilisateur)">
-            <VBox.margin>
-               <Insets top="4.0" />
-            </VBox.margin></Label>
-            <TextField fx:id="recipientField"
-                       promptText="ex: alice@domaine.com"
-                       style="-fx-background-radius: 6;
-                            -fx-padding: 8 10;
-                            -fx-border-radius: 6;
-                            " />
-        </VBox>
+        <!-- Infos partage -->
+        <Label alignment="CENTER"
+               prefWidth="410"
+               style="-fx-text-fill: #9499a1;
+                    -fx-font-size: 12px;"
+               text="Un lien de téléchargement sécurisé va être généré.
+Copie-le et envoie-le à la personne de ton choix."
+               textAlignment="CENTER"
+               wrapText="true" />
 
         <!-- Choix des options : expiration et max_uses -->
         <HBox spacing="12">

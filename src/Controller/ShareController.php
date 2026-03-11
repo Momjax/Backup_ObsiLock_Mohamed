@@ -113,7 +113,7 @@ class ShareController
 
         // Générer l'URL publique
         $baseUrl = getenv('APP_URL') ?: 'http://api.obsilock.iris.a3n.fr:8080';
-        $publicUrl = $baseUrl . '/s/' . $share['token'];
+        $publicUrl = $baseUrl . '/share?token=' . $share['token'];
 
         $response->getBody()->write(json_encode([
             'id' => $share['id'],
