@@ -56,9 +56,18 @@ C'est l'interface avec laquelle l'utilisateur final interagit. Le code source es
 L'interface JavaFX originale était très classique (fond gris/blanc, boutons rouges). Vous avez proposé une maquette très moderne ("Cyber" sombre avec des accents vert fluo).
 *   **Fichiers FXML** : Les vues principales `main.fxml` (le dashboard complet avec l'arborescence, la table des fichiers, la barre de quota) et `login2.fxml` (l'écran de connexion) ont été réécrites.
 *   Nous avons remplacé les attributs CSS JavaFX (`-fx-background-color: #E5E5E5;`) par les teintes Cyber Dark (`#121417`, `#1c1f23`) et l'accent vert primaire (`#94E01E`), donnant au client lourd une finition premium, tout en supprimant les bordures ou ombrages inutiles (design "Flat").
+*   **Composants Avancés (Feuille de style externe)** : Les composants complexes comme la `TreeView` (arborescence des dossiers) et la `TableView` (liste des fichiers) nécessitant une personnalisation plus profonde, ont été intégralement stylisés via un fichier CSS dédié (`style-javafx.css`) pour retirer les fonds blancs d'origine de Swing/JavaFX.
 
 ### B. Consommation de l'API (HTTP Client)
 Le client Java requiert une classe `ApiClient.java` qui utilise la librairie interne `java.net.http.HttpClient` pour émettre les requêtes (GET, POST, DELETE) vers votre domaine distant. C'est cette classe qui gère l'injection du JWT dans les requêtes pour prouver l'identité de l'utilisateur.
+
+---
+
+## 5. Résolution des Derniers Bugs (Mise en production)
+Lors du branchement du client JavaFX sur l'API de production en direct, plusieurs ajustements ont été effectués pour assurer une parfaite cohésion :
+1. **Parser du Token JWT** : Le backend renvoyait le token dans une clé JSON `"token"`, tandis que le client Java cherchait `"jwt"`. L'`ApiClient.java` a été corrigé.
+2. **Affichage du Quota** : La barre de progression (Espace utilisé) affichait "0 B", car le parseur cherchait `"used_bytes"` alors que l'API renvoie `"used"` et `"total"`. Ceci a été fixé et la barre fonctionne et change de couleur (verte, orange, rouge) selon le ratio d'utilisation.
+3. **NullPointerException (Écran login)** : Disparition de certains `Labels` de statut entraînant un crash applicatif lors du clic sur le bouton de connexion. La vue `login2.fxml` a été restaurée en ajoutant le composant manquant.
 
 ---
 
@@ -67,4 +76,4 @@ Le client Java requiert une classe `ApiClient.java` qui utilise la librairie int
 1. **"J'ai opté pour un chiffrement en flux (streaming) avec LibSodium pour optimiser les performances RAM de mon serveur, me permettant de traiter d'énormes fichiers sans ralentissements."**
 2. **"L'application est totalement découplée. J'ai un client lourd autonome en JavaFX et une API Backend autonome en PHP, communicant de manière sécurisée et "stateless" grâce aux JWT."**
 3. **"L'ensemble du back-end est isolé sous Docker, ce qui permet un déploiement instantané (Continuous Deployment) sans problème de "ça marche sur ma machine mais pas en prod"."**
-4. **"J'ai soigné l'UX et l'UI du client lourd, en utilisant directement les contraintes et possibilités graphiques de JavaFX (FXML) pour avoir un thème dark immersif sans recourir à des solutions web hybrides."**
+4. **"J'ai soigné l'UX et l'UI du client lourd, en utilisant directement les contraintes et possibilités graphiques de JavaFX (FXML) et une feuille CSS personnalisée pour avoir un thème dark immersif sans recourir à des solutions web hybrides."**
