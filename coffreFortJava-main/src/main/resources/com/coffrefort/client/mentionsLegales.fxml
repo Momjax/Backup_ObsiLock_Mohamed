@@ -19,7 +19,7 @@
 <VBox prefHeight="650"
       prefWidth="720"
       spacing="15"
-      style="-fx-background-color: #121417; -fx-background-radius: 8;"
+      style="-fx-background-color: #0d1117; -fx-background-radius: 8;"
       stylesheets="@style-javafx.css"
             xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -34,7 +34,7 @@
         <!-- Bande rouge avec icône -->
         <VBox alignment="CENTER"
               prefWidth="48"
-              style="-fx-background-color: #94E01E; -fx-background-radius: 8;">
+              style="-fx-background-color: #2ecc71; -fx-background-radius: 8;">
             <padding>
                 <Insets bottom="10" left="10" right="10" top="10" />
             </padding>
@@ -43,7 +43,7 @@
 
         <!-- Titre -->
         <VBox alignment="CENTER_LEFT" spacing="4" HBox.hgrow="ALWAYS">
-            <Text fill="#94E01E" style="-fx-font-weight: bold; -fx-font-size: 18px;" text="Mentions légales" />
+            <Text fill="#2ecc71" style="-fx-font-weight: bold; -fx-font-size: 18px;" text="Mentions légales" />
             <Text fill="#9499a1" style="-fx-font-size: 12px;" text="Application CryptoVault" />
         </VBox>
 
@@ -85,7 +85,7 @@
                 <!-- ========================= -->
                 <!-- INFORMATIONS LÉGALES -->
                 <!-- ========================= -->
-                <Text fill="#94E01E"
+                <Text fill="#2ecc71"
                       style="-fx-font-weight: bold; -fx-font-size: 14px;"
                       text="Informations légales" />
 
@@ -95,7 +95,7 @@
                              -fx-background-radius: 8;
                              -fx-padding: 12;
                              -fx-border-radius: 8;">
-                    <Text fill="#94E01E"
+                    <Text fill="#2ecc71"
                           style="-fx-font-weight: bold; -fx-font-size: 13px;"
                           text="Éditeur de l’application" />
 
@@ -121,7 +121,7 @@
                              -fx-background-radius: 8;
                              -fx-padding: 12;
                              -fx-border-radius: 8;">
-                    <Text fill="#94E01E"
+                    <Text fill="#2ecc71"
                           style="-fx-font-weight: bold; -fx-font-size: 13px;"
                           text="Siège social" />
 
@@ -141,7 +141,7 @@
                              -fx-background-radius: 8;
                              -fx-padding: 12;
                              -fx-border-radius: 8;">
-                    <Text fill="#94E01E"
+                    <Text fill="#2ecc71"
                           style="-fx-font-weight: bold; -fx-font-size: 13px;"
                           text="Contact" />
 
@@ -164,7 +164,7 @@
                 <!-- ========================= -->
                 <!-- HÉBERGEMENT -->
                 <!-- ========================= -->
-                <Text fill="#94E01E"
+                <Text fill="#2ecc71"
                       style="-fx-font-weight: bold; -fx-font-size: 14px;"
                       text="Hébergement" />
 
@@ -173,7 +173,7 @@
                              -fx-background-radius: 8;
                              -fx-padding: 12;
                              -fx-border-radius: 8;">
-                    <Text fill="#94E01E"
+                    <Text fill="#2ecc71"
                           style="-fx-font-weight: bold; -fx-font-size: 13px;"
                           text="Informations hébergeur" />
 
@@ -200,7 +200,7 @@
                 <!-- ========================= -->
                 <!-- PROPRIÉTÉ INTELLECTUELLE -->
                 <!-- ========================= -->
-                <Text fill="#94E01E"
+                <Text fill="#2ecc71"
                       style="-fx-font-weight: bold; -fx-font-size: 14px;"
                       text="Propriété intellectuelle" />
 
@@ -214,12 +214,12 @@
                              -fx-background-radius: 8;
                              -fx-padding: 12;
                              -fx-border-radius: 8;">
-                    <Text fill="#94E01E"
+                    <Text fill="#2ecc71"
                           style="-fx-font-weight: bold; -fx-font-size: 13px;"
                           text="⚠ Interdictions strictes" />
 
                     <Label wrapText="true"
-                           style="-fx-text-fill: #94E01E; -fx-font-size: 12px; -fx-font-weight: bold;"
+                           style="-fx-text-fill: #2ecc71; -fx-font-size: 12px; -fx-font-weight: bold;"
                            text="Toute reproduction, représentation, modification, publication ou adaptation, totale ou partielle, est strictement interdite sauf autorisation écrite préalable de CryptoVault Inc." />
 
                     <Label wrapText="true"
@@ -230,7 +230,7 @@
                 <!-- ========================= -->
                 <!-- DONNÉES PERSONNELLES -->
                 <!-- ========================= -->
-                <Text fill="#94E01E"
+                <Text fill="#2ecc71"
                       style="-fx-font-weight: bold; -fx-font-size: 14px;"
                       text="Protection des données personnelles (RGPD)" />
 
@@ -240,14 +240,14 @@
                              -fx-padding: 12;
                              -fx-border-radius: 8;">
 
-                    <Text fill="#94E01E"
+                    <Text fill="#2ecc71"
                           style="-fx-font-weight: bold; -fx-font-size: 13px;"
                           text="Responsable du traitement" />
                     <Label wrapText="true"
                            style="-fx-text-fill: white; -fx-font-size: 12px;"
                            text="CryptoVault Inc est responsable du traitement des données personnelles collectées et traitées dans le cadre de l’utilisation de l’application." />
 
-                    <Text fill="#94E01E"
+                    <Text fill="#2ecc71"
                           style="-fx-font-weight: bold; -fx-font-size: 13px;"
                           text="Données collectées" />
 
@@ -260,7 +260,7 @@
                            text="✓ Données d’identification des utilisateurs (email, rôle)&#10;✓ Données de connexion et d’utilisation (logs techniques)&#10;✓ Métadonnées et historique liés au stockage, au partage et aux téléchargements&#10;" />
                 </VBox>
 
-                <Text fill="#94E01E" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Finalités du traitement" />
+                <Text fill="#2ecc71" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Finalités du traitement" />
                 <Label wrapText="true"
                        style="-fx-text-fill: white; -fx-font-size: 12px;"
                        text="Les données personnelles collectées sont utilisées pour :" />
@@ -268,7 +268,7 @@
                        style="-fx-text-fill: white; -fx-font-size: 12px;"
                        text="• La gestion des comptes et l’authentification&#10;• Le stockage, l’organisation et le partage de fichiers&#10;• La sécurité de la plateforme (prévention fraude/bruteforce, traçabilité)&#10;• Le support et la maintenance&#10;• Le respect des obligations légales et réglementaires" />
 
-                <Text fill="#94E01E" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Base légale" />
+                <Text fill="#2ecc71" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Base légale" />
                 <Label wrapText="true"
                        style="-fx-text-fill: white; -fx-font-size: 12px;"
                        text="Le traitement des données personnelles est fondé sur :" />
@@ -276,7 +276,7 @@
                        style="-fx-text-fill: white; -fx-font-size: 12px;"
                        text="• L’exécution d’un contrat (fourniture du service)&#10;• L’intérêt légitime de CryptoVault Inc (sécurité, amélioration du service)&#10;• Le respect d’obligations légales (conservation de certains logs, le cas échéant)" />
 
-                <Text fill="#94E01E" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Durée de conservation" />
+                <Text fill="#2ecc71" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Durée de conservation" />
                 <Label wrapText="true"
                        style="-fx-text-fill: white; -fx-font-size: 12px;"
                        text="Les données sont conservées pendant la durée nécessaire aux finalités pour lesquelles elles ont été collectées :" />
@@ -287,21 +287,21 @@
                 <!-- ========================= -->
                 <!-- RESPONSABILITÉ -->
                 <!-- ========================= -->
-                <Text fill="#94E01E"
+                <Text fill="#2ecc71"
                       style="-fx-font-weight: bold; -fx-font-size: 14px;"
                       text="Responsabilité et garanties" />
 
-                <Text fill="#94E01E" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Disponibilité du service" />
+                <Text fill="#2ecc71" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Disponibilité du service" />
                 <Label wrapText="true"
                        style="-fx-text-fill: white; -fx-font-size: 12px;"
                        text="CryptoVault Inc s’efforce d’assurer au mieux la disponibilité du service. Cependant, aucune disponibilité de 100% ne peut être garantie, et CryptoVault Inc ne saurait être tenue responsable des interruptions, programmées ou non." />
 
-                <Text fill="#94E01E" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Exactitude des informations" />
+                <Text fill="#2ecc71" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Exactitude des informations" />
                 <Label wrapText="true"
                        style="-fx-text-fill: white; -fx-font-size: 12px;"
                        text="CryptoVault Inc s’efforce de fournir des informations exactes et à jour. Toutefois, l’exactitude, la précision et l’exhaustivité des informations mises à disposition ne peuvent être garanties." />
 
-                <Text fill="#94E01E" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Limitation de responsabilité" />
+                <Text fill="#2ecc71" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Limitation de responsabilité" />
                 <Label wrapText="true"
                        style="-fx-text-fill: white; -fx-font-size: 12px;"
                        text="CryptoVault Inc ne pourra être tenue responsable des dommages directs ou indirects causés au matériel de l’utilisateur lors de l’accès au service, et résultant soit de l’utilisation d’un matériel ne répondant pas aux spécifications requises, soit de l’apparition d’un bug ou d’une incompatibilité." />
@@ -309,7 +309,7 @@
                 <!-- ========================= -->
                 <!-- SÉCURITÉ -->
                 <!-- ========================= -->
-                <Text fill="#94E01E"
+                <Text fill="#2ecc71"
                       style="-fx-font-weight: bold; -fx-font-size: 14px;"
                       text="Sécurité" />
 
@@ -327,7 +327,7 @@
                 <!-- ========================= -->
                 <!-- DROIT APPLICABLE -->
                 <!-- ========================= -->
-                <Text fill="#94E01E"
+                <Text fill="#2ecc71"
                       style="-fx-font-weight: bold; -fx-font-size: 14px;"
                       text="Droit applicable et juridiction" />
 
@@ -338,7 +338,7 @@
                 <!-- ========================= -->
                 <!-- CONTACT / RÉCLAMATIONS -->
                 <!-- ========================= -->
-                <Text fill="#94E01E"
+                <Text fill="#2ecc71"
                       style="-fx-font-weight: bold; -fx-font-size: 14px;"
                       text="Contact et réclamations" />
 
@@ -361,7 +361,7 @@
                 <!-- ========================= -->
                 <!-- MODIFICATIONS -->
                 <!-- ========================= -->
-                <Text fill="#94E01E"
+                <Text fill="#2ecc71"
                       style="-fx-font-weight: bold; -fx-font-size: 14px;"
                       text="Modifications" />
 
@@ -411,7 +411,7 @@
                        -fx-border-radius: 4;
                        -fx-cursor: hand;"
                 text="Retour à la connexion"
-                textFill="#980b0b">
+                textFill="#ff4757">
             <font>
                 <Font size="14.0" />
             </font>
@@ -420,7 +420,7 @@
         <Button fx:id="closeButton"
                 text="Fermer"
                 onAction="#handleClose"
-                style="-fx-background-color: #94E01E;
+                style="-fx-background-color: #2ecc71;
 -fx-text-fill: black;
                        -fx-background-radius: 4;
                        -fx-cursor: hand;

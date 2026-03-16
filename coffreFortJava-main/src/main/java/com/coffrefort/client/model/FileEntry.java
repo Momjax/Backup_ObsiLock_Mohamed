@@ -19,18 +19,22 @@ public class FileEntry {
     @JsonProperty("updated_at")
     private String updatedAt;
 
+    @JsonProperty("current_version")
+    private int version;
+
     public FileEntry(){}
 
-    public FileEntry(int id, String name, long size, String createdAt, String updatedAt) {
+    public FileEntry(int id, String name, long size, String createdAt, String updatedAt, int version) {
         this.id = id;
         this.name = name;
         this.size = size;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.version = version;
     }
 
-    public static FileEntry of(int id, String name, long size, String createdAt, String updatedAt) {
-        return new FileEntry(id, name, size, createdAt, updatedAt);
+    public static FileEntry of(int id, String name, long size, String createdAt, String updatedAt, int version) {
+        return new FileEntry(id, name, size, createdAt, updatedAt, version);
     }
 
     public int getId() { return id; }
@@ -39,13 +43,16 @@ public class FileEntry {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
+    public int getVersion() { return version; }
+    public void setVersion(int version) { this.version = version; }
+
     public long getSize() { return size; }
     public void setSize(long size) { this.size = size; }
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
-    public String getUpdatedAt() { return createdAt; }
+    public String getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 
     public String getFormattedSize() {
@@ -58,7 +65,7 @@ public class FileEntry {
     }
 
     public String getUpdatedAtFormatted() {
-        return createdAt != null ? createdAt : "";
+        return updatedAt != null ? updatedAt : (createdAt != null ? createdAt : "");
     }
 
     @Override

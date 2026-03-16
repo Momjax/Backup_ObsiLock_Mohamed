@@ -4,168 +4,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ObsiLock - Votre Coffre-Fort Numérique Sécurisé</title>
-    <link rel="stylesheet" href="css/style.css?v=2">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>ObsiLock — Connexion</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #1a1a1a;
+            --card-bg: #232323;
+            --primary: #2ecc71;
+            --text: #ffffff;
+            --muted: #9499a1;
+            --border: #333333;
+            --input-bg: #2c2c2c;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 48px 40px;
+            width: 380px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: up .4s ease;
+        }
+
+        @keyframes up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .logo-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .logo-wrap img {
+            width: 90px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: .5px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1.35;
+            margin-bottom: 32px;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        input::placeholder {
+            color: var(--muted);
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: transform .15s, box-shadow .15s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, .35);
+        }
+
+        .links {
+            margin-top: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .links a {
+            color: var(--muted);
+            font-size: 0.88rem;
+            text-decoration: none;
+            transition: color .15s;
+        }
+
+        .links a:hover {
+            color: var(--primary);
+        }
+
+        .error-msg {
+            background: rgba(255, 71, 87, .1);
+            border: 1px solid rgba(255, 71, 87, .3);
+            color: #ff4757;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: .85rem;
+            margin-bottom: 14px;
+            display: none;
+            text-align: left;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="app">
-        <!-- ÉCRAN D'AUTHENTIFICATION -->
-        <div id="auth-screen" class="auth-container">
-            <div class="auth-card fade-in">
-
-                <div class="shield-logo">
-                    <!-- SVG icon for shield -->
-                    <svg width="80" height="100" viewBox="0 0 24 24" fill="none" stroke="#a2d121" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        <rect x="8" y="11" width="8" height="6" rx="1" fill="#1c1f23"></rect>
-                        <path d="M10 11V9a2 2 0 1 1 4 0v2"></path>
-                    </svg>
-                </div>
-
-                <div class="brand-name">ObsiLock</div>
-
-                <h2>Connexion à votre<br>espace sécurisé</h2>
-
-                <form id="login-form">
-                    <div class="form-group">
-                        <input type="email" id="email" name="email" placeholder="Email" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="password" name="password" placeholder="Mot de Passe" required>
-                    </div>
-                    <button type="submit" class="btn-login">Se Connecter</button>
-                </form>
-
-                <div class="auth-links">
-                    <a href="#">Mot de passe oublié ?</a>
-                    <a href="#" style="margin-top: 1.5rem;">Créer un compte</a>
-                </div>
-            </div>
+    <div class="card">
+        <div class="logo-wrap">
+            <img src="logo.png" alt="ObsiLock">
+            <span class="brand">ObsiLock</span>
         </div>
 
-        <!-- ÉCRAN DASHBOARD -->
-        <div id="dashboard-screen" class="dashboard hidden">
-            <!-- Sidebar -->
-            <aside class="sidebar">
-                <div class="side-logo">
-                    <svg width="40" height="50" viewBox="0 0 24 24" fill="none" stroke="#a2d121" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        <path d="M10 11V9a2 2 0 1 1 4 0v2"></path>
-                    </svg>
-                </div>
-                <div class="nav-icons">
-                    <div class="nav-icon active" title="Dossiers">📁</div>
-                    <div class="nav-icon" title="Mes Fichiers">📄</div>
-                    <div class="nav-icon" title="Partages">🔗</div>
-                </div>
-                <div style="flex-grow: 1;"></div>
-                <div class="nav-icon" title="Paramètres">⚙️</div>
-                <div class="nav-icon" id="logout-btn" title="Déconnexion">🚪</div>
-            </aside>
+        <h2>Connexion à votre<br>espace sécurisé</h2>
 
-            <!-- Main Content -->
-            <main class="main-content">
-                <div class="content-header">
-                    <h1 style="font-size: 2rem; font-weight: 500;">DashBoard</h1>
-                    <div class="search-bar">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" placeholder="Rechercher">
-                    </div>
-                </div>
+        <div class="error-msg" id="err"></div>
 
-                <div class="dashboard-grid">
-                    <!-- Section Dossiers -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div>
-                                <div class="card-title">Dossier</div>
-                                <div class="card-subtitle" id="folder-count">0 dossiers</div>
-                            </div>
-                        </div>
-                        <div class="items-row" id="folder-list">
-                            <!-- JS will populate folders -->
-                        </div>
-                        <button class="btn-add" id="new-folder-btn">Ajouter un nouveau dossier</button>
-                    </div>
+        <form id="login-form">
+            <div class="form-group">
+                <input type="email" id="email" placeholder="Email" required autocomplete="email">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Mot de Passe" required
+                    autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn-submit" id="btn-submit">Se Connecter</button>
+        </form>
 
-                    <!-- Section Fichiers -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div>
-                                <div class="card-title">Fichier</div>
-                                <div class="card-subtitle" id="file-count">0 fichiers</div>
-                            </div>
-                        </div>
-                        <div class="items-row" id="file-list">
-                            <!-- JS will populate files -->
-                        </div>
-                        <button class="btn-add" id="upload-btn">Ajouter un nouveau fichier</button>
-                        <input type="file" id="file-input" class="hidden">
-                    </div>
-
-                    <!-- Activité -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Activité récente</div>
-                        </div>
-                        <div class="activity-list" id="activity-list"
-                            style="color: var(--text-muted); font-size: 0.9rem;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom: 1rem;">
-                                <span>📁 Projet ouvert</span> <span>15h32</span>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; margin-bottom: 1rem;">
-                                <span>📄 Fichier déplacé</span> <span>14h58</span>
-                            </div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span>🗑 Élément supprimé</span> <span>13h20</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Partages / Envois -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Consulter mes envois <span
-                                    style="color:var(--primary-color);">🔗</span></div>
-                        </div>
-                        <div class="items-row">
-                            <!-- Placeholder -->
-                            <div class="thumb-item">
-                                <div class="thumb-icon">📁</div>
-                                <div class="thumb-name">Projet X</div>
-                            </div>
-                        </div>
-                        <button class="btn-add">Consulter</button>
-                    </div>
-                </div>
-
-                <!-- Footer Quota -->
-                <div class="quota-footer">
-                    <span id="quota-label">0go/1go</span>
-                    <div class="progress-container">
-                        <div class="progress-bar" id="quota-fill"></div>
-                    </div>
-                </div>
-
-                <div class="bottom-actions">
-                    <div class="action-label">Envoyer un dossier/fichier</div>
-                    <div class="upload-btns">
-                        <button class="btn-action">Envoyer un dossier</button>
-                        <button class="btn-action" onclick="document.getElementById('file-input').click()">Envoyer un
-                            fichier</button>
-                    </div>
-                </div>
-            </main>
+        <div class="links">
+            <a href="#">Mot de passe oublié ?</a>
+            <a href="#" id="go-register">Créer un compte</a>
         </div>
     </div>
 
-    <script src="js/app.js"></script>
+    <script>
+        const BASE = 'http://api.obsilock.iris.a3n.fr:8080';
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const err = document.getElementById('err');
+            const btn = document.getElementById('btn-submit');
+            err.style.display = 'none';
+            btn.textContent = 'Connexion...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    err.textContent = data.error || data.message || 'Identifiants invalides';
+                    err.style.display = 'block';
+                    btn.textContent = 'Se Connecter';
+                    btn.disabled = false;
+                    return;
+                }
+                const token = data.token || data.jwt;
+                localStorage.setItem('obsilock_token', token);
+                localStorage.setItem('obsilock_email', document.getElementById('email').value);
+                window.location.href = 'index.html';
+            } catch (e) {
+                err.textContent = 'Erreur réseau — Serveur inaccessible';
+                err.style.display = 'block';
+                btn.textContent = 'Se Connecter';
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('go-register').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Inscription à venir !');
+        });
+
+        // Si déjà connecté, rediriger
+        if (localStorage.getItem('obsilock_token')) {
+            window.location.href = 'index.html';
+        }
+    </script>
 </body>
 
 </html>

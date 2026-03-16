@@ -44,16 +44,21 @@ class RateLimitMiddleware
             return $timestamp > ($now - $this->timeWindow);
         });
         
-        // Vérifier la limite
         if (count($requests) >= $this->maxRequests) {
             // Calculer le temps restant avant reset
             $oldestRequest = min($requests);
             $retryAfter = ($oldestRequest + $this->timeWindow) - $now;
             
-            throw new HttpTooManyRequestsException(
-                $request,
-                "Rate limit exceeded. Try again in {$retryAfter} seconds."
-            );
+            $response = new \Slim\Psr7\Response();
+            $response->getBody()->write(json_encode([
+                'error' => 'Too Many Requests',
+                'message' => "Rate limit exceeded. Try again in {$retryAfter} seconds."
+            ]));
+            
+            return $response
+                ->withStatus(429)
+                ->withHeader('Content-Type', 'application/json')
+                ->withHeader('Retry-After', (string)$retryAfter);
         }
         
         // Ajouter la requête actuelle

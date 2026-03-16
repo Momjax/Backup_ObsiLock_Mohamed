@@ -81,8 +81,7 @@ public class App extends Application {
             stage.setTitle("Coffre-fort numérique — Connexion");
 
             //il faut redimensionner!! sinon il prend la taille de main.fxml
-            stage.setWidth(450);
-            stage.setHeight(650);
+            stage.sizeToScene();
             stage.setResizable(false);
             stage.centerOnScreen();
             stage.show();
@@ -128,8 +127,7 @@ public class App extends Application {
             stage.setTitle("Coffre-fort numérique — Inscription");
 
             //il faut redimensionner!!
-            stage.setWidth(420);
-            stage.setHeight(680);
+            stage.sizeToScene();
             stage.setResizable(false);
             stage.centerOnScreen();
             stage.show();

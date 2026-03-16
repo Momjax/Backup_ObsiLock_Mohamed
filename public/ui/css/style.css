@@ -5,7 +5,7 @@
     --bg-item: #212328;
     --bg-input: #1a1b1f;
     --border-color: #272930;
-    --primary: #94E01E;
+    --primary: #2ecc71;
     /* Neon lime green */
     --primary-hover: #a5f02c;
     --text-primary: #FFFFFF;
@@ -77,7 +77,7 @@ body {
 .brand-icon svg {
     width: 32px;
     height: 40px;
-    filter: drop-shadow(0 0 8px rgba(148, 224, 30, 0.4));
+    filter: drop-shadow(0 0 8px rgba(46, 204, 113, 0.4));
 }
 
 .brand-text {
@@ -272,7 +272,7 @@ body {
 }
 
 .item-box:hover {
-    background: rgba(148, 224, 30, 0.05);
+    background: rgba(46, 204, 113, 0.05);
 }
 
 .item-box svg {
@@ -360,8 +360,10 @@ body {
 }
 
 .quota-text {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
 }
 
 .quota-track {
@@ -376,7 +378,7 @@ body {
     height: 100%;
     background: var(--primary);
     width: 40%;
-    box-shadow: 0 0 10px rgba(148, 224, 30, 0.5);
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
 }
 
 /* Bottom Footer (Envoyer) */
@@ -455,8 +457,9 @@ body {
 }
 
 .data-table td {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     cursor: pointer;
+    color: var(--primary); /* Neon Lime for names/sizes */
 }
 
 .table-icon-name {

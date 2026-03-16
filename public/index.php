@@ -42,7 +42,7 @@ $fileRepo = new FileRepository($database);
 
 // Controllers
 $authController = new AuthController($userRepo, $jwtSecret);
-$folderController = new FolderController($folderRepo);
+$folderController = new FolderController($folderRepo, $userRepo);
 $fileController = new FileController($fileRepo, $userRepo, $uploadDir, $database);
 $shareController = new ShareController($database);
 
@@ -55,8 +55,8 @@ $app->addRoutingMiddleware();
 // Headers de sécurité HTTP
 $app->add(new \App\Middleware\SecurityHeadersMiddleware());
 
-// Rate limiting (100 requêtes par heure)
-$app->add(new \App\Middleware\RateLimitMiddleware(100, 3600));
+// Rate limiting (limite augmentée à 5000 pour le développement)
+$app->add(new \App\Middleware\RateLimitMiddleware(5000, 3600));
 // ==================================================
 
 // Middleware CORS simple
@@ -154,6 +154,8 @@ $app->get('/', function ($request, $response) {
             'POST /files/{id}/versions (auth)',
             'GET /files/{id}/versions (auth)',
             'GET /files/{id}/versions/{version}/download (auth)',
+            'PUT /files/{id} (auth)',
+            'PUT /folders/{id} (auth)',
         ]
     ], JSON_PRETTY_PRINT));
     return $response->withHeader('Content-Type', 'application/json');
@@ -167,6 +169,12 @@ $app->post('/auth/login', [$authController, 'login']);
 $app->get('/folders', [$folderController, 'list'])->add($authMiddleware);
 $app->post('/folders', [$folderController, 'create'])->add($authMiddleware);
 $app->delete('/folders/{id}', [$folderController, 'delete'])->add($authMiddleware);
+$app->put('/folders/{id}', [$folderController, 'rename'])->add($authMiddleware);
+
+// Corbeille Folders
+$app->get('/trash/folders', [$folderController, 'listTrash'])->add($authMiddleware);
+$app->post('/folders/{id}/restore', [$folderController, 'restore'])->add($authMiddleware);
+$app->delete('/folders/{id}/permanent', [$folderController, 'permanentDelete'])->add($authMiddleware);
 
 // Files (protégées)
 $app->get('/files', [$fileController, 'list'])->add($authMiddleware);
@@ -174,6 +182,12 @@ $app->post('/files', [$fileController, 'upload'])->add($authMiddleware);
 $app->get('/files/{id}', [$fileController, 'show'])->add($authMiddleware);
 $app->get('/files/{id}/download', [$fileController, 'download'])->add($authMiddleware);
 $app->delete('/files/{id}', [$fileController, 'delete'])->add($authMiddleware);
+$app->put('/files/{id}', [$fileController, 'rename'])->add($authMiddleware);
+
+// Corbeille Files
+$app->get('/trash/files', [$fileController, 'listTrash'])->add($authMiddleware);
+$app->post('/files/{id}/restore', [$fileController, 'restore'])->add($authMiddleware);
+$app->delete('/files/{id}/permanent', [$fileController, 'permanentDelete'])->add($authMiddleware);
 
 // Me (protégées)
 $app->get('/me/quota', [$fileController, 'quota'])->add($authMiddleware);
@@ -194,6 +208,9 @@ $app->get('/shares', [$shareController, 'list'])->add($authMiddleware);
 
 // Révoquer un partage (protégée)
 $app->post('/shares/{id}/revoke', [$shareController, 'revoke'])->add($authMiddleware);
+
+// Supprimer un partage (protégée)
+$app->delete('/shares/{id}', [$shareController, 'delete'])->add($authMiddleware);
 
 // Routes publiques (sans authMiddleware)
 $app->get('/s/{token}', [$shareController, 'getPublicMetadata']);

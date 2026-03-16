@@ -31,4 +31,13 @@ class UserRepository
     {
         $this->db->update('users', ['quota_used' => $newQuota], ['id' => $userId]);
     }
-}
+    public function recalculateQuotaUsed(int $userId): void
+    {
+        $sql = "SELECT SUM(file_versions.size) FROM file_versions 
+                JOIN files ON file_versions.file_id = files.id 
+                WHERE files.user_id = :user_id";
+        $total = $this->db->query($sql, [':user_id' => $userId])->fetchColumn();
+        
+        $this->db->update('users', ['quota_used' => (int)$total], ['id' => $userId]);
+    }
+}

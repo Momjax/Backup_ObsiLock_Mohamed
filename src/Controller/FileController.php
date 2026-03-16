@@ -43,9 +43,11 @@ class FileController
         $folderId = isset($params['folder_id']) ? (int)$params['folder_id'] : null;
         
         // Construire la requête
-        $where = ['user_id' => $user['user_id']];
+        $where = ['user_id' => $user['user_id'], 'is_deleted' => 0];
         if ($folderId !== null) {
             $where['folder_id'] = $folderId;
+        } else {
+            $where['folder_id'] = null; // Filtrer par racine par défaut
         }
         
         // Récupérer les fichiers avec limite
@@ -319,7 +321,7 @@ class FileController
     }
 }
 
-    // DELETE /files/{id}
+    // DELETE /files/{id} (Soft Delete)
     public function delete(Request $request, Response $response, array $args): Response
     {
         $user = $request->getAttribute('user');
@@ -331,31 +333,106 @@ class FileController
             return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
         }
 
-        // Supprimer le fichier physique
-        $path = $this->uploadDir . DIRECTORY_SEPARATOR . $file['stored_name'];
-        if (file_exists($path)) {
-            unlink($path);
+        // Marquer comme supprimé (Soft Delete)
+        $this->files->softDelete($fileId);
+
+        $response->getBody()->write(json_encode(['message' => 'Fichier mis à la corbeille']));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    // GET /trash/files
+    public function listTrash(Request $request, Response $response): Response
+    {
+        $user = $request->getAttribute('user');
+        $files = $this->files->listTrash($user['user_id']);
+        
+        $response->getBody()->write(json_encode(['data' => $files]));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    // POST /files/{id}/restore
+    public function restore(Request $request, Response $response, array $args): Response
+    {
+        $user = $request->getAttribute('user');
+        $fileId = (int)$args['id'];
+        $file = $this->files->find($fileId);
+
+        if (!$file || $file['user_id'] !== $user['user_id']) {
+            $response->getBody()->write(json_encode(['error' => 'Fichier introuvable']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
         }
 
-        // Supprimer toutes les versions physiques si le versioning est activé
-        if (isset($this->versions)) {
-            $versions = $this->versions->listByFile($fileId);
-            foreach ($versions as $version) {
-                $versionPath = $this->uploadDir . DIRECTORY_SEPARATOR . $version['stored_name'];
-                if (file_exists($versionPath)) {
-                    unlink($versionPath);
-                }
+        $this->files->restore($fileId);
+
+        $response->getBody()->write(json_encode(['message' => 'Fichier restauré']));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    // DELETE /files/{id}/permanent
+    public function permanentDelete(Request $request, Response $response, array $args): Response
+    {
+        $user = $request->getAttribute('user');
+        $fileId = (int)$args['id'];
+        $file = $this->files->find($fileId);
+
+        if (!$file || $file['user_id'] !== $user['user_id']) {
+            $response->getBody()->write(json_encode(['error' => 'Fichier introuvable']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+
+        // --- Suppression physique ---
+        // 1. Version actuelle
+        $versions = $this->db->select('file_versions', '*', ['file_id' => $fileId]);
+        foreach ($versions as $version) {
+            // Reconstruction du chemin
+            $storedNameWithoutExt = str_replace('.enc', '', $version['stored_name']);
+            $parts = explode('_', $storedNameWithoutExt);
+            $timestamp = end($parts);
+            
+            if (is_numeric($timestamp)) {
+                $date = date('Y/m', $timestamp);
+                $path = sprintf('%s/%d/%s/%s', $this->uploadDir, $user['user_id'], $date, $version['stored_name']);
+            } else {
+                $path = $this->uploadDir . DIRECTORY_SEPARATOR . $version['stored_name'];
+            }
+
+            if (file_exists($path)) {
+                unlink($path);
             }
         }
 
-        // Supprimer de la BDD (cascade supprimera les versions)
-        $this->files->delete($fileId);
+        // Supprimer de la BDD
+        $this->files->permanentDelete($fileId);
 
-        // Mettre à jour le quota
-        $userInfo = $this->users->find($user['user_id']);
-        $this->users->updateQuota($user['user_id'], $userInfo['quota_used'] - $file['size']);
+        // Mettre à jour le quota recalculé
+        $this->users->recalculateQuotaUsed($user['user_id']);
 
-        $response->getBody()->write(json_encode(['message' => 'Fichier supprimé']));
+        $response->getBody()->write(json_encode(['message' => 'Fichier supprimé définitivement']));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    // PUT /files/{id} (rename)
+    public function rename(Request $request, Response $response, array $args): Response
+    {
+        $user = $request->getAttribute('user');
+        $fileId = (int)$args['id'];
+        $data = $request->getParsedBody();
+        $newName = $data['name'] ?? null;
+
+        if (!$newName) {
+            $response->getBody()->write(json_encode(['error' => 'Nom manquant']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        $file = $this->files->find($fileId);
+        if (!$file || $file['user_id'] !== $user['user_id']) {
+            $response->getBody()->write(json_encode(['error' => 'Fichier introuvable']));
+            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+        }
+
+        $this->files->update($fileId, ['filename' => $newName]);
+
+        $response->getBody()->write(json_encode(['message' => 'Fichier renommé']));
         return $response->withHeader('Content-Type', 'application/json');
     }
 

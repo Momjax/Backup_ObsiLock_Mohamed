@@ -2,218 +2,150 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.TreeView?>
-<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.control.Pagination?>
 
-<BorderPane prefHeight="768"
-            prefWidth="1366"
-            style="-fx-background-color: #121417;"
+<BorderPane prefHeight="800"
+            prefWidth="1400"
             stylesheets="@style-javafx.css"
+            style="-fx-background-color: #0d1117;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.coffrefort.client.controllers.MainController">
 
-    <!-- En-tête avec logo et infos utilisateur -->
-    <top>
-        <VBox style="-fx-background-color: #17181c; -fx-border-width: 0 0 1 0;">
+    <!-- SIDEBAR -->
+    <left>
+        <VBox prefWidth="320" spacing="25" style="-fx-background-color: #010409; -fx-border-color: transparent #30363d transparent transparent; -fx-border-width: 0 1 0 0;">
             <padding>
-                <Insets bottom="15" left="20" right="20" top="15" />
+                <Insets bottom="30" left="25" right="25" top="40" />
             </padding>
 
+            <!-- Brand Section -->
+            <VBox spacing="15">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/Logo_CryptoVault.png" />
+                        </image>
+                    </ImageView>
+                    <VBox alignment="CENTER_LEFT" spacing="2">
+                        <Text styleClass="title-futuristic" text="ObsiLock" />
+                        <Label fx:id="userEmailLabel" style="-fx-text-fill: #8b949e; -fx-font-size: 11px;" text="Chargement..." />
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Quota Module -->
+            <VBox spacing="12" styleClass="sidebar-box">
+                <HBox alignment="CENTER_LEFT">
+                    <Text fill="white" style="-fx-font-weight: 800; -fx-font-size: 13px; -fx-text-transform: uppercase; -fx-letter-spacing: 1px;" text="Stockage" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button fx:id="refreshQuotaButton" onAction="#handleUpdateQuotaAction" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-cursor: hand; -fx-padding: 0;" text="🔄">
+                        <tooltip><Tooltip text="Rafraîchir" /></tooltip>
+                    </Button>
+                </HBox>
+                
+                <ProgressBar fx:id="quotaBar" maxWidth="Infinity" prefHeight="6" styleClass="storage-progress" />
+                
+                <HBox alignment="CENTER_LEFT">
+                    <Label fx:id="quotaLabel" styleClass="quota-label" text="Calcul..." />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button fx:id="gestionQuota" onAction="#handleQuota" style="-fx-background-color: transparent; -fx-text-fill: #2ecc71; -fx-font-size: 10px; -fx-underline: true; -fx-cursor: hand;" text="GÉRER" />
+                </HBox>
+            </VBox>
+
+            <!-- Navigation / Tree -->
+            <VBox spacing="10" VBox.vgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT">
+                    <Text fill="#8b949e" style="-fx-font-weight: 700; -fx-font-size: 11px; -fx-letter-spacing: 1px;" text="EXPLORATEUR" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button onAction="#handleNewFolder" style="-fx-background-color: rgba(46, 204, 113, 0.1); -fx-text-fill: #2ecc71; -fx-background-radius: 4; -fx-padding: 1 6; -fx-font-weight: bold;" text="+" />
+                </HBox>
+                
+                <Button fx:id="returnToRootButton" onAction="#handleGoToRoot" maxWidth="Infinity" alignment="CENTER_LEFT" 
+                        style="-fx-background-color: transparent; -fx-text-fill: #2ecc71; -fx-padding: 8 0; -fx-font-size: 14px; -fx-cursor: hand;" 
+                        text="📁  Ma Racine" />
+
+                <TreeView fx:id="treeView" showRoot="false" style="-fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS" />
+            </VBox>
+
+            <!-- Bottom Menu -->
+            <VBox spacing="8">
+                <Button onAction="#handleOpenShares" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="button-secondary" text="🔗  Partages Actifs" />
+                <Button onAction="#handleOpenTrash" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="button-secondary" text="🗑  Corbeille" />
+                <Button fx:id="logoutButton" onAction="#handleLogout" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="button-danger" text="🚪  Déconnexion" />
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- CONTENT AREA -->
+    <center>
+        <VBox spacing="25">
+            <padding>
+                <Insets bottom="40" left="45" right="45" top="40" />
+            </padding>
+
+            <!-- Main Header -->
             <HBox alignment="CENTER_LEFT" spacing="20">
-                <!-- Logo -->
-                <ImageView fitHeight="50"
-                           fitWidth="50"
-                           pickOnBounds="true"
-                           preserveRatio="true">
-                    <image>
-                        <Image url="@/images/Logo_CryptoVault.png" />
-                    </image>
-                </ImageView>
-
-                <!-- Titre -->
-                <VBox spacing="2" HBox.hgrow="ALWAYS">
-                    <Text fill="#94E01E"
-                          style="-fx-font-weight: bold; -fx-font-size: 20px; -fx-effect: dropshadow(three-pass-box, rgba(148, 224, 30, 0.4), 10, 0, 0, 0);"
-                          text="ObsiLock - DashBoard" />
-                    <Label fx:id="userEmailLabel"
-                           style="-fx-text-fill: #9499a1; -fx-font-size: 13px;"
-                           text="user@example.com" />
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Text fill="white" style="-fx-font-size: 32px; -fx-font-weight: 800; -fx-letter-spacing: -1px;" text="Fichiers" />
+                    <Label fx:id="fileCountLabel" styleClass="label-dim" text="0 éléments sécurisés" />
                 </VBox>
 
-                <!-- Quota -->
-                <VBox alignment="CENTER_RIGHT" spacing="5">
+                <HBox alignment="CENTER_RIGHT" spacing="12">
+                    <Button fx:id="uploadButton" onAction="#handleUpload" prefHeight="45" styleClass="button-primary" text="📤  Uploader">
+                        <padding><Insets left="20" right="20" /></padding>
+                    </Button>
                     <HBox alignment="CENTER_RIGHT" spacing="8">
-                        <Label style="-fx-text-fill: #9499a1; -fx-font-size: 12px;"
-                               text="Espace utilisé:" />
-                        <Label fx:id="quotaLabel"
-                               style="-fx-text-fill: #ffffff; -fx-font-weight: bold;"
-                               text="0 / 1 GB" />
+                    <Button fx:id="shareButton" disable="true" onAction="#handleShare" prefHeight="45" styleClass="button-vibrant" text="🔗  Partager">
+                        <padding><Insets left="20" right="20" /></padding>
+                        <tooltip><Tooltip text="Partager l'élément sélectionné" /></tooltip>
+                    </Button>
+                        <Button fx:id="deleteButton" disable="true" onAction="#handleDelete" prefHeight="45" prefWidth="55" styleClass="button-trash" text="🗑">
+                            <tooltip><Tooltip text="Mettre à la corbeille" /></tooltip>
+                        </Button>
                     </HBox>
-                    <ProgressBar fx:id="quotaBar" prefHeight="8" prefWidth="250" style="-fx-accent: #94E01E; -fx-control-inner-background: #2a2e33;" />
-                </VBox>
-
-                <!-- Boutons Utilitaires -->
-                <HBox spacing="10">
-                    <Button fx:id="gestionQuota"
-                            onAction="#handleQuota"
-                            style="-fx-background-color: transparent; -fx-text-fill: #94E01E; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 8 16;"
-                            text="Espace">
-                        <font><Font size="13" /></font>
-                    </Button>
-                    <Button fx:id="logoutButton"
-                            onAction="#handleLogout"
-                            style="-fx-background-color: transparent; -fx-text-fill: #ff4757; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 8 16;"
-                            text="Déconnexion">
-                       <font><Font size="13" /></font>
-                    </Button>
                 </HBox>
             </HBox>
-        </VBox>
-    </top>
 
-    <!-- Zone principale -->
-    <center>
-        <SplitPane dividerPositions="0.25"
-                   style="-fx-background-color: #121417; -fx-padding: 20;">
-            <padding>
-                <Insets bottom="10" left="10" right="10" top="10" />
-            </padding>
-
-            <!-- Panneau gauche : Arborescence des dossiers -->
-            <VBox spacing="8"
-                  style="-fx-background-color: #1c1f23; -fx-background-radius: 12; -fx-border-radius: 12;">
-                <padding>
-                    <Insets bottom="15" left="15" right="15" top="15" />
-                </padding>
-
-                <!-- En-tête dossiers -->
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Text fill="#ffffff"
-                          style="-fx-font-weight: bold; -fx-font-size: 16px;"
-                          text="Dossiers" />
-                    <Region HBox.hgrow="ALWAYS" />
-                    <Button fx:id="newFolderButton"
-                            onAction="#handleNewFolder"
-                            style="-fx-background-color: transparent; -fx-text-fill: #94E01E; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-font-weight: bold; -fx-padding: 4 12;" text="+">
-                        <tooltip>
-                            <Tooltip text="Nouveau dossier" />
-                        </tooltip>
-                    </Button>
-                </HBox>
-
-                <Separator style="-fx-background-color: #2a2e33;" />
-
-                <!-- Arborescence -->
-                <TreeView fx:id="treeView"
-                          showRoot="false"
-                          style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white;"
-                          VBox.vgrow="ALWAYS">
-                    <!-- Global custom CSS needed for perfect treeview styling in JavaFX, but inline transparent works for base -->
-                </TreeView>
-            </VBox>
-
-            <!-- Panneau droit : Liste des fichiers -->
-            <VBox spacing="15"
-                  style="-fx-background-color: #1c1f23; -fx-background-radius: 12; -fx-border-radius: 12;">
-                <padding>
-                    <Insets bottom="20" left="20" right="20" top="20" />
-                </padding>
-
-                <!-- En-tête fichiers avec actions -->
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Text fill="#ffffff" style="-fx-font-weight: bold; -fx-font-size: 18px;" text="Fichiers Récents" />
-                    <Region HBox.hgrow="ALWAYS" />
-
-                    <!-- Boutons d'action -->
-                    <Button fx:id="uploadButton"
-                            onAction="#handleUpload"
-                            style="-fx-background-color: rgba(148, 224, 30, 0.1); -fx-text-fill: #94E01E; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 8 16; -fx-font-weight: bold;"
-                            text="📤 Envoyer Fichier">
-                        <font><Font size="13" /></font>
-                    </Button>
-
-                    <Button fx:id="shareButton"
-                            disable="true"
-                            onAction="#handleShare"
-                            style="-fx-background-color: transparent; -fx-text-fill: #ffffff; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 8 16;"
-                            text="🔗 Partager">
-                        <font><Font size="13" /></font>
-                    </Button>
-
-                    <Button fx:id="deleteButton"
-                            disable="true"
-                            onAction="#handleDelete"
-                            style="-fx-background-color: transparent; -fx-text-fill: #ff4757; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 8 16;"
-                            text="🗑 Supprimer">
-                        <font><Font size="13" /></font>
-                    </Button>
-                </HBox>
-
-                <Separator style="-fx-background-color: #2a2e33;" />
-
-                <!-- Table des fichiers -->
-                <TableView fx:id="table" style="-fx-background-color: transparent; -fx-text-fill: white;" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="nameCol" prefWidth="400" text="📄 Nom du fichier" />
-                        <TableColumn fx:id="sizeCol" prefWidth="150" text="📊 Taille" />
-                        <TableColumn fx:id="dateCol" prefWidth="250" text="📅 Modifié le" />
-                    </columns>
-                    <placeholder>
-                        <VBox alignment="CENTER" spacing="10">
-                            <Text fill="#9499a1" style="-fx-font-size: 16px;" text="Aucun fichier dans ce dossier." />
-                            <Text fill="#4d515c" style="-fx-font-size: 13px;" text="Cliquez sur 'Envoyer Fichier' pour ajouter du contenu." />
+            <!-- Table -->
+            <TableView fx:id="table" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="nameCol" prefWidth="450" text="Nom" />
+                    <TableColumn fx:id="sizeCol" prefWidth="120" text="Taille" />
+                    <TableColumn fx:id="dateCol" prefWidth="200" text="Modifié le" />
+                    <TableColumn fx:id="versionCol" prefWidth="100" text="Version" />
+                </columns>
+                <placeholder>
+                    <VBox alignment="CENTER" spacing="20">
+                        <Text fill="#484f58" style="-fx-font-size: 40px;" text="🛡️" />
+                        <VBox alignment="CENTER" spacing="5">
+                             <Text fill="#c9d1d9" style="-fx-font-size: 18px; -fx-font-weight: 700;" text="Aucun fichier" />
+                             <Text fill="#8b949e" style="-fx-font-size: 14px;" text="Sélectionnez un dossier ou uploadez un fichier." />
                         </VBox>
-                    </placeholder>
-                </TableView>
+                    </VBox>
+                </placeholder>
+            </TableView>
 
-                <Pagination fx:id="pagination" maxPageIndicatorCount="7" style="-fx-page-information-visible: false;"/>
-            </VBox>
-        </SplitPane>
+            <!-- Footer Stats -->
+            <HBox alignment="CENTER_RIGHT">
+                <Label fx:id="statusLabel" styleClass="label-dim" style="-fx-font-weight: bold; -fx-text-fill: #2ecc71;" text="OPÉRATIONNEL" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Pagination fx:id="pagination" maxPageIndicatorCount="7" style="-fx-page-information-visible: false;" />
+            </HBox>
+        </VBox>
     </center>
-
-    <!-- Barre de statut en bas -->
-    <bottom>
-        <HBox alignment="CENTER_LEFT"
-              spacing="20"
-              style="-fx-background-color: #17181c; -fx-border-width: 1 0 0 0;">
-            <padding>
-                <Insets bottom="12" left="20" right="20" top="12" />
-            </padding>
-
-            <Label fx:id="statusLabel"
-                   style="-fx-text-fill: #94E01E; -fx-font-size: 12px; -fx-font-weight: bold;"
-                   text="● Prêt" />
-
-            <Region HBox.hgrow="ALWAYS" />
-
-            <Label fx:id="fileCountLabel"
-                   style="-fx-text-fill: #9499a1; -fx-font-size: 12px;"
-                   text="0 fichiers indexés" />
-
-            <Separator orientation="VERTICAL" style="-fx-background-color: #2a2e33;" />
-
-            <Hyperlink onAction="#handleOpenShares"
-                       style="-fx-text-fill: #94E01E; -fx-cursor: hand; -fx-font-size: 13px; -fx-underline: true;"
-                       text="Consulter mes partages" />
-        </HBox>
-    </bottom>
 </BorderPane>

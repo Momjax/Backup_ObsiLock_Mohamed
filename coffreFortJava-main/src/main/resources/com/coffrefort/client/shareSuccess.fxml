@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Text?>
+
+<VBox xmlns="http://javafx.com/javafx/21" 
+      xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.coffrefort.client.controllers.ShareSuccessController"
+      spacing="20" 
+      prefWidth="550"
+      style="-fx-background-color: #0d1117; -fx-border-color: #2ecc71; -fx-border-width: 1; -fx-border-radius: 16; -fx-background-radius: 16;">
+    
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <StackPane>
+            <Region style="-fx-background-color: rgba(46, 204, 113, 0.1); -fx-min-width: 50; -fx-min-height: 50; -fx-background-radius: 12; -fx-border-color: #2ecc71; -fx-border-radius: 12;"/>
+            <SVGPath content="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#2ecc71" scaleX="1.5" scaleY="1.5"/>
+        </StackPane>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Partage Réussi !" style="-fx-font-family: 'Outfit Bold'; -fx-font-size: 22; -fx-text-fill: #2ecc71;"/>
+            <Text fill="#8b949e" style="-fx-font-size: 14;" text="Votre lien de partage sécurisé a été généré avec succès." />
+        </VBox>
+    </HBox>
+
+    <VBox spacing="10" style="-fx-background-color: rgba(255,255,255,0.02); -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius: 12;">
+        <Label text="URL DE PARTAGE" styleClass="label-dim" style="-fx-font-size: 10; -fx-font-weight: bold; -fx-letter-spacing: 1;"/>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="urlField" editable="false" HBox.hgrow="ALWAYS" 
+                       style="-fx-background-color: #161b22; -fx-border-color: rgba(46, 204, 113, 0.3); -fx-text-fill: #e6edf3; -fx-font-family: 'JetBrains Mono'; -fx-font-size: 13; -fx-padding: 12;"/>
+            <Button fx:id="copyBtn" onAction="#handleCopy" text="Copier"
+                    style="-fx-background-color: #2ecc71; -fx-text-fill: #0a0c10; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+        </HBox>
+    </VBox>
+
+    <HBox alignment="CENTER_RIGHT" spacing="15">
+        <Button onAction="#handleClose" text="Terminer" prefWidth="120"
+                style="-fx-background-color: rgba(255,255,255,0.05); -fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 8; -fx-padding: 10 0; -fx-cursor: hand;"/>
+    </HBox>
+
+</VBox>

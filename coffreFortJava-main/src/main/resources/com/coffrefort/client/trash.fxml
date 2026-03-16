@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+
+<VBox stylesheets="@style-javafx.css" xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.coffrefort.client.controllers.TrashController"
+      spacing="25"
+      style="-fx-background-color: #0d1117;">
+
+    <padding>
+        <Insets top="35" right="35" bottom="30" left="35"/>
+    </padding>
+
+    <HBox alignment="BOTTOM_LEFT" spacing="20">
+        <VBox spacing="8" HBox.hgrow="ALWAYS">
+            <Text fill="#e74c3c" styleClass="title-futuristic" text="Ma Corbeille" />
+            <Text fill="#8b949e" style="-fx-font-size: 14px; -fx-font-family: 'Outfit'; " text="Restaurez vos éléments ou supprimez-les définitivement." />
+        </VBox>
+        <Button onAction="#refresh" styleClass="button-secondary" text="🔄 Actualiser" prefHeight="40" prefWidth="120"/>
+    </HBox>
+
+    <TableView fx:id="trashTable"
+               VBox.vgrow="ALWAYS"
+               prefHeight="450">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+        <columns>
+            <TableColumn fx:id="typeCol" text="Type" prefWidth="100"/>
+            <TableColumn fx:id="nameCol" text="Nom" prefWidth="300"/>
+            <TableColumn fx:id="sizeCol" text="Taille" prefWidth="120"/>
+            <TableColumn fx:id="dateCol" text="Dernière modification" prefWidth="200"/>
+            <TableColumn fx:id="actionCol" text="Actions" prefWidth="200"/>
+        </columns>
+    </TableView>
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label text="Note: La suppression définitive est irréversible." style="-fx-text-fill: #8b949e; -fx-font-style: italic;"/>
+    </HBox>
+
+</VBox>

@@ -5,147 +5,62 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox prefHeight="300"
-      prefWidth="420"
-      spacing="15"
-      style="-fx-background-color: #121417; -fx-background-radius: 8;"
-      stylesheets="@style-javafx.css"
-            xmlns="http://javafx.com/javafx/25"
-      xmlns:fx="http://javafx.com/fxml/1"
+<VBox prefHeight="350" 
+      prefWidth="450" 
+      spacing="20" 
+      styleClass="root"
+      stylesheets="@style-javafx.css" 
+      xmlns="http://javafx.com/javafx/25" 
+      xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="com.coffrefort.client.controllers.RenameFileController">
 
     <padding>
-        <Insets bottom="20" left="25" right="25" top="20"/>
+        <Insets bottom="30" left="30" right="30" top="30"/>
     </padding>
 
     <!-- En-tête -->
-    <HBox spacing="12">
-
-        <!-- Bande rouge avec icône -->
-        <VBox alignment="CENTER"
-              prefWidth="48"
-              style="-fx-background-color: #94E01E; -fx-background-radius: 8;">
-            <padding>
-                <Insets bottom="10" left="10" right="10" top="10"/>
-            </padding>
-
-            <Text text="📄"
-                  fill="white"
-                  style="-fx-font-size: 24px;"/>
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <VBox alignment="CENTER" prefWidth="50" prefHeight="50" 
+              style="-fx-background-color: rgba(46, 204, 113, 0.1); -fx-background-radius: 12; -fx-border-color: #2ecc71; -fx-border-radius: 12;">
+            <Text text="✏️" fill="#2ecc71" style="-fx-font-size: 24px;"/>
         </VBox>
-
-        <!-- Titre + sous-titre -->
-        <VBox alignment="CENTER_LEFT" spacing="4">
-            <Text text="Renommer le fichier"
-                  fill="#94E01E"
-                  style="-fx-font-weight: bold; -fx-font-size: 18px;"/>
-
-            <Text text="Saisissez un nouveau nom."
-                  fill="#9499a1"
-                  style="-fx-font-size: 12px;"/>
+        <VBox spacing="4">
+            <Text text="Renommer" fill="#2ecc71" styleClass="title-futuristic" style="-fx-font-size: 20px;"/>
+            <Text text="Modification du nom de fichier" fill="#8b949e" style="-fx-font-size: 13px;"/>
         </VBox>
     </HBox>
 
-    <Separator>
-        <VBox.margin>
-            <Insets bottom="5" top="10"/>
-        </VBox.margin>
-    </Separator>
+    <Separator opacity="0.1"/>
 
-    <!-- Zone de message + input -->
-    <!-- Nom actuel -->
-    <VBox spacing="5">
-        <Label text="Nom actuel :"
-               style="-fx-text-fill: #9499a1; -fx-font-size: 12px;"/>
-        <Label fx:id="currentNameLabel"
-               text="NomDuFichier.ext"
-               wrapText="true"
-               style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+    <!-- Formulaire -->
+    <VBox spacing="15">
+        <VBox spacing="5">
+            <Label text="Nom actuel" styleClass="label-dim" style="-fx-font-size: 12px;"/>
+            <Label fx:id="currentNameLabel" text="NomDuFichier.ext" wrapText="true" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <VBox spacing="8">
+            <Label text="Nouveau nom (sans extension)" styleClass="label-dim" style="-fx-font-size: 12px;"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="nameField" promptText="Nouveau nom..." HBox.hgrow="ALWAYS" prefHeight="45.0"/>
+                <Label fx:id="extensionLabel" text=".pdf" style="-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+            </HBox>
+        </VBox>
     </VBox>
 
-    <!-- Nouveau nom (sans extension) -->
-    <VBox spacing="5">
-        <Label text="Nouveau nom (sans extension) :"
-               style="-fx-text-fill: #9499a1; -fx-font-size: 12px;"/>
-
-        <HBox spacing="5" alignment="CENTER_LEFT">
-            <TextField fx:id="nameField"
-                       promptText="Entrez le nouveau nom"
-                       HBox.hgrow="ALWAYS"
-                       style="-fx-font-size: 13px;"/>
-
-            <!--Afficher l'extension qui sera ajoutée automatiquement -->
-            <Label fx:id="extensionLabel"
-                   text=".pdf"
-                   style="-fx-text-fill: #94E01E;
-                        -fx-font-weight: bold;
-                        -fx-font-size: 13px;"/>
-        </HBox>
-    </VBox>
-
-    <!-- message erreur (caché par défaut) -->
-    <Label fx:id="errorLabel"
-           visible="false"
-           managed="false"
-           alignment="CENTER"
-           prefWidth="370"
-           wrapText="true"
-           textAlignment="CENTER"
-           style="-fx-background-color: #ffe5e5;
-                -fx-text-fill: #94E01E;
-                -fx-font-weight: bold;
-                -fx-background-radius: 6;"
-           text="Erreur"/>
-
+    <Label fx:id="errorLabel" visible="false" managed="false" style="-fx-text-fill: #ff4757; -fx-font-weight: bold;"/>
 
     <Region VBox.vgrow="ALWAYS"/>
 
-    <!-- Boutons d'action CENTRÉS -->
-    <HBox alignment="CENTER" spacing="12">
-
-        <Button fx:id="cancelButton"
-                text="Annuler"
-                cancelButton="true"
-                onAction="#handleCancel"
-                style="-fx-background-color: #32373d;
-                        -fx-text-fill: white;
-                        -fx-background-radius: 4;
-                        -fx-cursor: hand;
-                        -fx-padding: 8 20;">
-            <font>
-                <Font size="12"/>
-            </font>
-        </Button>
-
-        <Button fx:id="confirmButton"
-                text="Renommer"
-                defaultButton="true"
-                onAction="#handleConfirm"
-                style="-fx-background-color: #94E01E;
--fx-text-fill: black;
-                        -fx-background-radius: 4;
-                        -fx-cursor: hand;
-                        -fx-padding: 8 24;
-                        -fx-font-weight: bold;">
-            <font>
-                <Font size="12"/>
-            </font>
-            <effect>
-                <DropShadow radius="10.0">
-                    <color>
-                        <Color red="0.60" green="0.05" blue="0.05" opacity="0.35"/>
-                    </color>
-                </DropShadow>
-            </effect>
-        </Button>
+    <!-- Boutons -->
+    <HBox alignment="CENTER_RIGHT" spacing="15">
+        <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel" styleClass="button-secondary" prefWidth="100" prefHeight="40"/>
+        <Button fx:id="confirmButton" text="Confirmer" onAction="#handleConfirm" styleClass="button-primary" prefWidth="120" prefHeight="40"/>
     </HBox>
-</VBox>
 
+</VBox>

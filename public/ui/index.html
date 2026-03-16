@@ -4,315 +4,603 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ObsiLock - Coffre-Fort Sécurisé</title>
-    <link rel="stylesheet" href="css/style.css?v=5">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>ObsiLock — DashBoard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #1a1a1a;
+            --sidebar: #232323;
+            --card: #2a2a2a;
+            --primary: #2ecc71;
+            --text: #ffffff;
+            --muted: #9499a1;
+            --border: #383838;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 80px;
+            background: var(--sidebar);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-logo img {
+            width: 52px;
+            height: auto;
+        }
+
+        .sidebar-logo .brand {
+            font-size: .7rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .nav-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .nav-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 1.3rem;
+            transition: background .15s, color .15s;
+        }
+
+        .nav-icon:hover,
+        .nav-icon.active {
+            background: rgba(46, 204, 113, .12);
+            color: var(--primary);
+        }
+
+        .nav-icon.active {
+            border-left: 3px solid var(--primary);
+            border-radius: 0 10px 10px 0;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        /* ===== MAIN ===== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* TOP BAR */
+        .topbar {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .breadcrumb {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: .8rem;
+            color: var(--muted);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 16px;
+            min-width: 260px;
+        }
+
+        .search-bar input {
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: .9rem;
+            width: 100%;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--muted);
+        }
+
+        .search-icon {
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        /* CONTENT */
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* CARD */
+        .c-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .c-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .c-card-sub {
+            font-size: .8rem;
+            color: var(--muted);
+            margin-top: 2px;
+            margin-bottom: 16px;
+        }
+
+        /* Items row (folders/files) */
+        .items-row {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .thumb-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            min-width: 70px;
+        }
+
+        .thumb-icon {
+            font-size: 2.2rem;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .thumb-name {
+            font-size: .72rem;
+            color: var(--muted);
+            text-align: center;
+            max-width: 70px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .thumb-size {
+            font-size: .65rem;
+            color: var(--muted);
+        }
+
+        .btn-add {
+            display: block;
+            width: 100%;
+            margin-top: 14px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px;
+            color: var(--muted);
+            font-family: 'Inter', sans-serif;
+            font-size: .85rem;
+            cursor: pointer;
+            transition: border-color .15s, color .15s;
+        }
+
+        .btn-add:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Activity */
+        .activity-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .activity-row:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .activity-label {
+            flex: 1;
+            font-size: .88rem;
+        }
+
+        .activity-time {
+            font-size: .78rem;
+            color: var(--muted);
+        }
+
+        /* QUOTA bar */
+        .quota-section {
+            padding: 10px 24px 0;
+            flex-shrink: 0;
+        }
+
+        .quota-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .quota-label {
+            font-size: .85rem;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .quota-track {
+            flex: 1;
+            height: 6px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .quota-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 99px;
+            transition: width .4s;
+        }
+
+        /* BOTTOM SEND */
+        .bottom-section {
+            padding: 16px 24px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .bottom-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: underline;
+            margin-bottom: 12px;
+        }
+
+        .send-btns {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .btn-send {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 28px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: .9rem;
+            cursor: pointer;
+            transition: border-color .15s, color .15s;
+        }
+
+        .btn-send:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Placeholder when empty */
+        .empty {
+            color: var(--muted);
+            font-size: .85rem;
+            padding: 10px 0;
+        }
+    </style>
 </head>
 
 <body>
-    <!-- AUTH SCREEN -->
-    <div id="auth-screen" class="auth-container">
-        <div class="auth-card">
-            <div class="brand-icon" style="margin-bottom: 2rem;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#94E01E" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    <rect x="8" y="11" width="8" height="6" rx="1" fill="#1b1c21"></rect>
-                    <path d="M10 11V9a2 2 0 1 1 4 0v2"></path>
-                </svg>
-                <div class="brand-text" style="font-size:1.5rem; letter-spacing:0;">ObsiLock</div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="logo.png" alt="ObsiLock">
+            <div class="brand">ObsiLock</div>
+        </div>
+
+        <div class="nav-icons">
+            <div class="nav-icon active" title="Dossiers">📁</div>
+            <div class="nav-icon" title="Fichiers">📄</div>
+            <div class="nav-icon" title="Partages" id="nav-shares">🔗</div>
+            <div class="nav-icon" title="Favoris">⭐</div>
+            <div class="nav-icon" title="Corbeille">🗑️</div>
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="nav-icon" title="Paramètres">⚙️</div>
+            <div class="nav-icon" title="Déconnexion" id="btn-logout">🚪</div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+        <!-- TOP -->
+        <div class="topbar">
+            <span class="breadcrumb">Dashboard</span>
+            <h1 class="page-title">DashBoard</h1>
+            <div class="search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Rechercher">
             </div>
+        </div>
 
-            <h2 id="auth-title" style="font-size: 1.2rem; margin-bottom: 2rem; font-weight: 500;">Connexion à
-                votre<br>espace sécurisé</h2>
+        <!-- QUOTA -->
+        <div class="quota-section">
+            <div class="quota-bar-wrap">
+                <span class="quota-label" id="quota-label">0go / 5go</span>
+                <div class="quota-track">
+                    <div class="quota-fill" id="quota-fill" style="width:0%"></div>
+                </div>
+            </div>
+        </div>
 
-            <form id="login-form" class="auth-form">
-                <input type="email" id="email" placeholder="Email" required autocomplete="email">
-                <input type="password" id="password" placeholder="Mot de passe" required
-                    autocomplete="current-password">
-                <button type="submit" class="btn-solid" id="submit-btn">Connexion...</button>
-            </form>
+        <!-- CONTENT -->
+        <div class="content-scroll">
+            <div class="grid">
 
-            <div style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-secondary);">
-                <a href="#" style="color: inherit; text-decoration: none; display: block; margin-bottom: 1rem;">Mot de
-                    passe oublié ?</a>
-                <a href="#" style="color: inherit; text-decoration: none;" onclick="toggleAuthMode()">Créer un
-                    compte</a>
+                <!-- Dossiers -->
+                <div class="c-card">
+                    <div class="c-card-title">Dossier</div>
+                    <div class="c-card-sub" id="folder-count">0 dossiers</div>
+                    <div class="items-row" id="folder-list">
+                        <span class="empty">Aucun dossier</span>
+                    </div>
+                    <button class="btn-add" id="btn-new-folder">Ajouter un nouveau dossier</button>
+                </div>
+
+                <!-- Fichiers -->
+                <div class="c-card">
+                    <div class="c-card-title">Fichier</div>
+                    <div class="c-card-sub" id="file-count">0 fichiers</div>
+                    <div class="items-row" id="file-list">
+                        <span class="empty">Aucun fichier</span>
+                    </div>
+                    <button class="btn-add" id="btn-upload">Ajouter un nouveau fichier</button>
+                    <input type="file" id="file-input" style="display:none">
+                </div>
+
+                <!-- Activité -->
+                <div class="c-card">
+                    <div class="c-card-title">Activité récente</div>
+                    <div style="margin-top:12px;" id="activity-list">
+                        <div class="empty">Chargement...</div>
+                    </div>
+                </div>
+
+                <!-- Partages -->
+                <div class="c-card">
+                    <div class="c-card-title">Consulter mes envoie <span style="color:var(--primary)">🔗</span></div>
+                    <div class="items-row" id="shares-list" style="margin-top:12px;">
+                        <div class="empty">Aucun partage</div>
+                    </div>
+                    <button class="btn-add" id="btn-shares">Consulter</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- BOTTOM -->
+        <div class="bottom-section">
+            <h3>Envoyer un dossier/fichier</h3>
+            <div class="send-btns">
+                <button class="btn-send">Envoyer un dossier</button>
+                <button class="btn-send" id="btn-upload2">Envoyer un fichier</button>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP LAYOUT -->
-    <div id="app" class="hidden">
+    <script>
+        const BASE = 'http://api.obsilock.iris.a3n.fr:8080';
+        const token = localStorage.getItem('obsilock_token');
+        const email = localStorage.getItem('obsilock_email') || '';
 
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="brand-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#94E01E" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    <rect x="8" y="11" width="8" height="6" rx="1" fill="#17181c"></rect>
-                    <path d="M10 11V9a2 2 0 1 1 4 0v2"></path>
-                </svg>
-                <div class="brand-text">ObsiLock</div>
+        if (!token) { window.location.href = 'login.html'; }
+
+        const authH = { 'Authorization': 'Bearer ' + token };
+
+        function formatSize(b) {
+            if (!b) return '0o';
+            if (b < 1024) return b + 'o';
+            if (b < 1024 ** 2) return (b / 1024).toFixed(0) + 'ko';
+            if (b < 1024 ** 3) return (b / 1024 ** 2).toFixed(1) + 'mo';
+            return (b / 1024 ** 3).toFixed(1) + 'go';
+        }
+
+        function folderIcon() { return '📁'; }
+        function fileIcon(name) {
+            if (!name) return '📄';
+            const ext = name.split('.').pop().toLowerCase();
+            const m = { pdf: '📑', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊', jpg: '🖼️', jpeg: '🖼️', png: '🖼️', mp4: '🎬', mp3: '🎵', zip: '🗜️' };
+            return m[ext] || '📄';
+        }
+
+        // Quota
+        async function loadQuota() {
+            try {
+                const r = await fetch(`${BASE}/me/quota`, { headers: authH });
+                const d = await r.json();
+                const used = d.used || d.quota_used || 0;
+                const total = d.total || d.quota_total || (5 * 1024 ** 3);
+                const pct = Math.min(100, (used / total) * 100).toFixed(1);
+                document.getElementById('quota-label').textContent = `${formatSize(used)} / ${formatSize(total)}`;
+                document.getElementById('quota-fill').style.width = pct + '%';
+            } catch { }
+        }
+
+        // Folders
+        async function loadFolders() {
+            try {
+                const r = await fetch(`${BASE}/folders`, { headers: authH });
+                const d = await r.json();
+                const folders = Array.isArray(d) ? d : (d.data || d.folders || []);
+                document.getElementById('folder-count').textContent = `${folders.length} dossier(s)`;
+                const list = document.getElementById('folder-list');
+                if (folders.length === 0) { list.innerHTML = '<span class="empty">Aucun dossier</span>'; return; }
+                list.innerHTML = folders.slice(0, 6).map(f => `
+            <div class="thumb-item">
+                <div class="thumb-icon">${folderIcon()}</div>
+                <div class="thumb-name">${f.name || 'Dossier'}</div>
+                <div class="thumb-size">—</div>
             </div>
+        `).join('');
+            } catch { }
+        }
 
-            <div class="nav-menu">
-                <!-- Dashboard (Active) -->
-                <div class="nav-link active" onclick="switchView('dashboard')" title="Dashboard">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M3 3v18h18" />
-                        <path d="M18 9l-5 5-4-4-5 5" />
-                    </svg>
-                </div>
-                <!-- Folders -->
-                <div class="nav-link" onclick="switchView('explorer')" title="Mes Dossiers" id="nav-explorer">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                    </svg>
-                </div>
-                <!-- Files -->
-                <div class="nav-link" onclick="alert('Vue fichiers globaux (Mock)')" title="Tous les Fichiers">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                    </svg>
-                </div>
-                <!-- Open Book -->
-                <div class="nav-link" onclick="alert('Documentation / Wiki')" title="Guide">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                    </svg>
-                </div>
-                <!-- Star -->
-                <div class="nav-link" onclick="alert('Favoris')" title="Favoris">
-                    <svg viewBox="0 0 24 24">
-                        <polygon
-                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                </div>
-                <!-- Trash -->
-                <div class="nav-link" onclick="alert('Corbeille')" title="Corbeille">
-                    <svg viewBox="0 0 24 24">
-                        <polyline points="3 6 5 6 21 6" />
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        <line x1="10" y1="11" x2="10" y2="17" />
-                        <line x1="14" y1="11" x2="14" y2="17" />
-                    </svg>
-                </div>
+        // Files
+        async function loadFiles() {
+            try {
+                const r = await fetch(`${BASE}/files?page=1&per_page=8`, { headers: authH });
+                const d = await r.json();
+                const files = d.data || d.files || [];
+                const total = d.pagination?.total || files.length;
+                document.getElementById('file-count').textContent = `${total} fichier(s)`;
+                const list = document.getElementById('file-list');
+                if (files.length === 0) { list.innerHTML = '<span class="empty">Aucun fichier</span>'; return; }
+                list.innerHTML = files.slice(0, 6).map(f => `
+            <div class="thumb-item">
+                <div class="thumb-icon">${fileIcon(f.filename || f.name)}</div>
+                <div class="thumb-name">${f.filename || f.name || 'Fichier'}</div>
+                <div class="thumb-size">${formatSize(f.size)}</div>
             </div>
+        `).join('');
+            } catch { }
+        }
 
-            <div class="nav-bottom">
-                <div class="nav-link" onclick="logout()" title="Déconnexion (Settings temporaire)">
-                    <svg viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="3" />
-                        <path
-                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                    </svg>
-                </div>
-            </div>
-        </aside>
+        // Activity
+        async function loadActivity() {
+            try {
+                const r = await fetch(`${BASE}/me/activity?limit=3`, { headers: authH });
+                const d = await r.json();
+                const acts = d.activities || d.data || d || [];
+                const list = document.getElementById('activity-list');
+                if (!acts.length) { list.innerHTML = '<div class="empty">Aucune activité</div>'; return; }
+                list.innerHTML = acts.slice(0, 3).map(a => {
+                    const isFolder = (a.type || '').includes('folder');
+                    const icon = a.type === 'download' ? '⬇️' : a.type === 'delete' ? '🗑' : isFolder ? '📁' : '📄';
+                    const label = a.filename || a.folder_name || a.name || a.type || '—';
+                    const time = a.date ? new Date(a.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+                    return `<div class="activity-row">
+                <span class="activity-icon">${icon}</span>
+                <span class="activity-label">${label}</span>
+                <span class="activity-time">${time}</span>
+            </div>`;
+                }).join('');
+            } catch {
+                document.getElementById('activity-list').innerHTML = '<div class="empty">Activité non disponible</div>';
+            }
+        }
 
-        <!-- MAIN CONTENT CONTAINER -->
-        <main class="main-area">
+        // Upload
+        document.getElementById('btn-upload').addEventListener('click', () => document.getElementById('file-input').click());
+        document.getElementById('btn-upload2').addEventListener('click', () => document.getElementById('file-input').click());
+        document.getElementById('file-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const fd = new FormData();
+            fd.append('file', file);
+            try {
+                const r = await fetch(`${BASE}/files`, { method: 'POST', headers: authH, body: fd });
+                if (r.ok) { alert('Fichier uploadé !'); loadFiles(); loadQuota(); }
+                else { const d = await r.json(); alert('Erreur : ' + (d.error || r.status)); }
+            } catch { alert('Erreur réseau'); }
+            e.target.value = '';
+        });
 
-            <!-- HEADER -->
-            <header class="top-header">
-                <div class="badge-tab" id="header-badge">Dashboard</div>
-                <div class="title-row">
-                    <h1 id="header-title">DashBoard</h1>
-                    <div class="search-box">
-                        <svg viewBox="0 0 24 24">
-                            <circle cx="11" cy="11" r="8" />
-                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                        </svg>
-                        <input type="text" placeholder="Rechercher">
-                    </div>
-                </div>
-            </header>
+        // New folder
+        document.getElementById('btn-new-folder').addEventListener('click', async () => {
+            const name = prompt('Nom du nouveau dossier :');
+            if (!name) return;
+            try {
+                const r = await fetch(`${BASE}/folders`, {
+                    method: 'POST', headers: { ...authH, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                if (r.ok) { loadFolders(); }
+                else { const d = await r.json(); alert('Erreur : ' + (d.error || r.status)); }
+            } catch { alert('Erreur réseau'); }
+        });
 
-            <!-- ================= VIEW: DASHBOARD ================= -->
-            <div id="view-dashboard" class="view-section active dashboard-scroll">
-                <div class="dash-grid">
+        // Logout
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            localStorage.removeItem('obsilock_token');
+            localStorage.removeItem('obsilock_email');
+            window.location.href = 'login.html';
+        });
 
-                    <!-- Dossier Widget -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Dossier</h2>
-                            <p class="card-subtitle" id="dash-folder-count">0 dossiers</p>
-                        </div>
-                        <div class="card-items-row" id="dash-folders">
-                            <!-- JS Inject -->
-                        </div>
-                        <button class="btn-outline" onclick="openModal('folder-modal')">Ajouter un nouveau
-                            dossier</button>
-                    </div>
-
-                    <!-- Fichier Widget -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Fichier</h2>
-                            <p class="card-subtitle" id="dash-file-count">0 fichiers</p>
-                        </div>
-                        <div class="card-items-row" id="dash-files">
-                            <!-- JS Inject -->
-                        </div>
-                        <button class="btn-outline" onclick="document.getElementById('file-input').click()">Ajouter un
-                            nouveau fichier</button>
-                    </div>
-
-                    <!-- Activité Récence -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Activité récente</h2>
-                        </div>
-                        <div class="activity-list" id="activity-list" style="flex:1;">
-                            <!-- JS Inject -->
-                        </div>
-                    </div>
-
-                    <!-- Partages / Envois Widget -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Consulter mes envois <span
-                                    style="color:var(--primary); font-size:1.2rem;">🔗</span></h2>
-                        </div>
-                        <div class="card-items-row" id="dash-shares" style="flex:1;">
-                            <!-- JS Inject -->
-                        </div>
-                        <button class="btn-outline" onclick="alert('Vue partages complet')">Consulter</button>
-                    </div>
-                </div>
-
-                <!-- Quota Bar placed exactly as in mockup -->
-                <div class="quota-area">
-                    <span class="quota-text" id="quota-label">0go/1go</span>
-                    <div class="quota-track">
-                        <div class="quota-fill" id="quota-fill"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ================= VIEW: EXPLORER ================= -->
-            <div id="view-explorer" class="view-section dashboard-scroll">
-                <div class="explorer-header">
-                    <h2 class="card-title" id="explorer-path">Mes Dossiers</h2>
-                    <div class="explorer-actions">
-                        <button class="btn-outline" onclick="goUpFolder()" id="btn-back"
-                            style="display:none; width:auto; padding:0.5rem 1rem;">⬅ Retour</button>
-                        <button class="btn-outline" onclick="openModal('folder-modal')"
-                            style="width:auto; padding:0.5rem 1rem;">Nouveau Dossier</button>
-                        <button class="btn-outline" onclick="document.getElementById('file-input').click()"
-                            style="width:auto; padding:0.5rem 1rem;">Nouveau Fichier</button>
-                    </div>
-                </div>
-
-                <!-- Table / Grid for Explorer -->
-                <div class="card" style="flex:1; padding: 0;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nom</th>
-                                <th>Taille</th>
-                                <th>Date de modification</th>
-                            </tr>
-                        </thead>
-                        <tbody id="explorer-body">
-                            <!-- JS Inject -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- GLOBAL FOOTER (Present on all views for Uploads) -->
-            <footer class="bottom-footer">
-                <h3 class="footer-title">Envoyer un dossier/fichier</h3>
-                <div class="footer-actions">
-                    <button class="footer-btn" onclick="openModal('folder-modal')">Envoyer un dossier</button>
-                    <button class="footer-btn" onclick="document.getElementById('file-input').click()">Envoyer un
-                        fichier</button>
-                    <input type="file" id="file-input" class="hidden">
-                    <input type="file" id="folder-input" class="hidden" webkitdirectory directory>
-                </div>
-            </footer>
-        </main>
-    </div>
-
-    <!-- MODALS OVERLAYS -->
-
-    <!-- Modal: Créer un dossier -->
-    <div id="folder-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="font-size:1.2rem; font-weight:500;">Créer un dossier</h3>
-                <button style="background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;"
-                    onclick="closeModal('folder-modal')">×</button>
-            </div>
-            <form id="create-folder-form" class="auth-form">
-                <input type="text" id="folder-name" placeholder="Nom du dossier" required>
-                <button type="submit" class="btn-solid" style="margin-top:1rem;">Créer</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal: File Details -->
-    <div id="file-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="file-modal-title" style="font-size:1.2rem; font-weight:500; word-break:break-all;">Fichier</h3>
-                <button style="background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;"
-                    onclick="closeModal('file-modal')">×</button>
-            </div>
-            <div style="margin-bottom: 2rem; color: var(--text-secondary); font-size: 0.9rem;">
-                <p style="margin-bottom:0.5rem;"><strong>Taille:</strong> <span id="file-modal-size"
-                        style="color:#fff;"></span></p>
-                <p style="margin-bottom:0.5rem;"><strong>Modifié le:</strong> <span id="file-modal-date"
-                        style="color:#fff;"></span></p>
-                <p><strong>Version Actuelle:</strong> <span id="file-modal-version" style="color:#fff;"></span></p>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:1rem;">
-                <button class="btn-outline" id="btn-download-file">📥 Télécharger (Décrypté)</button>
-                <button class="btn-outline" id="btn-share-file">🔗 Créer un Lien</button>
-                <button class="btn-outline" id="btn-delete-file" style="border-color: #ff4757; color: #ff4757;">🗑
-                    Supprimer</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Partage -->
-    <div id="share-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="font-size:1.2rem; font-weight:500;">Créer un partage</h3>
-                <button style="background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;"
-                    onclick="closeModal('share-modal')">×</button>
-            </div>
-            <form id="create-share-form" class="auth-form">
-                <input type="text" id="share-label" placeholder="Description courte (ex: Pour le projet X)" required>
-                <input type="number" id="share-max-uses" placeholder="Nombre max. de téléchargements" min="1" max="100">
-                <button type="submit" class="btn-solid" style="margin-top:1rem;">Générer le lien sécurisé</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal: Résultat partage -->
-    <div id="share-result-modal" class="modal-overlay hidden">
-        <div class="modal-content" style="text-align: center;">
-            <div class="modal-header">
-                <h3 style="font-size:1.2rem; font-weight:500;">Lien Sécurisé Créé !</h3>
-                <button style="background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;"
-                    onclick="closeModal('share-result-modal')">×</button>
-            </div>
-            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">Votre ressource est prête
-                à être partagée.</p>
-            <input type="text" id="share-url-result" readonly
-                style="width:100%; padding:1rem; border-radius:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--primary); text-align:center; font-weight:bold; outline:none; margin-bottom:1.5rem;">
-            <button class="btn-outline" onclick="copyShareUrl()">📋 Copier le lien</button>
-        </div>
-    </div>
-
-    <script src="js/app.js?v=6"></script>
+        // Init
+        loadQuota(); loadFolders(); loadFiles(); loadActivity();
+    </script>
 </body>
 
 </html>

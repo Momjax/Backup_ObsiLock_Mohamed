@@ -882,16 +882,20 @@ public class ApiClient {
      */
     public String shareFile(int fileId, String data) throws Exception {
 
-        //découper => destinataire|maxUses|expiresDays|allowVersions
+        //découper => label|description|maxUses|expiresDays|allowVersions
         String[] parts = data.split("\\|");
-        if(parts.length != 4){
-            throw new IllegalArgumentException("Format de donées invalide \n(attendu: destinataire|maxUses|expiresDays|allowVersions)");
+        if(parts.length < 5){
+            throw new IllegalArgumentException("Format de donées invalide \n(attendu: label|description|maxUses|expiresDays|allowVersions|[recipientNote])");
         }
 
-        String destinataire = parts[0];
-        String maxUsesStr = parts[1];
-        String expiresDaysStr = parts[2];
-        boolean allowVersions = Boolean.parseBoolean(parts[3]);
+        String label = parts[0];
+        String description = parts[1];
+        String maxUsesStr = parts[2];
+        String expiresDaysStr = parts[3];
+        boolean allowVersions = Boolean.parseBoolean(parts[4]);
+        String recipientNote = (parts.length > 5) ? parts[5] : null;
+
+        if("null".equals(recipientNote)) recipientNote = null;
 
        Integer maxUses = null;
        if(!"null".equals(maxUsesStr) && !maxUsesStr.isEmpty()){
@@ -911,9 +915,9 @@ public class ApiClient {
             }
         }
 
-        String label = "Partage avec " + destinataire;
-
-        return createShare("file", fileId, label, maxUses, expiresDays, allowVersions);
+        // On peut éventuellement concaténer label et description si le label est petit au niveau DB
+        // Mais ici on utilise le label fourni
+        return createShare("file", fileId, label, description, recipientNote, maxUses, expiresDays, allowVersions);
     }
 
     /**
@@ -925,16 +929,20 @@ public class ApiClient {
      */
     public String shareFolder(int folderId, String data) throws Exception {
 
-        //découper => destinataire|maxUses|expiresDays
+        //découper => label|description|maxUses|expiresDays|allowVersions
         String[] parts = data.split("\\|");
-        if(parts.length != 4){
-            throw new IllegalArgumentException("Format de donées invalide \n(attendu: destinataire|maxUses|expiresDays)");
+        if(parts.length < 5){
+            throw new IllegalArgumentException("Format de donées invalide \n(attendu: label|description|maxUses|expiresDays|[recipientNote])");
         }
 
-        String destinataire = parts[0];
-        String maxUsesStr = parts[1];
-        String expiresDaysStr = parts[2];
-        // parts[3] (allowVersions) est ignoré pour les dossiers
+        String label = parts[0];
+        String description = parts[1];
+        String maxUsesStr = parts[2];
+        String expiresDaysStr = parts[3];
+        // parts[4] ignore pour dossiers
+        String recipientNote = (parts.length > 5) ? parts[5] : null;
+
+        if("null".equals(recipientNote)) recipientNote = null;
 
         Integer maxUses = null;
         if(!"null".equals(maxUsesStr) && !maxUsesStr.isEmpty()){
@@ -954,9 +962,7 @@ public class ApiClient {
             }
         }
 
-        String label = "Partage dossier avec " + destinataire;
-
-        return createShare("folder", folderId, label, maxUses, expiresDays, false);
+        return createShare("folder", folderId, label, description, recipientNote, maxUses, expiresDays, false);
     }
 
     /**
@@ -971,7 +977,7 @@ public class ApiClient {
      * @return
      * @throws Exception
      */
-    public String createShare(String kind, int targetId, String label, Integer maxUses, Integer expiresDays, boolean allowVersions) throws Exception{
+    public String createShare(String kind, int targetId, String label, String description, String recipientNote, Integer maxUses, Integer expiresDays, boolean allowVersions) throws Exception{
         if(authToken == null || authToken.isEmpty()) {
             throw new IllegalStateException("Utilisateur non authentifié (auth.token manquant).");
         }
@@ -1005,6 +1011,14 @@ public class ApiClient {
             String isoDate = futureDate.format(java.time.format.DateTimeFormatter.ISO_INSTANT);
 
             jsonBody.append(",\"expires_at\":\"").append(isoDate).append("\"");
+        }
+
+        if(description != null && !description.isBlank()){
+            jsonBody.append(",\"description\":\"").append(JsonUtils.escapeJson(description)).append("\"");
+        }
+
+        if(recipientNote != null && !recipientNote.isBlank()){
+            jsonBody.append(",\"recipient_note\":\"").append(JsonUtils.escapeJson(recipientNote)).append("\"");
         }
 
         jsonBody.append("}");
@@ -1140,7 +1154,7 @@ public class ApiClient {
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + authToken)
-                .method("PATCH", HttpRequest.BodyPublishers.noBody())
+                .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
 
         //HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -1149,7 +1163,7 @@ public class ApiClient {
         int status = response.statusCode();
 
 
-        if(status == 200){
+        if(status == 200 || status == 204){
             //UIDialogs.showInfo("Succès", null, "Partage #\" + id + \" révoqué avec succès");
             System.out.println("Partage #" + id + " révoqué avec succès");
             return;

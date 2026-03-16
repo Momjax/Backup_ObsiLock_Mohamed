@@ -2,7 +2,6 @@ package com.coffrefort.client.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -16,49 +15,36 @@ public class ShareController {
     @FXML private Label errorLabel;
     @FXML private Button cancelButton;
 
+    // @FXML private TextField recipientField; // Supprimé
     @FXML private TextField expiresField;
     @FXML private TextField maxUsesField;
-    @FXML private CheckBox allowVersionsCheckBox;
-    @FXML private VBox allowVersions;
+    @FXML private TextField shareLabelField;
+    @FXML private TextField shareDescriptionField;
+    @FXML private TextField recipientNoteField;
 
     private Stage stage;
 
-    // Callback appelé si l'utilisateur valide (destinataire)
+    // Callback appelé si l'utilisateur valide (destinataire|max|expire|versions)
     private Consumer<String> onShare;
     private Runnable onCancel;
     private boolean isFolder = false;
 
     @FXML
-    /**
-     * Initialise l’UI (masque l’erreur)
-     */
     private void initialize() {
         hideError();
+        if (expiresField != null) {
+            expiresField.setText("7");
+        }
     }
 
-
-    /**
-     * Injecte le Stage de la fenêtre modale pour pouvoir la fermer depuis le contrôleur
-     * @param stage
-     */
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
-
-    /**
-     * Affiche le nom de l’élément (fichier/dossier) à partager dans l’interface
-     * @param name
-     */
     public void setItemName(String name) {
         itemNameLabel.setText(name != null ? name : "");
     }
 
-
-    /**
-     * Définit le callback appelé lors de la validation du partage avec les paramètres saisis
-     * @param onShare
-     */
     public void setOnShare(Consumer<String> onShare) {
         this.onShare = onShare;
     }
@@ -67,21 +53,17 @@ public class ShareController {
         this.isFolder = isFolder;
     }
 
-
     @FXML
-    /**
-     * Valide les champs (maxUses, expiration), puis appelle le callback et ferme la fenêtre
-     */
     private void handleShare() {
         hideError();
+        
+        String recipient = ""; // Plus de destinataire requis
 
-        //Integer maxUses = 2; // => valeur par défaut
-        Integer maxUses = null; //=> illimité
+        Integer maxUses = null;
         try {
             String maxUsesText = maxUsesField.getText();
             if(maxUsesText != null && !maxUsesText.isBlank()) {
                 maxUses = Integer.parseInt(maxUsesText.trim());
-
                 if(maxUses < 1) {
                     showError("Max uses doit être >= 1 ou vide (illimité)");
                     return;
@@ -92,13 +74,11 @@ public class ShareController {
             return;
         }
 
-        //Integer expiresDays = 7; // => valeur par défaut
-        Integer expiresDays = null; // => illimité
+        Integer expiresDays = null;
         try {
             String expiresText = expiresField.getText();
             if(expiresText != null && !expiresText.isBlank()){
                 expiresDays = Integer.parseInt(expiresText.trim());
-
                 if(expiresDays < 1) {
                     showError("Expiration doit être >= 1 ou vide (jamais)");
                     return;
@@ -109,55 +89,51 @@ public class ShareController {
             return;
         }
 
-        //allow fixed versions
-        boolean allowVersions = allowVersionsCheckBox.isSelected();
+        // Récupération label et description (OBLIGATOIRES)
+        String labelValue = "";
+        if(shareLabelField != null && shareLabelField.getText() != null && !shareLabelField.getText().isBlank()){
+            labelValue = shareLabelField.getText().trim();
+        } else {
+            showError("Le nom du partage est obligatoire");
+            return;
+        }
 
-        String data = "null"
+        String descriptionValue = "";
+        if(shareDescriptionField != null && shareDescriptionField.getText() != null && !shareDescriptionField.getText().isBlank()){
+            descriptionValue = shareDescriptionField.getText().trim();
+        } else {
+            showError("La description du partage est obligatoire");
+            return;
+        }
+
+        String recipientNote = "null";
+        if(recipientNoteField != null && recipientNoteField.getText() != null && !recipientNoteField.getText().isBlank()){
+            recipientNote = recipientNoteField.getText().trim();
+        }
+
+        // On passe les données au format: label|description|maxUses|expiresDays|allowVersions|recipientNote
+        String data = labelValue
+                + "|" + descriptionValue
                 + "|" + (maxUses != null ? maxUses : "null")
                 + "|" + (expiresDays != null ? expiresDays : "null")
-                + "|" + allowVersions;
+                + "|false"
+                + "|" + recipientNote;
 
-        // Appel du callback avec destinataire, masUses, expiresDays, allowedVersion
         if (onShare != null) {
             onShare.accept(data);
         }
-
-        // Ferme le dialogue après validation
         if (stage != null) {
             stage.close();
         }
     }
 
-    /**
-     * Désactive et masque l'option "Allow fixed versions" (pour partage de dossiers)
-     */
-    public void disableVersionsOption(){
-        if(allowVersions != null){
-            if(allowVersionsCheckBox != null){
-                allowVersionsCheckBox.setSelected(false);
-                allowVersionsCheckBox.setDisable(true);
-                allowVersionsCheckBox.setVisible(false);
-                allowVersionsCheckBox.setManaged(false); //=> pour UI se réajuste
-            }
 
-            allowVersions.setVisible(false);
-        }
-
-    }
-
-    /**
-     * Affiche un message d’erreur dans l’UI en rendant le label visible
-     * @param msg
-     */
     private void showError(String msg) {
         errorLabel.setText(msg);
         errorLabel.setManaged(true);
         errorLabel.setVisible(true);
     }
 
-    /**
-     * Efface et masque le message d’erreur dans l’UI
-     */
     private void hideError() {
         errorLabel.setText("");
         errorLabel.setManaged(false);
@@ -165,9 +141,6 @@ public class ShareController {
     }
 
     @FXML
-    /**
-     * Gère le clic sur “Annuler” en exécutant le callback éventuel puis en fermant la fenêtre
-     */
     private void handleCancel() {
         if (onCancel != null) {
             onCancel.run();
@@ -175,17 +148,12 @@ public class ShareController {
         close();
     }
 
-    /**
-     * Ferme la fenêtre de partage (Stage injecté sinon récupération via le bouton en fallback)
-     */
     private void close() {
         if (stage != null) {
             stage.close();
         } else {
-            // fallback si jamais le stage n’est pas injecté
             Stage stage = (Stage) cancelButton.getScene().getWindow();
             stage.close();
         }
     }
-
 }

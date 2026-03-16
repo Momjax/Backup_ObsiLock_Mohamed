@@ -11,9 +11,12 @@ class FileRepository
         $this->db = $db;
     }
 
-    public function listByUser(int $userId, ?int $folderId = null): array
+    public function listByUser(int $userId, ?int $folderId = null, bool $includeDeleted = false): array
     {
         $where = ['user_id' => $userId];
+        if (!$includeDeleted) {
+            $where['is_deleted'] = 0;
+        }
         if ($folderId !== null) {
             $where['folder_id'] = $folderId;
         }
@@ -31,9 +34,32 @@ class FileRepository
         return (int)$this->db->id();
     }
 
-    public function delete(int $id): void
+    public function listTrash(int $userId): array
+    {
+        return $this->db->select('files', '*', [
+            'user_id' => $userId,
+            'is_deleted' => 1
+        ]);
+    }
+
+    public function softDelete(int $id): void
+    {
+        $this->db->update('files', ['is_deleted' => 1], ['id' => $id]);
+    }
+
+    public function restore(int $id): void
+    {
+        $this->db->update('files', ['is_deleted' => 0], ['id' => $id]);
+    }
+
+    public function permanentDelete(int $id): void
     {
         $this->db->delete('files', ['id' => $id]);
+    }
+
+    public function delete(int $id): void
+    {
+        $this->softDelete($id);
     }
 
     public function update(int $id, array $data): void

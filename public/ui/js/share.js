@@ -140,7 +140,7 @@ async function downloadFile(token, filename, btn) {
         // Indiquer succès
         btn.innerHTML = `✅ Téléchargement démarré !`;
         btn.style.backgroundColor = '#2a2e33';
-        btn.style.color = '#94E01E';
+        btn.style.color = '#2ecc71';
 
         // Rafraîchir les infos (le remaining_uses a peut être changé)
         setTimeout(() => loadShareInfo(getToken()), 1500);

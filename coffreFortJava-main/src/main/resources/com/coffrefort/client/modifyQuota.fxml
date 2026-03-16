@@ -2,196 +2,78 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="350"
-      prefWidth="500"
-      spacing="15"
-      style="-fx-background-color: #121417; -fx-background-radius: 8;"
-      stylesheets="@style-javafx.css"
-            xmlns="http://javafx.com/javafx/25"
-      xmlns:fx="http://javafx.com/fxml/1"
+<VBox prefHeight="450" 
+      prefWidth="550" 
+      spacing="20" 
+      styleClass="root"
+      stylesheets="@style-javafx.css" 
+      xmlns="http://javafx.com/javafx/25" 
+      xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="com.coffrefort.client.controllers.ModifyQuotaController">
 
     <padding>
-        <Insets bottom="20" left="25" right="25" top="20"/>
+        <Insets bottom="35" left="35" right="35" top="35"/>
     </padding>
 
     <!-- En-tête -->
-    <HBox spacing="12">
-        <VBox alignment="CENTER"
-              prefWidth="48"
-              style="-fx-background-color: #94E01E; -fx-background-radius: 8;">
-            <padding>
-                <Insets bottom="10" left="10" right="10" top="10"/>
-            </padding>
-            <Text text="💾"
-                  fill="white"
-                  style="-fx-font-size: 24px;"/>
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <VBox alignment="CENTER" prefWidth="55" prefHeight="55" 
+              style="-fx-background-color: rgba(46, 204, 113, 0.1); -fx-background-radius: 14; -fx-border-color: #2ecc71; -fx-border-radius: 14;">
+            <Text text="💾" fill="#2ecc71" style="-fx-font-size: 26px;"/>
         </VBox>
-
-        <VBox alignment="CENTER_LEFT" spacing="4">
-            <Text text="Modifier le quota"
-                  fill="#94E01E"
-                  style="-fx-font-weight: bold; -fx-font-size: 18px;"/>
-
-            <Text text="Définir une nouvelle limite de stockage"
-                  fill="#9499a1"
-                  style="-fx-font-size: 12px;"/>
+        <VBox spacing="4">
+            <Text text="Limites de Stockage" fill="#2ecc71" styleClass="title-futuristic" style="-fx-font-size: 24px;"/>
+            <Text text="Ajustez le quota de l'utilisateur" fill="#8b949e" style="-fx-font-size: 13px;"/>
         </VBox>
     </HBox>
 
-    <Separator>
-        <VBox.margin>
-            <Insets bottom="5" top="10"/>
-        </VBox.margin>
-    </Separator>
+    <Separator opacity="0.1"/>
 
-    <!-- Informations utilisateur -->
-    <VBox spacing="8"
-          style="-fx-background-color: #f5f5f5;
-                 -fx-padding: 12;
-                 -fx-background-radius: 6;">
-
-        <HBox spacing="8">
-            <Label text="Utilisateur :"
-                   style="-fx-font-weight: bold; -fx-text-fill: #9499a1;"/>
-            <Label fx:id="usernameLabel"
-                   text="user@example.com"
-                   style="-fx-text-fill: white;"/>
+    <!-- Infos Utilisateur (Premium Card) -->
+    <VBox spacing="10" style="-fx-background-color: rgba(255,255,255,0.03); -fx-background-radius: 12; -fx-padding: 20; -fx-border-color: rgba(46, 204, 113, 0.1); -fx-border-radius: 12;">
+        <HBox spacing="10">
+            <Label text="Utilisateur :" styleClass="label-dim" prefWidth="120"/>
+            <Label fx:id="usernameLabel" text="user@example.com" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
         </HBox>
-
-        <HBox spacing="8">
-            <Label text="Quota actuel :"
-                   style="-fx-font-weight: bold; -fx-text-fill: #9499a1;"/>
-            <Label fx:id="currentQuotaLabel"
-                   text="5.0 GB"
-                   style="-fx-text-fill: white;"/>
+        <HBox spacing="10">
+            <Label text="Quota actuel :" styleClass="label-dim" prefWidth="120"/>
+            <Label fx:id="currentQuotaLabel" text="5.0 GB" style="-fx-text-fill: white;"/>
         </HBox>
-
-        <HBox spacing="8">
-            <Label text="Espace utilisé :"
-                   style="-fx-font-weight: bold; -fx-text-fill: #9499a1;"/>
-            <Label fx:id="usedSpaceLabel"
-                   text="2.5 GB"
-                   style="-fx-text-fill: white;"/>
+        <HBox spacing="10">
+            <Label text="Espace utilisé :" styleClass="label-dim" prefWidth="120"/>
+            <Label fx:id="usedSpaceLabel" text="2.5 GB" style="-fx-text-fill: #2ecc71; -fx-font-weight: bold;"/>
         </HBox>
     </VBox>
 
-    <!-- Nouveau quota -->
-    <VBox spacing="8">
-        <Label text="Nouveau quota (en GB) :"
-               style="-fx-font-weight: bold; -fx-text-fill: #9499a1; -fx-font-size: 12px;"/>
-
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <TextField fx:id="quotaField"
-                       promptText="Ex: 10"
-                       prefWidth="150"
-                       style="-fx-font-size: 14px; -fx-padding: 8;"/>
-
-            <Label text="GB"
-                   style="-fx-font-size: 14px; -fx-text-fill: #9499a1;"/>
+    <!-- Saisie -->
+    <VBox spacing="12">
+        <Label text="Nouveau quota (en Go)" styleClass="label-dim" style="-fx-font-size: 12px;"/>
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <TextField fx:id="quotaField" promptText="Ex: 10" prefHeight="45" prefWidth="150"/>
+            <Label text="Go" style="-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 16px;"/>
         </HBox>
 
-        <!-- Suggestions -->
+        <!-- Presets -->
         <HBox spacing="8">
-            <Button text="1 GB"
-                    onAction="#setQuota1GB"
-                    style="-fx-background-color: #e0e0e0;
-                   -fx-text-fill: white;
-                   -fx-background-radius: 4;
-                   -fx-cursor: hand;
-                   -fx-padding: 6 12;
-                   -fx-font-size: 11px;"/>
-
-            <Button text="5 GB"
-                    onAction="#setQuota5GB"
-                    style="-fx-background-color: #e0e0e0;
-                   -fx-text-fill: white;
-                   -fx-background-radius: 4;
-                   -fx-cursor: hand;
-                   -fx-padding: 6 12;
-                   -fx-font-size: 11px;"/>
-
-            <Button text="10 GB"
-                    onAction="#setQuota10GB"
-                    style="-fx-background-color: #e0e0e0;
-                   -fx-text-fill: white;
-                   -fx-background-radius: 4;
-                   -fx-cursor: hand;
-                   -fx-padding: 6 12;
-                   -fx-font-size: 11px;"/>
-
-            <Button text="50 GB"
-                    onAction="#setQuota50GB"
-                    style="-fx-background-color: #e0e0e0;
-                   -fx-text-fill: white;
-                   -fx-background-radius: 4;
-                   -fx-cursor: hand;
-                   -fx-padding: 6 12;
-                   -fx-font-size: 11px;"/>
-
-            <Button text="100 GB"
-                    onAction="#setQuota100GB"
-                    style="-fx-background-color: #e0e0e0;
-                   -fx-text-fill: white;
-                   -fx-background-radius: 4;
-                   -fx-cursor: hand;
-                   -fx-padding: 6 12;
-                   -fx-font-size: 11px;"/>
+            <Button text="1 Go" onAction="#setQuota1GB" styleClass="button-secondary" style="-fx-font-size: 11px; -fx-padding: 6 12;"/>
+            <Button text="5 Go" onAction="#setQuota5GB" styleClass="button-secondary" style="-fx-font-size: 11px; -fx-padding: 6 12;"/>
+            <Button text="10 Go" onAction="#setQuota10GB" styleClass="button-secondary" style="-fx-font-size: 11px; -fx-padding: 6 12;"/>
+            <Button text="50 Go" onAction="#setQuota50GB" styleClass="button-secondary" style="-fx-font-size: 11px; -fx-padding: 6 12;"/>
+            <Button text="100 Go" onAction="#setQuota100GB" styleClass="button-secondary" style="-fx-font-size: 11px; -fx-padding: 6 12;"/>
         </HBox>
     </VBox>
 
-
-
-    <!-- Message d'erreur -->
-    <Label fx:id="errorLabel"
-           visible="false"
-           managed="false"
-           wrapText="true"
-           style="-fx-background-color: #ffe5e5;
-                  -fx-text-fill: #94E01E;
-                  -fx-padding: 8;
-                  -fx-background-radius: 6;
-                  -fx-font-weight: bold;"
-           text="Erreur"/>
+    <Label fx:id="errorLabel" visible="false" managed="false" style="-fx-text-fill: #ff4757; -fx-font-weight: bold;"/>
 
     <Region VBox.vgrow="ALWAYS"/>
 
-    <!-- Boutons d'action -->
-    <HBox alignment="CENTER" spacing="12">
-        <Button fx:id="cancelButton"
-                text="Annuler"
-                onAction="#handleCancel"
-                style="-fx-background-color: #32373d;
-                       -fx-text-fill: white;
-                       -fx-background-radius: 4;
-                       -fx-cursor: hand;
-                       -fx-padding: 10 20;">
-            <font><Font size="12"/></font>
-        </Button>
-
-        <Button fx:id="confirmButton"
-                text="Confirmer"
-                defaultButton="true"
-                onAction="#handleConfirm"
-                style="-fx-background-color: #94E01E;
--fx-text-fill: black;
-                       -fx-background-radius: 4;
-                       -fx-cursor: hand;
-                       -fx-padding: 10 20;
-                       -fx-font-weight: bold;">
-            <font><Font size="12"/></font>
-            <effect>
-                <DropShadow radius="10.0">
-                    <color>
-                        <Color red="0.60" green="0.05" blue="0.05" opacity="0.35"/>
-                    </color>
-                </DropShadow>
-            </effect>
-        </Button>
+    <!-- footer -->
+    <HBox alignment="CENTER_RIGHT" spacing="15">
+        <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel" styleClass="button-secondary" prefHeight="45" prefWidth="120"/>
+        <Button fx:id="confirmButton" text="Mettre à jour" onAction="#handleConfirm" styleClass="button-primary" prefHeight="45" prefWidth="160"/>
     </HBox>
+
 </VBox>

@@ -26,6 +26,12 @@ class AuthController
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
+        $password = $data['password'];
+        if (strlen($password) < 12 || !preg_match('/[A-Z]/', $password) || !preg_match('/[^a-zA-Z0-9]/', $password)) {
+            $response->getBody()->write(json_encode(['error' => 'Le mot de passe doit contenir au moins 12 caractères, une majuscule et un caractère spécial.']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
         // Vérifie si l'email existe déjà
         if ($this->users->findByEmail($data['email'])) {
             $response->getBody()->write(json_encode(['error' => 'Email déjà utilisé']));

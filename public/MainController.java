@@ -17,10 +17,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.scene.control.TableRow;
+import com.coffrefort.client.controllers.ShareSuccessController;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +43,7 @@ public class MainController {
     @FXML private TableColumn<FileEntry, String> nameCol;
     @FXML private TableColumn<FileEntry, String> sizeCol;
     @FXML private TableColumn<FileEntry, String> dateCol;
+    @FXML private TableColumn<FileEntry, Integer> versionCol;
 
     @FXML private ProgressBar quotaBar;
     @FXML private Label quotaLabel;
@@ -58,6 +62,8 @@ public class MainController {
     @FXML private Button deleteButton;
     @FXML private Button newFolderButton;
     @FXML private Button logoutButton;
+    @FXML private Button returnToRootButton;
+    @FXML private Button refreshQuotaButton;
     @FXML private Button gestionQuota;
     @FXML private Pagination pagination;
 
@@ -98,13 +104,23 @@ public class MainController {
 
                 if (node.getType() == NodeItem.NodeType.FOLDER){
                     currentFolder = node;
-                    loadFiles(currentFolder); //=> charge la page 0 du dossier séléctionné
+                    loadFiles(currentFolder);
                 }
             }
         });
 
-        //charger les données
-        loadData();         // => charger les données au démarrage
+        refreshUI();
+        loadData();
+    }
+
+    @FXML
+    private void handleGoToRoot() {
+        currentFolder = null;
+        treeView.getSelectionModel().clearSelection();
+        loadFiles(null);
+    }
+
+    private void refreshUI() {
 
         //mise à jour compteur
         updateFileCount();
@@ -122,13 +138,27 @@ public class MainController {
 
         // pour garantir le styles inline => éviter le  CSS externe
         // label bold inline
-        quotaLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #333333; -fx-font-size: 12px;");
+        // on laisse le CSS gérer le quotaLabel
         quotaBar.setStyle("-fx-pref-height: 8px;");
 
         // IMPORTANT : on laisse JavaFX créer la skin, puis on stylise (avec retry)
         //progressbar => création des noeuds intern .track(fond), .bar(partie remplie)
 
         Platform.runLater(this::refreshQuotaBarStyleWithRetry);
+
+        // Détection du plein écran pour augmenter la police (Futuriste !)
+        Platform.runLater(() -> {
+            if (treeView.getScene() != null && treeView.getScene().getWindow() instanceof Stage) {
+                Stage stage = (Stage) treeView.getScene().getWindow();
+                stage.maximizedProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal) {
+                        treeView.getScene().getRoot().setStyle("-fx-font-size: 18px;");
+                    } else {
+                        treeView.getScene().getRoot().setStyle("-fx-font-size: 16px;");
+                    }
+                });
+            }
+        });
 
         // Si la scene arrive / change -> restyle
         quotaBar.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -192,6 +222,10 @@ public class MainController {
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         sizeCol.setCellValueFactory(new PropertyValueFactory<>("formattedSize"));
         dateCol.setCellValueFactory(new PropertyValueFactory<>("updatedAtFormatted"));
+        versionCol.setCellValueFactory(new PropertyValueFactory<>("version"));
+        
+        // Centrer la version
+        versionCol.setStyle("-fx-alignment: CENTER;");
 
         table.setItems(fileList);
 
@@ -218,7 +252,15 @@ public class MainController {
             //menu contextuel par ligne
             ContextMenu contextMenu = new ContextMenu();
 
-            MenuItem renameItem = new MenuItem("Renommer ce fichier...");
+            MenuItem openItem = new MenuItem("👁  Ouvrir");
+            openItem.setOnAction(e -> {
+                FileEntry file = row.getItem();
+                if (file != null) {
+                    handleOpenFile(file);
+                }
+            });
+
+            MenuItem renameItem = new MenuItem("✏️  Renommer...");
             renameItem.setOnAction(e -> {
                 FileEntry file = row.getItem();
                 if (file != null) {
@@ -226,7 +268,7 @@ public class MainController {
                 }
             });
 
-            MenuItem downloadItem = new MenuItem("Télécharger");
+            MenuItem downloadItem = new MenuItem("📥  Télécharger");
             downloadItem.setOnAction(e -> {
                 FileEntry file = row.getItem();
                 if (file != null) {
@@ -244,7 +286,15 @@ public class MainController {
 //                }
 //            });
 
-            contextMenu.getItems().addAll(renameItem, downloadItem);
+            MenuItem detailsItem = new MenuItem("📜  Historique & Versions");
+            detailsItem.setOnAction(e -> {
+                FileEntry file = row.getItem();
+                if (file != null) {
+                    openFileDetailsDialog(file);
+                }
+            });
+
+            contextMenu.getItems().addAll(openItem, new SeparatorMenuItem(), renameItem, downloadItem, detailsItem);
 
             //affichage le menu => que si la ligne n'est pas vide
             row.contextMenuProperty().bind(
@@ -255,9 +305,9 @@ public class MainController {
 
             //ouvrir les détails d'un fichier en double cliquant dessus
             row.setOnMouseClicked(event -> {
-                if(event.getClickCount() ==2 && !row.isEmpty()){
+                if(event.getClickCount() == 2 && !row.isEmpty()){
                     FileEntry selected = row.getItem();
-                    openFileDetailsDialog(selected);
+                    handleOpenFile(selected);
                 }
             });
             return row;
@@ -598,6 +648,12 @@ public class MainController {
         return true;
     }
 
+    @FXML
+    private void handleUpdateQuotaAction() {
+        updateQuota();
+        statusLabel.setText("Quota mis à jour.");
+    }
+
     /**
      * mettre à jour le quota
      */
@@ -627,28 +683,26 @@ public class MainController {
                     // progress
                     quotaBar.setProgress(ratio); // valeur entre 0 et 1
 
-                    // texte
+                    // texte et style (forcé en Java pour être sûr)
                     quotaLabel.setText(FileUtils.formatSize(used) + " / " + FileUtils.formatSize(max));
+                    quotaLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 20px; -fx-font-family: 'Outfit Bold', 'Segoe UI Black', Impact, sans-serif; -fx-font-weight: bold;");
 
                     // couleur
-                    if (ratio >= 0.9){  //ancien ratio >= 1.0
-                        quotaColor = "#d9534f"; //rouge
-                        //quotaBar.setStyle("-fx-accent: #d9534f;"); //=>rouge => avec ça ne marche pas!!
+                    if (ratio >= 0.9){
+                        quotaColor = "#ff4757"; // rouge néon
                         statusLabel.setText("Quota atteint — upload bloqué");
                         uploadButton.setDisable(true);
                     }
                     else if (ratio >= 0.8) {
-                        quotaColor = "#f0ad4e"; //orange
-                        //quotaBar.setStyle("-fx-accent: #f0ad4e;"); // => orange => avec ça ne marche pas!!
+                        quotaColor = "#f0ad4e"; // orange
                         uploadButton.setDisable(false);
                     }
                     else{
-                        quotaColor = "#5cb85c"; //vert
-                        //quotaBar.setStyle("-fx-accent: #5cb85c;"); //=> vert => avec ça ne marche pas!!
+                        quotaColor = "#2ecc71"; // vert émeraude standard
                         uploadButton.setDisable(false);
                     }
 
-                    // restyle (important après setProgress) => pour éviter que JavaFX reconstruite le noeud interne
+                    // restyle
                     quotaStyleRetries = 0;
                     refreshQuotaBarStyleWithRetry();
                 });
@@ -659,8 +713,7 @@ public class MainController {
                 Platform.runLater(() -> {
                     quotaBar.setProgress(0.0);
                     quotaLabel.setText("Erreur quota");
-
-                    setQuotaColor("#d9534f"); //rouge
+                    quotaLabel.setStyle("-fx-text-fill: #ff4757; -fx-font-size: 20px;");
                     quotaStyleRetries = 0;
                     refreshQuotaBarStyleWithRetry();
                 });
@@ -673,14 +726,18 @@ public class MainController {
      */
     public void checkAdminRole(){
         try{
+            if (gestionQuota == null) return;
+            
             //vérif si le rôle depuis le token ou API
             boolean isAdmin = apiClient.isAdmin();
 
             gestionQuota.setVisible(isAdmin);
             gestionQuota.setManaged(isAdmin);
         }catch (Exception e){
-            gestionQuota.setVisible(false);
-            gestionQuota.setManaged(false);
+            if (gestionQuota != null) {
+                gestionQuota.setVisible(false);
+                gestionQuota.setManaged(false);
+            }
         }
     }
 
@@ -819,7 +876,6 @@ public class MainController {
 
             //controller.setIsFolder(true); => indiquer que c'est un folder....
             //désactiver allowVersions pour les dossiers
-            controller.disableVersionsOption();
 
             //callback => quand user clique sur partage
             //callback => quand user clique sur partage
@@ -859,7 +915,29 @@ public class MainController {
      */
     private void showShareDialog(String url){
 
-        UIDialogs.showInfoUrl("Partage réusssi", "Lien de partage généré", url);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/coffrefort/client/shareSuccess.fxml"));
+            VBox root = loader.load();
+            
+            ShareSuccessController controller = loader.getController();
+            controller.setUrl(url);
+            
+            Stage stage = new Stage();
+            stage.initStyle(StageStyle.TRANSPARENT);
+            if (shareButton != null && shareButton.getScene() != null) {
+                stage.initOwner(shareButton.getScene().getWindow());
+            }
+            stage.initModality(Modality.APPLICATION_MODAL);
+            
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            stage.setScene(scene);
+            stage.showAndWait();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            UIDialogs.showInfoUrl("Partage réussi", "Lien de partage généré", url);
+        }
     }
 
     /**
@@ -883,8 +961,8 @@ public class MainController {
             dialogStage.setTitle("Mes partages");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(treeView.getScene().getWindow());
-            dialogStage.setScene(new Scene(root));
-            dialogStage.setResizable(false);
+            dialogStage.setScene(new Scene(root, 900, 600));
+            dialogStage.setResizable(true);
 
             controller.setApiClient(apiClient);
             controller.setStage(dialogStage);
@@ -1662,8 +1740,41 @@ public class MainController {
             logoutButton.setDisable(false);
         }
     }
+    /**
+     * Ouvrir un fichier (télécharge dans temp et ouvre)
+     * @param fileEntry
+     */
+    private void handleOpenFile(FileEntry fileEntry) {
+        if (fileEntry == null) return;
 
+        statusLabel.setText("Ouverture de " + fileEntry.getName() + "...");
 
+        new Thread(() -> {
+            try {
+                // Créer un fichier temporaire
+                String tempDir = System.getProperty("java.io.tmpdir");
+                File tempFile = new File(tempDir, "obsilock_" + System.currentTimeMillis() + "_" + fileEntry.getName());
+                
+                apiClient.downloadFileTo(fileEntry.getId(), tempFile);
 
-
+                Platform.runLater(() -> {
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported()) {
+                            java.awt.Desktop.getDesktop().open(tempFile);
+                            statusLabel.setText("Aperçu ouvert: " + fileEntry.getName());
+                        } else {
+                            UIDialogs.showError("Erreur", null, "L'ouverture automatique n'est pas supportée sur ce système.");
+                        }
+                    } catch (Exception ex) {
+                        UIDialogs.showError("Erreur", null, "Impossible d'ouvrir le fichier : " + ex.getMessage());
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    UIDialogs.showError("Erreur", null, "Échec du téléchargement temporaire : " + e.getMessage());
+                });
+            }
+        }).start();
+    }
 }

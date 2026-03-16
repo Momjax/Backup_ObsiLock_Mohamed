@@ -19,7 +19,7 @@
 <VBox prefHeight="600"
       prefWidth="500"
       spacing="15"
-      style="-fx-background-color: #121417; -fx-background-radius: 8;"
+      style="-fx-background-color: #0d1117; -fx-background-radius: 8;"
       stylesheets="@style-javafx.css"
             xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -42,7 +42,7 @@
             </ImageView>
 
             <VBox spacing="2">
-                <Text fill="#94E01E"
+                <Text fill="#2ecc71"
                       style="-fx-font-weight: bold;
                             -fx-font-size: 18px;"
                       text="📤 Uploader des fichiers"
@@ -78,7 +78,7 @@
                         onAction="#handleSelectFile"
                         prefHeight="39.0"
                         prefWidth="177.0"
-                        style="-fx-background-color: #94E01E;
+                        style="-fx-background-color: #2ecc71;
 -fx-text-fill: black;
                                 -fx-background-radius: 4;
                                 -fx-cursor: hand;
@@ -95,7 +95,7 @@
                                     radius="3.5"
                                     width="8.0">
                             <color>
-                                <Color red="0.58" green="0.88" blue="0.11"
+                                <Color red="0.18" green="0.80" blue="0.44"
                                        opacity="0.3" />
                             </color>
                         </DropShadow>
@@ -171,7 +171,7 @@
               visible="false">
             <HBox alignment="CENTER_LEFT" spacing="10">
                 <Label fx:id="progressLabel"
-                       style="-fx-text-fill: #94E01E;
+                       style="-fx-text-fill: #2ecc71;
                             -fx-font-weight: bold;
                             -fx-font-size: 12px;"
                        text="Upload en cours..." />
@@ -184,7 +184,7 @@
             <ProgressBar fx:id="uploadProgressBar"
                          prefHeight="10"
                          prefWidth="Infinity"
-                         style="-fx-accent: #980b0b;">
+                         style="-fx-accent: #2ecc71;">
                 <effect>
                     <DropShadow height="5.0"
                                 offsetX="1.0"
@@ -192,7 +192,7 @@
                                 radius="2.0"
                                 width="5.0">
                         <color>
-                            <Color red="0.58" green="0.88" blue="0.11"
+                            <Color red="0.18" green="0.80" blue="0.44"
                                    opacity="0.2" />
                         </color>
                     </DropShadow>
@@ -231,7 +231,7 @@
                     defaultButton="true"
                     disable="true"
                     onAction="#handleUpload"
-                    style="-fx-background-color: #94E01E;
+                    style="-fx-background-color: #2ecc71;
 -fx-text-fill: black;
                             -fx-background-radius: 4;
                             -fx-cursor: hand;
@@ -248,7 +248,7 @@
                                 radius="4.5"
                                 width="10.0">
                         <color>
-                            <Color red="0.58" green="0.88" blue="0.11"
+                            <Color red="0.18" green="0.80" blue="0.44"
                                    opacity="0.4" />
                         </color>
                     </DropShadow>

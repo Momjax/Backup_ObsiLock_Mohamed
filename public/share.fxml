@@ -6,253 +6,102 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox prefHeight="500.0"
-      prefWidth="460"
-      spacing="15"
-      style="-fx-background-color: #121417;
-            -fx-background-radius: 8;"
-      stylesheets="@style-javafx.css"
-            xmlns="http://javafx.com/javafx/25"
-      xmlns:fx="http://javafx.com/fxml/1"
+<VBox prefHeight="820" 
+      prefWidth="500" 
+      spacing="20" 
+      styleClass="root"
+      stylesheets="@style-javafx.css" 
+      xmlns="http://javafx.com/javafx/25" 
+      xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="com.coffrefort.client.controllers.ShareController">
 
     <padding>
-        <Insets bottom="20" left="25" right="25" top="20" />
+        <Insets bottom="30" left="30" right="30" top="30"/>
     </padding>
 
     <!-- En-tête -->
-    <HBox spacing="12">
-
-        <!-- Bande bleue avec icône -->
-        <VBox alignment="CENTER"
-              prefHeight="41.0"
-              prefWidth="49.0"
-              style="-fx-background-color: #94E01E;
-                    -fx-background-radius: 8;">
-            <padding>
-                <Insets bottom="10" left="10" right="10" top="10" />
-            </padding>
-
-            <Text fill="white"
-                  style="-fx-font-size: 24px;"
-                  text="🔗"
-                  wrappingWidth="24.0" />
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <VBox alignment="CENTER" prefWidth="55" prefHeight="55" 
+              style="-fx-background-color: rgba(46, 204, 113, 0.1); -fx-background-radius: 14; -fx-border-color: #2ecc71; -fx-border-radius: 14;">
+            <Text text="🔗" fill="#2ecc71" style="-fx-font-size: 26px;"/>
         </VBox>
-
-        <!-- Titre + sous-titre -->
-        <VBox alignment="CENTER_LEFT"
-              prefHeight="55.0"
-              prefWidth="348.0"
-              spacing="4">
-            <Text fill="#94E01E"
-                  style="-fx-font-weight: bold;
-                        -fx-font-size: 18px;"
-                  text="Partager"
-                  wrappingWidth="139.97497129440308" />
-
-            <Text fill="#9499a1"
-                  style="-fx-font-size: 12px;"
-                  text="Choisissez un destinataire" />
+        <VBox spacing="4">
+            <Text text="Partager" fill="#2ecc71" styleClass="title-futuristic" style="-fx-font-size: 24px;"/>
+            <Text text="Générez un lien d'accès sécurisé" fill="#8b949e" style="-fx-font-size: 13px;"/>
         </VBox>
     </HBox>
 
-    <Separator>
-        <VBox.margin>
-            <Insets bottom="5" top="10" />
-        </VBox.margin>
-    </Separator>
+    <Separator opacity="0.1"/>
 
-    <!-- Zone de message -->
-    <VBox spacing="10">
+    <!-- Formulaire principal -->
+    <VBox spacing="18" VBox.vgrow="ALWAYS">
+        
+        <!-- Ressource cible -->
+        <VBox spacing="6" alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.03); -fx-background-radius: 10; -fx-padding: 15;">
+            <Label text="Élément à partager" styleClass="label-dim" style="-fx-font-size: 11px;"/>
+            <Label fx:id="itemNameLabel" text="Nom de la ressource" wrapText="true" textAlignment="CENTER"
+                   style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+        </VBox>
 
-        <Label alignment="CENTER"
-               prefWidth="410"
-               style="-fx-text-fill: white;
-                    -fx-font-size: 13px;"
-               text="Vous êtes sur le point de partager l'élément suivant :"
-               textAlignment="CENTER"
-               wrapText="true" />
 
-        <Label fx:id="itemNameLabel"
-               alignment="CENTER"
-               prefWidth="410"
-               style="-fx-text-fill: #94E01E;
-                    -fx-font-weight: bold;
-                    -fx-font-size: 13px;"
-               text="NomDeLElement"
-               textAlignment="CENTER"
-               wrapText="true" />
-
-        <!-- Infos partage -->
-        <Label alignment="CENTER"
-               prefWidth="410"
-               style="-fx-text-fill: #9499a1;
-                    -fx-font-size: 12px;"
-               text="Un lien de téléchargement sécurisé va être généré.
-Copie-le et envoie-le à la personne de ton choix."
-               textAlignment="CENTER"
-               wrapText="true" />
-
-        <!-- Choix des options : expiration et max_uses -->
-        <HBox spacing="12">
-
-            <VBox prefHeight="59.0"
-                  prefWidth="195.0"
-                  spacing="6"
-                  HBox.hgrow="ALWAYS">
-                <Label alignment="CENTER"
-                       contentDisplay="CENTER"
-                       prefHeight="17.0"
-                       prefWidth="186.0"
-                       style="-fx-text-fill: white;
-                            -fx-font-size: 12px;
-                            -fx-font-weight: bold;"
-                       text="Expiration (jours)">
-               <VBox.margin>
-                  <Insets top="4.0" />
-               </VBox.margin></Label>
-                <TextField fx:id="expiresField"
-                           alignment="CENTER"
-                           maxHeight="-Infinity"
-                           maxWidth="-Infinity"
-                           minHeight="-Infinity"
-                           minWidth="-Infinity"
-                           prefHeight="36.0"
-                           prefWidth="85.0"
-                           promptText="ex: 7"
-                           style="-fx-background-radius: 6;
-                                -fx-padding: 8 10;
-                                -fx-border-radius: 6;
-                                ">
-               <VBox.margin>
-                  <Insets left="50.0" />
-               </VBox.margin></TextField>
+        <!-- Configuration -->
+        <HBox spacing="15">
+            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                <Label text="Expiration (jours)" styleClass="label-dim" style="-fx-font-size: 12px;"/>
+                <TextField fx:id="expiresField" promptText="7" alignment="CENTER" prefHeight="45.0"/>
             </VBox>
-
-            <VBox prefHeight="59.0"
-                  prefWidth="110.0"
-                  spacing="6"
-                  HBox.hgrow="ALWAYS">
-                <Label alignment="CENTER"
-                       contentDisplay="CENTER"
-                       maxWidth="-Infinity"
-                       minWidth="-Infinity"
-                       prefHeight="17.0"
-                       prefWidth="215.0"
-                       style="-fx-text-fill: white;
-                            -fx-font-size: 12px;
-                            -fx-font-weight: bold;"
-                       text="Nombre maximum d'utilisations">
-               <VBox.margin>
-                  <Insets top="4.0" />
-               </VBox.margin></Label>
-                <TextField fx:id="maxUsesField"
-                           alignment="CENTER"
-                           maxHeight="-Infinity"
-                           maxWidth="-Infinity"
-                           minHeight="-Infinity"
-                           minWidth="-Infinity"
-                           prefHeight="36.0"
-                           prefWidth="85.0"
-                           promptText="ex: 3"
-                           style="-fx-background-radius: 6;
-                                -fx-padding: 8 10;
-                                -fx-border-radius: 6;
-                                ">
-               <VBox.margin>
-                  <Insets left="50.0" />
-               </VBox.margin></TextField>
+            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                <Label text="Utilisations max" styleClass="label-dim" style="-fx-font-size: 12px;"/>
+                <TextField fx:id="maxUsesField" promptText="∞" alignment="CENTER" prefHeight="45.0"/>
             </VBox>
-
         </HBox>
 
-        <Label fx:id="errorLabel"
-               managed="false"
-               style="-fx-text-fill: #94E01E;
-                    -fx-font-size: 12px;
-                    -fx-font-weight: bold;"
-               text=""
-               visible="false"
-               wrapText="true" />
-    </VBox>
-   <HBox prefHeight="100.0" prefWidth="200.0">
-      <children>
-
-            <VBox fx:id="allowVersions" spacing="6">
-                <Label style="-fx-text-fill: white;
-                        -fx-font-size: 12px;
-                        -fx-font-weight: bold;"
-                       text="Options de partage" />
-
-                <CheckBox fx:id="allowVersionsCheckBox"
-                          prefHeight="17.0"
-                          prefWidth="394.0"
-                          style="-fx-text-fill: white;
-                                -fx-font-size: 12px;"
-                          text="Autoriser le téléchargement de versions spécifiques" />
-
-                <Label style="-fx-text-fill: #9499a1;
-                            -fx-font-size: 10px;
-                            -fx-padding: 0 0 0 25;"
-                       text="Si activé, le destinataire pourra choisir une version précise du fichier."
-                       wrapText="true" />
-            <HBox.margin>
-               <Insets top="6.0" />
-            </HBox.margin>
+        <!-- Personnalisation -->
+        <VBox spacing="10">
+            <VBox spacing="8">
+                <Label styleClass="label-dim" style="-fx-font-size: 12px;">
+                    <graphic>
+                        <HBox spacing="2">
+                            <Label text="Nom du partage (public)" styleClass="label-dim"/>
+                            <Text text="*" fill="#ff4757" style="-fx-font-weight: bold;"/>
+                        </HBox>
+                    </graphic>
+                </Label>
+                <TextField fx:id="shareLabelField" promptText="Ex: Documents de travail, Photos de vacances..." prefHeight="45.0"/>
             </VBox>
-      </children>
-   </HBox>
+            <VBox spacing="8">
+                <Label styleClass="label-dim" style="-fx-font-size: 12px;">
+                    <graphic>
+                        <HBox spacing="2">
+                            <Label text="Description du partage" styleClass="label-dim"/>
+                            <Text text="*" fill="#ff4757" style="-fx-font-weight: bold;"/>
+                        </HBox>
+                    </graphic>
+                </Label>
+                <TextField fx:id="shareDescriptionField" promptText="Ajouter un petit texte explicatif..." prefHeight="45.0"/>
+            </VBox>
+            <VBox spacing="8">
+                <Label text="Note pour le destinataire (facultatif)" styleClass="label-dim" style="-fx-font-size: 11px; -fx-opacity: 0.7;"/>
+                <TextField fx:id="recipientNoteField" promptText="Apparaîtra sur la page du lien..." prefHeight="40.0" 
+                           style="-fx-background-color: rgba(255,255,255,0.02); -fx-border-color: rgba(255,255,255,0.05);"/>
+            </VBox>
+        </VBox>
 
-    <Region VBox.vgrow="ALWAYS" />
 
-    <!-- Boutons d'action CENTRÉS -->
-    <HBox alignment="CENTER" spacing="12.0">
+        <Label fx:id="errorLabel" visible="false" managed="false" style="-fx-text-fill: #ff4757; -fx-font-weight: bold;"/>
+    </VBox>
 
-        <Button fx:id="cancelButton"
-                cancelButton="true"
-                onAction="#handleCancel"
-                style="-fx-background-color: #32373d;
-                        -fx-text-fill: white;
-                        -fx-background-radius: 4;
-                        -fx-cursor: hand;
-                        -fx-padding: 8 20;"
-                text="Annuler">
-            <font>
-                <Font size="12" />
-            </font>
-        </Button>
+    <Region VBox.vgrow="ALWAYS"/>
 
-        <Button fx:id="shareButton"
-                defaultButton="true"
-                onAction="#handleShare"
-                style="-fx-background-color: #94E01E;
--fx-text-fill: black;
-                        -fx-background-radius: 4;
-                        -fx-cursor: hand;
-                        -fx-padding: 8 24;
-                        -fx-font-weight: bold;"
-                text="Partager">
-            <font>
-                <Font size="12" />
-            </font>
-            <effect>
-                <DropShadow radius="10.0">
-                    <color>
-                        <Color red="0.05" green="0.25" blue="0.55" opacity="0.35" />
-                    </color>
-                </DropShadow>
-            </effect>
-        </Button>
-      <VBox.margin>
-         <Insets bottom="15.0" />
-      </VBox.margin>
+    <!-- Boutons -->
+    <HBox alignment="CENTER_RIGHT" spacing="15">
+        <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel" styleClass="button-secondary" prefWidth="100" prefHeight="45"/>
+        <Button fx:id="shareButton" text="Générer le lien" onAction="#handleShare" styleClass="button-vibrant" prefWidth="180" prefHeight="45"/>
     </HBox>
+
 </VBox>
