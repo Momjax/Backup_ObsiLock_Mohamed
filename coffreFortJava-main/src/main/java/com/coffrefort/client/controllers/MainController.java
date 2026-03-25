@@ -66,6 +66,11 @@ public class MainController {
     @FXML private Button refreshQuotaButton;
     @FXML private Button gestionQuota;
     @FXML private Pagination pagination;
+    @FXML private javafx.scene.control.ToggleButton themeToggleButton;
+    @FXML private javafx.scene.image.ImageView logoView;
+
+    private boolean isDarkTheme = true;
+
 
     private ApiClient apiClient;
     private Runnable onLogout;
@@ -96,6 +101,10 @@ public class MainController {
         pagination.setVisible(false);
         pagination.setManaged(false);
 
+        // Initialiser le bouton de thème et le logo
+        App.updateThemeButton(themeToggleButton);
+        App.updateLogo(logoView);
+
         //mettre en place le listener
         // quand je clique sur un dossier => currentFolder <=> currentFolder= null
         treeView.getSelectionModel().selectedItemProperty().addListener((obs, oldItem, newItem) -> {
@@ -111,6 +120,9 @@ public class MainController {
 
         refreshUI();
         loadData();
+
+        // Initialiser l'état du bouton theme
+        App.updateThemeButton(themeToggleButton);
     }
 
     @FXML
@@ -800,7 +812,9 @@ public class MainController {
 
             //interdire de redimensionner  la fenêtre => taille fixe
             dialogStage.setResizable(false);
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
 
             controller.setStage(dialogStage);
             controller.setItemName(selected.getName());
@@ -865,7 +879,9 @@ public class MainController {
 
             //interdire de redimensionner  la fenêtre => taille fixe
             dialogStage.setResizable(false);
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
 
             controller.setStage(dialogStage);
             controller.setItemName(folderNode.getName());
@@ -926,6 +942,7 @@ public class MainController {
             stage.initModality(Modality.APPLICATION_MODAL);
             
             Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
             scene.setFill(Color.TRANSPARENT);
             stage.setScene(scene);
             stage.showAndWait();
@@ -957,7 +974,9 @@ public class MainController {
             dialogStage.setTitle("Mes partages");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(treeView.getScene().getWindow());
-            dialogStage.setScene(new Scene(root, 900, 600));
+            Scene scene = new Scene(root, 900, 600);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
             dialogStage.setResizable(true);
 
             controller.setApiClient(apiClient);
@@ -986,7 +1005,9 @@ public class MainController {
             dialogStage.setTitle("Ma Corbeille — ObsiLock");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(treeView.getScene().getWindow());
-            dialogStage.setScene(new Scene(root, 1000, 700));
+            Scene scene = new Scene(root, 1000, 700);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
             dialogStage.setResizable(true);
 
             controller.setApiClient(apiClient);
@@ -1038,7 +1059,9 @@ public class MainController {
             dialogStage.setTitle("Uploader des fichiers");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(uploadButton.getScene().getWindow());
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
             controller.setDialogStage(dialogStage);
 
             //callback pour rafraîchir après upload
@@ -1084,7 +1107,9 @@ public class MainController {
 //            dialogStage.initOwner(treeView.getScene().getWindow()); => il est dans la table et pas dans treeView!!
             dialogStage.initOwner(table.getScene().getWindow());
             dialogStage.setResizable(false);
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
 
 
             dialogStage.setWidth(420);
@@ -1181,7 +1206,9 @@ public class MainController {
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(table.getScene().getWindow());
             dialogStage.setResizable(false);
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
 
             controller.setStage(dialogStage);
 
@@ -1226,7 +1253,9 @@ public class MainController {
             dialogStage.setTitle("Confirmer la suppresion du fichier");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(deleteButton.getScene().getWindow());
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
 
             // Injection du stage et du nom de fichier
             controller.setDialogStage(dialogStage);
@@ -1265,7 +1294,7 @@ public class MainController {
 
         new Thread(() -> {
             try {
-                apiClient.deleteFile(file.getId());
+                apiClient.permanentDeleteFile(file.getId());
 
                 Platform.runLater(() -> {
 
@@ -1587,7 +1616,7 @@ public class MainController {
 
         new Thread(() -> {
             try{
-                apiClient.deleteFolder(folder.getId());
+                apiClient.permanentDeleteFolder(folder.getId());
 
                 Platform.runLater(() -> {
 
@@ -1801,5 +1830,13 @@ public class MainController {
                 });
             }
         }).start();
+    }
+    @FXML
+    private void handleToggleTheme() {
+        if (table.getScene() != null) {
+            App.toggleTheme(table.getScene());
+            App.updateThemeButton(themeToggleButton);
+            App.updateLogo(logoView);
+        }
     }
 }

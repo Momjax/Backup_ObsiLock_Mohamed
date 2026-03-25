@@ -19,8 +19,7 @@
 <VBox prefHeight="600"
       prefWidth="500"
       spacing="15"
-      style="-fx-background-color: #1a1a1a; -fx-background-radius: 8;"
-      stylesheets="@style-javafx.css"
+      styleClass="root"
             xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.coffrefort.client.controllers.UploadDialogController">
@@ -42,13 +41,12 @@
             </ImageView>
 
             <VBox spacing="2">
-                <Text fill="#2ecc71"
-                      style="-fx-font-weight: bold;
-                            -fx-font-size: 18px;"
+                <Text styleClass="main-title-green"
+                      style="-fx-font-size: 18px;"
                       text="📤 Uploader des fichiers"
                       textAlignment="CENTER"
                       wrappingWidth="288.48866271972656" />
-                <Text fill="#9499a1" style="-fx-font-size: 11px;"
+                <Text styleClass="label-dim" style="-fx-font-size: 11px;"
                       text="Sélectionnez les fichiers à téléverser"
                       textAlignment="CENTER"
                       wrappingWidth="289.14794921875" />

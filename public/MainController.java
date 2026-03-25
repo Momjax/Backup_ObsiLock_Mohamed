@@ -66,6 +66,11 @@ public class MainController {
     @FXML private Button refreshQuotaButton;
     @FXML private Button gestionQuota;
     @FXML private Pagination pagination;
+    @FXML private Button themeToggleButton;
+    @FXML private javafx.scene.image.ImageView logoView;
+
+    private boolean isDarkTheme = true;
+
 
     private ApiClient apiClient;
     private Runnable onLogout;
@@ -96,6 +101,10 @@ public class MainController {
         pagination.setVisible(false);
         pagination.setManaged(false);
 
+        // Initialiser le bouton de thème et le logo
+        App.updateThemeButton(themeToggleButton);
+        App.updateLogo(logoView);
+
         //mettre en place le listener
         // quand je clique sur un dossier => currentFolder <=> currentFolder= null
         treeView.getSelectionModel().selectedItemProperty().addListener((obs, oldItem, newItem) -> {
@@ -111,6 +120,9 @@ public class MainController {
 
         refreshUI();
         loadData();
+
+        // Initialiser l'état du bouton theme
+        App.updateThemeButton(themeToggleButton);
     }
 
     @FXML
@@ -231,18 +243,9 @@ public class MainController {
 
         // Activer/désactiver les boutons selon la sélection
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            boolean hasSelection = newVal != null;  //=> true  //newVal = la valeur sélectionnée dans une TableView/ListView
+            boolean hasSelection = newVal != null;
             shareButton.setDisable(!hasSelection);
             deleteButton.setDisable(!hasSelection);
-
-            // Changer la couleur des boutons
-            if (hasSelection) {
-                shareButton.setStyle("-fx-background-color: #980b0b; -fx-text-fill: white; -fx-background-radius: 4; -fx-cursor: hand; -fx-padding: 6 14;");
-                deleteButton.setStyle("-fx-background-color: #d9534f; -fx-text-fill: white; -fx-background-radius: 4; -fx-cursor: hand; -fx-padding: 6 14;");
-            } else {
-                shareButton.setStyle("-fx-background-color: #666666; -fx-text-fill: white; -fx-background-radius: 4; -fx-cursor: hand; -fx-padding: 6 14;");
-                deleteButton.setStyle("-fx-background-color: #666666; -fx-text-fill: white; -fx-background-radius: 4; -fx-cursor: hand; -fx-padding: 6 14;");
-            }
         });
 
         //clique sur une ligne
@@ -683,13 +686,17 @@ public class MainController {
                     // progress
                     quotaBar.setProgress(ratio); // valeur entre 0 et 1
 
-                    // texte et style (forcé en Java pour être sûr)
+                    // texte et style via CSS classes
                     quotaLabel.setText(FileUtils.formatSize(used) + " / " + FileUtils.formatSize(max));
-                    quotaLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 20px; -fx-font-family: 'Outfit Bold', 'Segoe UI Black', Impact, sans-serif; -fx-font-weight: bold;");
+                    quotaLabel.getStyleClass().remove("quota-label-alert");
+                    if (!quotaLabel.getStyleClass().contains("quota-label")) {
+                        quotaLabel.getStyleClass().add("quota-label");
+                    }
 
                     // couleur
-                    if (ratio >= 0.9){
+                    if (ratio >= 0.9) {
                         quotaColor = "#ff4757"; // rouge néon
+                        quotaLabel.getStyleClass().add("quota-label-alert");
                         statusLabel.setText("Quota atteint — upload bloqué");
                         uploadButton.setDisable(true);
                     }
@@ -713,7 +720,8 @@ public class MainController {
                 Platform.runLater(() -> {
                     quotaBar.setProgress(0.0);
                     quotaLabel.setText("Erreur quota");
-                    quotaLabel.setStyle("-fx-text-fill: #ff4757; -fx-font-size: 20px;");
+                    quotaLabel.getStyleClass().remove("quota-label");
+                    quotaLabel.getStyleClass().add("quota-label-alert");
                     quotaStyleRetries = 0;
                     refreshQuotaBarStyleWithRetry();
                 });
@@ -804,7 +812,9 @@ public class MainController {
 
             //interdire de redimensionner  la fenêtre => taille fixe
             dialogStage.setResizable(false);
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
 
             controller.setStage(dialogStage);
             controller.setItemName(selected.getName());
@@ -869,7 +879,9 @@ public class MainController {
 
             //interdire de redimensionner  la fenêtre => taille fixe
             dialogStage.setResizable(false);
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
 
             controller.setStage(dialogStage);
             controller.setItemName(folderNode.getName());
@@ -930,6 +942,7 @@ public class MainController {
             stage.initModality(Modality.APPLICATION_MODAL);
             
             Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
             scene.setFill(Color.TRANSPARENT);
             stage.setScene(scene);
             stage.showAndWait();
@@ -961,7 +974,9 @@ public class MainController {
             dialogStage.setTitle("Mes partages");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(treeView.getScene().getWindow());
-            dialogStage.setScene(new Scene(root, 900, 600));
+            Scene scene = new Scene(root, 900, 600);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
             dialogStage.setResizable(true);
 
             controller.setApiClient(apiClient);
@@ -975,6 +990,39 @@ public class MainController {
             UIDialogs.showError("Erreur", null,"Impossible d'ouvrir la fenêtre de Mes partages: " + e.getMessage());
         }
 
+    }
+    @FXML
+    private void handleOpenTrash() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/coffrefort/client/trash.fxml")
+            );
+
+            VBox root = loader.load();
+            TrashController controller = loader.getController();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Ma Corbeille — ObsiLock");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(treeView.getScene().getWindow());
+            Scene scene = new Scene(root, 1000, 700);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
+            dialogStage.setResizable(true);
+
+            controller.setApiClient(apiClient);
+            controller.setStage(dialogStage);
+
+            dialogStage.showAndWait();
+            
+            // Recharger la vue principale au cas où des éléments auraient été restaurés
+            loadData();
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de trash.fxml");
+            e.printStackTrace();
+            UIDialogs.showError("Erreur", null, "Impossible d'ouvrir la corbeille: " + e.getMessage());
+        }
     }
 
     // *****************************************   functions pour file *************************
@@ -1011,7 +1059,9 @@ public class MainController {
             dialogStage.setTitle("Uploader des fichiers");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(uploadButton.getScene().getWindow());
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
             controller.setDialogStage(dialogStage);
 
             //callback pour rafraîchir après upload
@@ -1057,7 +1107,9 @@ public class MainController {
 //            dialogStage.initOwner(treeView.getScene().getWindow()); => il est dans la table et pas dans treeView!!
             dialogStage.initOwner(table.getScene().getWindow());
             dialogStage.setResizable(false);
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
 
 
             dialogStage.setWidth(420);
@@ -1154,7 +1206,9 @@ public class MainController {
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(table.getScene().getWindow());
             dialogStage.setResizable(false);
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
 
             controller.setStage(dialogStage);
 
@@ -1199,7 +1253,9 @@ public class MainController {
             dialogStage.setTitle("Confirmer la suppresion du fichier");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(deleteButton.getScene().getWindow());
-            dialogStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
 
             // Injection du stage et du nom de fichier
             controller.setDialogStage(dialogStage);
@@ -1238,7 +1294,7 @@ public class MainController {
 
         new Thread(() -> {
             try {
-                apiClient.deleteFile(file.getId());
+                apiClient.permanentDeleteFile(file.getId());
 
                 Platform.runLater(() -> {
 
@@ -1253,8 +1309,7 @@ public class MainController {
                     updateQuota();
 
                     //garder les boutons désactivés => pas de sélection
-                    shareButton.setStyle("-fx-background-color: #666666; -fx-text-fill: white; -fx-background-radius: 4; -fx-cursor: hand; -fx-padding: 6 14;");
-                    deleteButton.setStyle("-fx-background-color: #666666; -fx-text-fill: white; -fx-background-radius: 4; -fx-cursor: hand; -fx-padding: 6 14;");
+                    // Les boutons sont gérés par le listener de sélection
 
                     statusLabel.setText("Fichier supprimé: " + file.getName());
 
@@ -1270,8 +1325,7 @@ public class MainController {
                     shareButton.setDisable(false);
                     deleteButton.setDisable(false);
 
-                    shareButton.setStyle("-fx-background-color: #980b0b; -fx-text-fill: white; -fx-background-radius: 4; -fx-cursor: hand; -fx-padding: 6 14;");
-                    deleteButton.setStyle("-fx-background-color: #d9534f; -fx-text-fill: white; -fx-background-radius: 4; -fx-cursor: hand; -fx-padding: 6 14;");
+                    // Les boutons sont gérés par le listener de sélection
 
                     UIDialogs.showError("Erreur de suppression", null, "Erreur: " + e.getMessage());
                     statusLabel.setText("Erreur de suppression");
@@ -1562,7 +1616,7 @@ public class MainController {
 
         new Thread(() -> {
             try{
-                apiClient.deleteFolder(folder.getId());
+                apiClient.permanentDeleteFolder(folder.getId());
 
                 Platform.runLater(() -> {
 
@@ -1776,5 +1830,13 @@ public class MainController {
                 });
             }
         }).start();
+    }
+    @FXML
+    private void handleToggleTheme() {
+        if (table.getScene() != null) {
+            App.toggleTheme(table.getScene());
+            App.updateThemeButton(themeToggleButton);
+            App.updateLogo(logoView);
+        }
     }
 }

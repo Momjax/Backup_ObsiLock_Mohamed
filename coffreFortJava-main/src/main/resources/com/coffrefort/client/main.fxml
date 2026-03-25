@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.image.Image?>
@@ -20,15 +21,16 @@
 
 <BorderPane prefHeight="800"
             prefWidth="1400"
-            stylesheets="@style-javafx.css"
-            style="-fx-background-color: #0d1117;"
+            styleClass="main-root"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.coffrefort.client.controllers.MainController">
 
+
     <!-- SIDEBAR -->
     <left>
-        <VBox prefWidth="320" spacing="25" style="-fx-background-color: #010409; -fx-border-color: transparent #30363d transparent transparent; -fx-border-width: 0 1 0 0;">
+        <VBox prefWidth="320" spacing="25" styleClass="sidebar">
+
             <padding>
                 <Insets bottom="30" left="25" right="25" top="40" />
             </padding>
@@ -36,22 +38,30 @@
             <!-- Brand Section -->
             <VBox spacing="15">
                 <HBox alignment="CENTER_LEFT" spacing="15">
-                    <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fx:id="logoView" fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                         <image>
-                            <Image url="@/images/Logo_CryptoVault.png" />
+                            <Image url="@/images/Logo_CryptoVault_transparent.png" />
                         </image>
                     </ImageView>
                     <VBox alignment="CENTER_LEFT" spacing="2">
                         <Text styleClass="title-futuristic" text="ObsiLock" />
-                        <Label fx:id="userEmailLabel" style="-fx-text-fill: #8b949e; -fx-font-size: 11px;" text="Chargement..." />
+                        <Label fx:id="userEmailLabel" styleClass="label-dim" style="-fx-font-size: 11px;" text="Chargement..." />
                     </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <ToggleButton fx:id="themeToggleButton" onAction="#handleToggleTheme" styleClass="theme-switch">
+                        <graphic>
+                            <Region styleClass="thumb" />
+                        </graphic>
+                        <tooltip><Tooltip text="Changer le thème" /></tooltip>
+                    </ToggleButton>
                 </HBox>
             </VBox>
 
             <!-- Quota Module -->
             <VBox spacing="12" styleClass="sidebar-box">
                 <HBox alignment="CENTER_LEFT">
-                    <Text fill="white" style="-fx-font-weight: 800; -fx-font-size: 13px; -fx-text-transform: uppercase; -fx-letter-spacing: 1px;" text="Stockage" />
+                    <Text styleClass="stockage-header" style="-fx-font-weight: 800; -fx-font-size: 13px; -fx-letter-spacing: 1px;" text="Stockage" />
+
                     <Region HBox.hgrow="ALWAYS" />
                     <Button fx:id="refreshQuotaButton" onAction="#handleUpdateQuotaAction" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-cursor: hand; -fx-padding: 0;" text="🔄">
                         <tooltip><Tooltip text="Rafraîchir" /></tooltip>
@@ -70,7 +80,8 @@
             <!-- Navigation / Tree -->
             <VBox spacing="10" VBox.vgrow="ALWAYS">
                 <HBox alignment="CENTER_LEFT">
-                    <Text fill="#8b949e" style="-fx-font-weight: 700; -fx-font-size: 11px; -fx-letter-spacing: 1px;" text="EXPLORATEUR" />
+                    <Text styleClass="section-header" style="-fx-font-weight: 700; -fx-font-size: 11px; -fx-letter-spacing: 1px;" text="EXPLORATEUR" />
+
                     <Region HBox.hgrow="ALWAYS" />
                     <Button onAction="#handleNewFolder" style="-fx-background-color: rgba(46, 204, 113, 0.1); -fx-text-fill: #2ecc71; -fx-background-radius: 4; -fx-padding: 1 6; -fx-font-weight: bold;" text="+" />
                 </HBox>
@@ -85,7 +96,6 @@
             <!-- Bottom Menu -->
             <VBox spacing="8">
                 <Button onAction="#handleOpenShares" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="button-secondary" text="🔗  Partages Actifs" />
-                <Button onAction="#handleOpenTrash" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="button-secondary" text="🗑  Corbeille" />
                 <Button fx:id="logoutButton" onAction="#handleLogout" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="button-danger" text="🚪  Déconnexion" />
             </VBox>
         </VBox>
@@ -101,7 +111,8 @@
             <!-- Main Header -->
             <HBox alignment="CENTER_LEFT" spacing="20">
                 <VBox spacing="4" HBox.hgrow="ALWAYS">
-                    <Text fill="white" style="-fx-font-size: 32px; -fx-font-weight: 800; -fx-letter-spacing: -1px;" text="Fichiers" />
+                    <Text styleClass="main-title" style="-fx-font-size: 32px; -fx-font-weight: 800; -fx-letter-spacing: -1px;" text="Fichiers" />
+
                     <Label fx:id="fileCountLabel" styleClass="label-dim" text="0 éléments sécurisés" />
                 </VBox>
 
@@ -115,7 +126,7 @@
                         <tooltip><Tooltip text="Partager l'élément sélectionné" /></tooltip>
                     </Button>
                         <Button fx:id="deleteButton" disable="true" onAction="#handleDelete" prefHeight="45" prefWidth="55" styleClass="button-trash" text="🗑">
-                            <tooltip><Tooltip text="Mettre à la corbeille" /></tooltip>
+                            <tooltip><Tooltip text="Supprimer définitivement" /></tooltip>
                         </Button>
                     </HBox>
                 </HBox>
@@ -131,10 +142,11 @@
                 </columns>
                 <placeholder>
                     <VBox alignment="CENTER" spacing="20">
-                        <Text fill="#484f58" style="-fx-font-size: 40px;" text="🛡️" />
+                        <Text styleClass="section-header" style="-fx-font-size: 40px;" text="🛡️" />
                         <VBox alignment="CENTER" spacing="5">
-                             <Text fill="#c9d1d9" style="-fx-font-size: 18px; -fx-font-weight: 700;" text="Aucun fichier" />
-                             <Text fill="#8b949e" style="-fx-font-size: 14px;" text="Sélectionnez un dossier ou uploadez un fichier." />
+                             <Text styleClass="main-title" style="-fx-font-size: 18px; -fx-font-weight: 700;" text="Aucun fichier" />
+                             <Text styleClass="section-header" style="-fx-font-size: 14px;" text="Sélectionnez un dossier ou uploadez un fichier." />
+
                         </VBox>
                     </VBox>
                 </placeholder>

@@ -1,6 +1,8 @@
 package com.coffrefort.client.controllers;
 
 import com.coffrefort.client.config.AppProperties;
+import com.coffrefort.client.ApiClient;
+import com.coffrefort.client.App;
 import com.coffrefort.client.util.JwtUtils;
 import com.coffrefort.client.util.UIDialogs;
 import javafx.application.Application;
@@ -41,6 +43,8 @@ public class RegisterController {
     @FXML private Label successLabel1;
 
     @FXML private Button registerButton1;
+    @FXML private Button themeToggleButton;
+    @FXML private javafx.scene.image.ImageView logoView;
     @FXML private Label statusLabel1;
     @FXML private Hyperlink mentionsLegales;
 
@@ -80,6 +84,18 @@ public class RegisterController {
 
         //lier le lien à "mentions légales"
         mentionsLegales.setOnAction(event -> handleGoToMentionsLegalesFromRegister());
+
+        App.updateThemeButton(themeToggleButton);
+        App.updateLogo(logoView);
+    }
+
+    @FXML
+    private void handleToggleTheme() {
+        if (rootPane.getScene() != null) {
+            App.toggleTheme(rootPane.getScene());
+            App.updateThemeButton(themeToggleButton);
+            App.updateLogo(logoView);
+        }
     }
 
     /**
@@ -322,6 +338,7 @@ public class RegisterController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/coffrefort/client/mentionsLegales.fxml"));
 
             Scene scene = new Scene(loader.load());
+            com.coffrefort.client.App.applyTheme(scene);
 
             // Récupération du contrôleur
             MentionsLegalesController controller = loader.getController();

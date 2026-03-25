@@ -5,7 +5,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.text.Text?>
 
-<VBox stylesheets="@style-javafx.css" xmlns="http://javafx.com/javafx/21"
+<VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.coffrefort.client.controllers.MySharesController"
       spacing="25"
@@ -17,8 +17,8 @@
 
     <HBox alignment="BOTTOM_LEFT" spacing="20">
         <VBox spacing="8" HBox.hgrow="ALWAYS">
-            <Text fill="#2ecc71" styleClass="title-futuristic" text="Mes Partages" />
-            <Text fill="#8b949e" style="-fx-font-size: 14px; -fx-font-family: 'Outfit'; " text="Gérez vos accès sécurisés et révoquez les liens actifs." />
+            <Text styleClass="main-title-green" style="-fx-font-size: 28px;" text="Mes Partages" />
+            <Text styleClass="label-dim" style="-fx-font-family: 'Outfit';" text="Gérez vos accès sécurisés et révoquez les liens actifs." />
         </VBox>
         <Button onAction="#refresh" styleClass="button-secondary" text="🔄 Actualiser" prefHeight="40" prefWidth="120"/>
     </HBox>

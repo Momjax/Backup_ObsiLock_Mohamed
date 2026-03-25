@@ -42,7 +42,7 @@ public class LoginController {
 
     @FXML private CheckBox loginSelectShowPassword;
 
-    @FXML private javafx.scene.control.ToggleButton themeToggleButton;
+    @FXML private Button themeToggleButton;
     @FXML private javafx.scene.image.ImageView logoView;
 
     @FXML private Button connexionButton;

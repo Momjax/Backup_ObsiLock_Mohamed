@@ -5,14 +5,64 @@
 
 .root {
     -fx-font-family: 'Outfit', 'Segoe UI Semibold', 'Inter', sans-serif;
-    font-family: 'Outfit', 'Segoe UI Semibold', 'Inter', sans-serif;
     -fx-background-color: #0d1117;
-    background-color: #0d1117;
     -fx-text-fill: #e6edf3;
-    color: #e6edf3;
     -fx-font-size: 14px;
-    font-size: 14px;
 }
+
+.main-root {
+    -fx-background-color: #0d1117;
+}
+
+.sidebar {
+    -fx-background-color: #010409;
+    -fx-border-color: transparent #30363d transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.section-header {
+    -fx-fill: #8b949e;
+    -fx-text-fill: #8b949e;
+}
+.theme-switch {
+    -fx-background-color: #32373d;
+    -fx-background-radius: 20;
+    -fx-min-width: 50;
+    -fx-max-width: 50;
+    -fx-min-height: 26;
+    -fx-max-height: 26;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-border-color: #444c56;
+    -fx-border-radius: 20;
+}
+.theme-switch:selected {
+    -fx-background-color: #2ecc71;
+    -fx-border-color: #27ae60;
+}
+.theme-switch .thumb {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+}
+.main-title-green {
+    -fx-fill: #2ecc71;
+    -fx-text-fill: #2ecc71;
+    -fx-font-weight: bold;
+}
+
+.main-title {
+    -fx-fill: white;
+    -fx-text-fill: white;
+}
+
+.stockage-header {
+    -fx-fill: white;
+    -fx-text-fill: white;
+}
+
+
 
 /* === SCROLLBARS (Cyber Style) === */
 .scroll-bar:horizontal .track,
@@ -72,6 +122,13 @@
     -fx-effect: dropshadow(gaussian, rgba(46, 204, 113, 0.3), 15, 0, 0, 0);
     -fx-font-family: 'Outfit Bold', sans-serif;
     -fx-font-weight: bold;
+}
+
+.button-vibrant:disabled {
+    -fx-background-color: #1a1f26;
+    -fx-text-fill: #484f58;
+    -fx-border-color: #30363d;
+    -fx-opacity: 0.6;
 }
 
 .button-vibrant:hover {
@@ -259,9 +316,13 @@
     -fx-font-family: 'Outfit Bold', 'Segoe UI Black', Impact, sans-serif;
     -fx-font-size: 28px;
     -fx-fill: #2ecc71;
-    -fx-text-fill: #2ecc71; /* Pour compatibilité Label/Text */
+    -fx-text-fill: #2ecc71; 
     -fx-letter-spacing: -1px;
     -fx-effect: dropshadow(gaussian, rgba(46, 204, 113, 0.4), 10, 0, 0, 0);
+}
+.link-accent {
+    -fx-text-fill: #2ecc71;
+    -fx-font-weight: bold;
 }
 
 .sidebar-box {
@@ -332,4 +393,13 @@
 .pagination-futuristic .pagination-control .control-box .left-arrow-button,
 .pagination-futuristic .pagination-control .control-box .right-arrow-button {
     -fx-background-color: transparent;
+}
+
+.status-success {
+    -fx-text-fill: #2ecc71;
+    -fx-font-weight: bold;
+}
+.status-error {
+    -fx-text-fill: #ff4757;
+    -fx-font-weight: bold;
 }

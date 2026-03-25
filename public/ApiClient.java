@@ -1885,4 +1885,88 @@ public class ApiClient {
     }
 
 
+    // === CORBEILLE (TRASH) ===
+
+    private String doGenericGet(String endpoints) throws Exception {
+        if(authToken == null || authToken.isEmpty()) throw new IllegalStateException("Non authentifié.");
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + endpoints))
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + authToken)
+                .GET()
+                .build();
+        HttpResponse<String> response = executeRequest(request);
+        if(response.statusCode() != 200) throw new Exception("Erreur GET " + endpoints + " : " + response.body());
+        return response.body();
+    }
+
+    private void doGenericPostOrDelete(String endpoints, boolean isDelete) throws Exception {
+        if(authToken == null || authToken.isEmpty()) throw new IllegalStateException("Non authentifié.");
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + endpoints))
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + authToken);
+        if (isDelete) {
+            builder.DELETE();
+        } else {
+            builder.POST(HttpRequest.BodyPublishers.noBody());
+        }
+        HttpResponse<String> response = executeRequest(builder.build());
+        int status = response.statusCode();
+        if(status != 200 && status != 204) throw new Exception("Erreur request " + endpoints + " : " + response.body());
+    }
+
+    /**
+     * GET /trash/files
+     */
+    public List<FileEntry> getTrashFiles() throws Exception {
+        String json = doGenericGet("/trash/files");
+        com.fasterxml.jackson.databind.ObjectMapper tempMapper = new com.fasterxml.jackson.databind.ObjectMapper()
+            .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            
+        com.fasterxml.jackson.databind.JsonNode root = tempMapper.readTree(json);
+        if (root.has("data")) {
+            return tempMapper.readerForListOf(FileEntry.class).readValue(root.get("data"));
+        }
+        return tempMapper.readerForListOf(FileEntry.class).readValue(json);
+    }
+
+    /**
+     * GET /trash/folders
+     */
+    public List<NodeItem> getTrashFolders() throws Exception {
+        String json = doGenericGet("/trash/folders");
+        com.fasterxml.jackson.databind.ObjectMapper tempMapper = new com.fasterxml.jackson.databind.ObjectMapper()
+            .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            
+        return tempMapper.readerForListOf(NodeItem.class).readValue(json);
+    }
+
+    /**
+     * POST /files/{id}/restore
+     */
+    public void restoreFile(int id) throws Exception {
+        doGenericPostOrDelete("/files/" + id + "/restore", false);
+    }
+
+    /**
+     * POST /folders/{id}/restore
+     */
+    public void restoreFolder(int id) throws Exception {
+        doGenericPostOrDelete("/folders/" + id + "/restore", false);
+    }
+
+    /**
+     * DELETE /files/{id}/permanent
+     */
+    public void permanentDeleteFile(int id) throws Exception {
+        doGenericPostOrDelete("/files/" + id + "/permanent", true);
+    }
+
+    /**
+     * DELETE /folders/{id}/permanent
+     */
+    public void permanentDeleteFolder(int id) throws Exception {
+        doGenericPostOrDelete("/folders/" + id + "/permanent", true);
+    }
 }

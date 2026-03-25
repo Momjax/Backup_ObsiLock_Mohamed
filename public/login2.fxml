@@ -21,9 +21,9 @@
 
 <GridPane fx:id="rootPane" hgap="5"
           minHeight="500.0" minWidth="400.0"
-          prefHeight="600.0" prefWidth="450.0"
+          prefHeight="700.0" prefWidth="450.0"
           vgap="15.0"
-          stylesheets="@style-javafx.css"
+          styleClass="main-root"
             xmlns="http://javafx.com/javafx/17"
           xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="com.coffrefort.client.controllers.LoginController">
@@ -42,17 +42,25 @@
 
     <children>
 
+        <!-- HEADER THEME -->
+        <HBox alignment="TOP_RIGHT" GridPane.rowIndex="0">
+            <Button fx:id="themeToggleButton" onAction="#handleToggleTheme" 
+                    text="🌙">
+                <tooltip><javafx.scene.control.Tooltip text="Changer le thème" /></tooltip>
+            </Button>
+        </HBox>
+
         <!-- Logo et Titre de l'application -->
-        <VBox alignment="CENTER" spacing="10" GridPane.rowIndex="0">
-            <ImageView fitHeight="120.0"
+        <VBox alignment="CENTER" spacing="10" GridPane.rowIndex="1">
+            <ImageView fx:id="logoView" fitHeight="120.0"
                        fitWidth="120.0"
                        pickOnBounds="true"
                        preserveRatio="true">
                 <image>
-                    <Image url="@/images/Logo_CryptoVault.png" />
+                    <Image url="@/images/Logo_CryptoVault_transparent.png" />
                 </image>
             </ImageView>
-            <Text fill="#2ecc71" strokeType="OUTSIDE"
+            <Text strokeType="OUTSIDE"
                   strokeWidth="0.0" text="ObsiLock"
                   styleClass="title-futuristic"
                   textAlignment="CENTER">
@@ -60,10 +68,10 @@
         </VBox>
 
         <!-- Titre de Connexion -->
-        <Text fill="#FFFFFF" strokeType="OUTSIDE"
+        <Text styleClass="main-title-green" strokeType="OUTSIDE"
               strokeWidth="0.0" text="Connexion à votre espace sécurisé"
               textAlignment="CENTER" wrappingWidth="250.0"
-              GridPane.rowIndex="2">
+              GridPane.rowIndex="3">
             <font>
                 <Font name="System" size="18.0" />
             </font>
@@ -73,11 +81,11 @@
         <TextField fx:id="emailField"
                    prefHeight="50.0"
                    promptText="Email"
-                   GridPane.rowIndex="4">
+                   GridPane.rowIndex="5">
         </TextField>
 
         <!-- Champ mot de passe (masqué / visible via StackPane) -->
-        <StackPane GridPane.rowIndex="5">
+        <StackPane GridPane.rowIndex="6">
             <!-- Mot de passe masqué -->
             <PasswordField fx:id="passwordField"
                            prefHeight="50.0"
@@ -94,27 +102,27 @@
         </StackPane>
 
         <!-- CheckBox pour voir le mot de passe-->
-        <HBox alignment="CENTER_LEFT" spacing="5" GridPane.rowIndex="6">
+        <HBox alignment="CENTER_LEFT" spacing="5" GridPane.rowIndex="7">
             <CheckBox fx:id="loginSelectShowPassword"
                       mnemonicParsing="false"
                       onAction="#handleToggleShowPassword"
-                      text="Afficher le mot de passe"
-                      textFill="#9499a1" />
+                      styleClass="label-dim"
+                      text="Afficher le mot de passe" />
 
             <Region HBox.hgrow="ALWAYS" />
 
             <Hyperlink fx:id="ForgotPasswordLink"
-                       style="-fx-text-fill: #9499a1; -fx-cursor: hand; -fx-underline: false;"
+                       styleClass="link-accent"
                        text="Mot de passe oublié ?" />
         </HBox>
 
         <!-- Zone messages -->
-        <VBox alignment="CENTER" spacing="5" GridPane.rowIndex="7">
+        <VBox alignment="CENTER" spacing="5" GridPane.rowIndex="8">
             <Label fx:id="errorLabel"
-                   style="-fx-text-fill: #ff4757; -fx-font-weight: bold;"
+                   styleClass="status-error"
                    textAlignment="CENTER" />
             <Label fx:id="statusLabel"
-                   style="-fx-text-fill: #2ecc71; -fx-font-weight: bold;"
+                   styleClass="status-success"
                    textAlignment="CENTER" />
         </VBox>
 
@@ -129,7 +137,7 @@
                 styleClass="button-primary"
                 text="Se Connecter"
                 GridPane.hgrow="ALWAYS"
-                GridPane.rowIndex="8"
+                GridPane.rowIndex="9"
                 GridPane.vgrow="NEVER">
             <font>
                 <Font size="16.0" />
@@ -137,16 +145,16 @@
         </Button>
 
         <!-- Lien vers Connexion -->
-        <HBox alignment="CENTER" spacing="5.0" GridPane.rowIndex="9">
+        <HBox alignment="CENTER" spacing="5.0" GridPane.rowIndex="10">
             <children>
-                <Text fill="#9499a1" strokeType="OUTSIDE" strokeWidth="0.0" text="Vous n'avez pas de compte ?">
+                <Text styleClass="main-title-green" strokeType="OUTSIDE" strokeWidth="0.0" text="Vous n'avez pas de compte ?">
                     <font>
                         <Font size="13.0" />
                     </font>
                 </Text>
                 <Hyperlink fx:id="registerLink1"
                            onAction="#handleGoToRegister"
-                           style="-fx-text-fill: #2ecc71; -fx-cursor: hand;"
+                           styleClass="link-accent"
                            text="Créer un compte">
                     <font>
                         <Font size="13.0" />
@@ -157,9 +165,9 @@
 
         <!-- Mentions légales en bas -->
         <Hyperlink fx:id="mentionsLegales"
-                   style="-fx-text-fill: #9499a1; -fx-cursor: hand;"
+                   styleClass="label-dim"
                    text="Mentions Légales"
-                   GridPane.rowIndex="10" />
+                   GridPane.rowIndex="11" />
 
     </children>
     

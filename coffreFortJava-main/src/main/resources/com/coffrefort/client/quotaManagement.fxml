@@ -9,7 +9,6 @@
       prefWidth="900" 
       spacing="25" 
       styleClass="root"
-      stylesheets="@style-javafx.css" 
       xmlns="http://javafx.com/javafx/25" 
       xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="com.coffrefort.client.controllers.QuotaManagementController">
@@ -22,11 +21,11 @@
     <HBox spacing="15" alignment="CENTER_LEFT">
         <VBox alignment="CENTER" prefWidth="55" prefHeight="55" 
               style="-fx-background-color: rgba(46, 204, 113, 0.1); -fx-background-radius: 14; -fx-border-color: #2ecc71; -fx-border-radius: 14;">
-            <Text text="👥" fill="#2ecc71" style="-fx-font-size: 26px;"/>
+            <Text text="👥" styleClass="main-title-green" style="-fx-font-size: 26px;"/>
         </VBox>
         <VBox spacing="4" HBox.hgrow="ALWAYS">
-            <Text text="Administration des Quotas" fill="#2ecc71" styleClass="title-futuristic" style="-fx-font-size: 24px;"/>
-            <Text text="Gérez les limites de stockage de vos utilisateurs" fill="#8b949e" style="-fx-font-size: 13px;"/>
+            <Text text="Administration des Quotas" styleClass="main-title-green" style="-fx-font-size: 24px;"/>
+            <Text text="Gérez les limites de stockage de vos utilisateurs" styleClass="label-dim" style="-fx-font-size: 13px;"/>
         </VBox>
     </HBox>
 

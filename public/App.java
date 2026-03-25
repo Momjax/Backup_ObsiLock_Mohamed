@@ -38,24 +38,14 @@ public class App extends Application {
         scene.getStylesheets().add(themeUrl);
     }
 
-    public static void updateThemeButton(javafx.scene.control.Control button) {
+    public static void updateThemeButton(javafx.scene.control.Button button) {
         if (button == null) return;
-        
-        if (button instanceof javafx.scene.control.ToggleButton) {
-            javafx.scene.control.ToggleButton tb = (javafx.scene.control.ToggleButton) button;
-            // Mode clair (Green) -> switch activé (vert)
-            // Mode sombre (Dark) -> switch désactivé (gris)
-            tb.setSelected(!isDarkTheme);
-            tb.getStyleClass().add("theme-switch"); // S'assurer que la classe est présente
-        } else if (button instanceof javafx.scene.control.Button) {
-            javafx.scene.control.Button b = (javafx.scene.control.Button) button;
-            if (isDarkTheme) {
-                b.setText("☾");
-                b.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 22px;");
-            } else {
-                b.setText("☀");
-                b.setStyle("-fx-background-color: transparent; -fx-text-fill: #1f2328; -fx-cursor: hand; -fx-font-size: 22px;");
-            }
+        if (isDarkTheme) {
+            button.setText("☾");
+            button.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 22px;");
+        } else {
+            button.setText("☀");
+            button.setStyle("-fx-background-color: transparent; -fx-text-fill: #1f2328; -fx-cursor: hand; -fx-font-size: 22px;");
         }
     }
 
