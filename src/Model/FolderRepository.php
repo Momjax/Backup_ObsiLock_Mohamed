@@ -11,12 +11,9 @@ class FolderRepository
         $this->db = $db;
     }
 
-    public function listByUser(int $userId, bool $includeDeleted = false): array
+    public function listByUser(int $userId): array
     {
         $where = ['user_id' => $userId];
-        if (!$includeDeleted) {
-            $where['is_deleted'] = 0;
-        }
         return $this->db->select('folders', '*', $where);
     }
 
@@ -33,20 +30,17 @@ class FolderRepository
 
     public function listTrash(int $userId): array
     {
-        return $this->db->select('folders', '*', [
-            'user_id' => $userId,
-            'is_deleted' => 1
-        ]);
+        return []; // Corbeille désactivée
     }
 
     public function softDelete(int $id): void
     {
-        $this->db->update('folders', ['is_deleted' => 1], ['id' => $id]);
+        $this->permanentDelete($id);
     }
 
     public function restore(int $id): void
     {
-        $this->db->update('folders', ['is_deleted' => 0], ['id' => $id]);
+        // Plus de corbeille
     }
 
     public function permanentDelete(int $id): void
@@ -56,7 +50,7 @@ class FolderRepository
 
     public function delete(int $id): void
     {
-        $this->softDelete($id);
+        $this->permanentDelete($id);
     }
 
     public function update(int $id, array $data): void

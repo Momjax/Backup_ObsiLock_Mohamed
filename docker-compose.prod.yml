@@ -1,0 +1,89 @@
+# Production compose — ObsiLock
+# Traefik HTTPS via admin_proxy (external network partagé avec Traefik)
+# NAT : port externe HTTPS = 4433 → interne Traefik 443
+# URL API  : https://api.obsilock.iris.a3n.fr:4433
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: obsilock-web
+    restart: unless-stopped
+    expose:
+      - "80"
+    volumes:
+      - ./storage:/var/www/html/storage
+    env_file:
+      - ./.env
+    environment:
+      DB_HOST: mysql
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      APP_URL: https://api.obsilock.iris.a3n.fr:4433
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - obsilock-internal
+      - admin_proxy
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: admin_proxy
+
+      # Router HTTPS — cert spécifique pour api.obsilock.iris.a3n.fr (2 niveaux, pas couvert par *.iris.a3n.fr)
+      traefik.http.routers.obsilock.entrypoints: websecure
+      traefik.http.routers.obsilock.rule: Host(`api.obsilock.iris.a3n.fr`)
+      traefik.http.routers.obsilock.tls: "true"
+      traefik.http.routers.obsilock.tls.certresolver: letsencrypt
+      traefik.http.routers.obsilock.tls.domains[0].main: api.obsilock.iris.a3n.fr
+      traefik.http.routers.obsilock.service: obsilock-svc
+
+      # Service — Apache écoute sur 80 en interne
+      traefik.http.services.obsilock-svc.loadbalancer.server.port: "80"
+
+      # Middleware HSTS sur le router HTTPS
+      traefik.http.routers.obsilock.middlewares: obsilock-security-headers
+      traefik.http.middlewares.obsilock-security-headers.headers.stsSeconds: "31536000"
+      traefik.http.middlewares.obsilock-security-headers.headers.stsIncludeSubdomains: "true"
+      traefik.http.middlewares.obsilock-security-headers.headers.forceSTSHeader: "true"
+
+  mysql:
+    image: mysql:8.0
+    container_name: obsilock-db
+    hostname: mysql
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      TZ: Europe/Paris
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - obsilock-mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    networks:
+      - obsilock-internal
+
+volumes:
+  obsilock-mysql-data:
+
+networks:
+  obsilock-internal:
+    driver: bridge
+  admin_proxy:
+    external: true

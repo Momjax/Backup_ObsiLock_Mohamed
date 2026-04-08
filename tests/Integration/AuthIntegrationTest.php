@@ -58,7 +58,7 @@ class AuthIntegrationTest extends TestCase
         $request = (new ServerRequestFactory())->createServerRequest('POST', '/auth/register')
             ->withParsedBody([
                 'email' => 'test@obsilock.fr',
-                'password' => 'Password123!'
+                'password' => 'Password12345!'
             ]);
 
         // Exécuter
@@ -74,7 +74,7 @@ class AuthIntegrationTest extends TestCase
         $request1 = (new ServerRequestFactory())->createServerRequest('POST', '/auth/register')
             ->withParsedBody([
                 'email' => 'duplicate@obsilock.fr',
-                'password' => 'Pass123!'
+                'password' => 'Password12345!'
             ]);
         $this->app->handle($request1);
 
@@ -82,7 +82,7 @@ class AuthIntegrationTest extends TestCase
         $request2 = (new ServerRequestFactory())->createServerRequest('POST', '/auth/register')
             ->withParsedBody([
                 'email' => 'duplicate@obsilock.fr',
-                'password' => 'Pass456!'
+                'password' => 'Password45678!'
             ]);
         $response = $this->app->handle($request2);
 
@@ -96,7 +96,7 @@ class AuthIntegrationTest extends TestCase
         $registerRequest = (new ServerRequestFactory())->createServerRequest('POST', '/auth/register')
             ->withParsedBody([
                 'email' => 'login@obsilock.fr',
-                'password' => 'MyPassword123'
+                'password' => 'MyPassword123!'
             ]);
         $this->app->handle($registerRequest);
 
@@ -104,7 +104,7 @@ class AuthIntegrationTest extends TestCase
         $loginRequest = (new ServerRequestFactory())->createServerRequest('POST', '/auth/login')
             ->withParsedBody([
                 'email' => 'login@obsilock.fr',
-                'password' => 'MyPassword123'
+                'password' => 'MyPassword123!'
             ]);
         $response = $this->app->handle($loginRequest);
 
@@ -124,7 +124,7 @@ class AuthIntegrationTest extends TestCase
         $registerRequest = (new ServerRequestFactory())->createServerRequest('POST', '/auth/register')
             ->withParsedBody([
                 'email' => 'wrongpass@obsilock.fr',
-                'password' => 'CorrectPassword'
+                'password' => 'CorrectPass123!'
             ]);
         $this->app->handle($registerRequest);
 
@@ -132,7 +132,7 @@ class AuthIntegrationTest extends TestCase
         $loginRequest = (new ServerRequestFactory())->createServerRequest('POST', '/auth/login')
             ->withParsedBody([
                 'email' => 'wrongpass@obsilock.fr',
-                'password' => 'WrongPassword'
+                'password' => 'WrongPass1234!'
             ]);
         $response = $this->app->handle($loginRequest);
 

@@ -114,7 +114,7 @@ class ShareController
         }
 
         // Générer l'URL publique
-        $baseUrl = getenv('APP_URL') ?: 'http://api.obsilock.iris.a3n.fr:8080';
+        $baseUrl = getenv('APP_URL') ?: 'https://api.obsilock.iris.a3n.fr:4433';
         $publicUrl = $baseUrl . '/share?token=' . $share['token'];
 
         $response->getBody()->write(json_encode([
@@ -159,7 +159,7 @@ class ShareController
             $share['stats'] = $this->shareModel->getStats($share['id']);
             
             // Générer l'URL publique conviviale
-            $baseUrl = getenv('APP_URL') ?: 'http://api.obsilock.iris.a3n.fr:8080';
+            $baseUrl = getenv('APP_URL') ?: 'https://api.obsilock.iris.a3n.fr:4433';
             $share['url'] = $baseUrl . '/share?token=' . $share['token'];
         }
 

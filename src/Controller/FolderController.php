@@ -21,7 +21,7 @@ class FolderController
     public function list(Request $request, Response $response): Response
     {
         $user = $request->getAttribute('user');
-        $folders = $this->folders->listByUser($user['user_id'], false);
+        $folders = $this->folders->listByUser($user['user_id']);
 
         $response->getBody()->write(json_encode($folders));
         return $response->withHeader('Content-Type', 'application/json');

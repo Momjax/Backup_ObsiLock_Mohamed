@@ -43,7 +43,7 @@ class FileController
         $folderId = isset($params['folder_id']) ? (int)$params['folder_id'] : null;
         
         // Construire la requête
-        $where = ['user_id' => $user['user_id'], 'is_deleted' => 0];
+        $where = ['user_id' => $user['user_id']];
         if ($folderId !== null) {
             $where['folder_id'] = $folderId;
         } else {

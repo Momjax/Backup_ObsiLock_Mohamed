@@ -49,7 +49,7 @@ public class ApiClient {
      * Initialise l’ApiClient avec l’URL par défaut (localhost)
      */
     public ApiClient() {
-        this("http://api.obsilock.iris.a3n.fr:8080");
+        this("https://api.obsilock.iris.a3n.fr:4433");
     }
 
     /**

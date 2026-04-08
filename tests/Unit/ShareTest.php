@@ -44,6 +44,8 @@ class ShareTest extends TestCase
                 max_uses INTEGER,
                 remaining_uses INTEGER,
                 is_revoked BOOLEAN DEFAULT 0,
+                description TEXT,
+                recipient_note TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
@@ -60,7 +62,7 @@ class ShareTest extends TestCase
 
     public function testCreateShare(): void
     {
-        $share = $this->shareModel->create(1, 'file', 123, 'Test Share', null, 10);
+        $share = $this->shareModel->create(1, 'file', 123, 'Test Share', null, null, null, 10);
 
         $this->assertIsArray($share);
         $this->assertArrayHasKey('id', $share);
@@ -115,6 +117,8 @@ class ShareTest extends TestCase
             'file', 
             789, 
             'Expired', 
+            null,
+            null,
             date('Y-m-d H:i:s', strtotime('-1 day')) // Hier
         );
 
@@ -142,7 +146,7 @@ class ShareTest extends TestCase
 
     public function testIsValidNoUsesLeft(): void
     {
-        $share = $this->shareModel->create(1, 'file', 111, 'Limited', null, 2);
+        $share = $this->shareModel->create(1, 'file', 111, 'Limited', null, null, null, 2);
 
         // Décrémenter 2 fois
         $this->shareModel->decrementUses($share['id']);
@@ -159,7 +163,7 @@ class ShareTest extends TestCase
 
     public function testDecrementUses(): void
     {
-        $share = $this->shareModel->create(1, 'file', 222, 'Test', null, 5);
+        $share = $this->shareModel->create(1, 'file', 222, 'Test', null, null, null, 5);
 
         // Décrémenter
         $success = $this->shareModel->decrementUses($share['id']);
@@ -173,7 +177,7 @@ class ShareTest extends TestCase
 
     public function testDecrementUsesAtomic(): void
     {
-        $share = $this->shareModel->create(1, 'file', 333, 'Test', null, 1);
+        $share = $this->shareModel->create(1, 'file', 333, 'Test', null, null, null, 1);
 
         // Premier décrémente : OK
         $success1 = $this->shareModel->decrementUses($share['id']);

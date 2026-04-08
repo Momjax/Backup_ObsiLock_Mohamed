@@ -1,5 +1,5 @@
 // share.js - Page de téléchargement public ObsiLock
-const BASE_URL = 'http://api.obsilock.iris.a3n.fr:8080';
+const BASE_URL = 'https://api.obsilock.iris.a3n.fr:4433';
 
 // Extraire le token depuis l'URL (?token=XXX ou #XXX)
 function getToken() {
