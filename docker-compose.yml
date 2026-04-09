@@ -38,9 +38,10 @@ services:
     networks:
       obsilock_network:
         ipv4_address: 192.168.10.3
+      admin_proxy:
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=adminproxy"
+      - "traefik.docker.network=admin_proxy"
       # phpmyadmin-obsilock en HTTP sur phpmyadmin-obsilock.iris.a3n.fr:8080
       - "traefik.http.routers.phpmyadmin-obsilock.entrypoints=web"
       - "traefik.http.routers.phpmyadmin-obsilock.rule=Host(`phpmyadmin.${DOMAIN_NAME}`)"

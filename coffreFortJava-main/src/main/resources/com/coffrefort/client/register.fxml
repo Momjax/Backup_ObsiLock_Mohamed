@@ -77,7 +77,7 @@
         </Text>
 
         <!-- Champ email -->
-        <TextField fx:id="emailField"
+        <TextField fx:id="emailField1"
                    prefHeight="50.0"
                    promptText="Adresse email"
                    GridPane.rowIndex="5">
