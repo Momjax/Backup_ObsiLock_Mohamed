@@ -2,17 +2,20 @@
 namespace App\Controller;
 
 use App\Model\UserRepository;
+use App\Model\FolderRepository;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AuthController
 {
     private UserRepository $users;
+    private FolderRepository $folders;
     private string $jwtSecret;
 
-    public function __construct(UserRepository $users, string $jwtSecret)
+    public function __construct(UserRepository $users, FolderRepository $folders, string $jwtSecret)
     {
         $this->users = $users;
+        $this->folders = $folders;
         $this->jwtSecret = $jwtSecret;
     }
 

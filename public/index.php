@@ -1,4 +1,8 @@
 <?php
+// Forcer la mise à jour du cache uniquement pour le contrôleur modifié
+if (function_exists('opcache_invalidate')) {
+    opcache_invalidate(__DIR__ . '/../src/Controller/FileController.php', true);
+}
 use Slim\Factory\AppFactory;
 use Medoo\Medoo;
 use App\Controller\AuthController;
@@ -41,9 +45,9 @@ $folderRepo = new FolderRepository($database);
 $fileRepo = new FileRepository($database);
 
 // Controllers
-$authController = new AuthController($userRepo, $jwtSecret);
+$authController = new AuthController($userRepo, $folderRepo, $jwtSecret);
 $folderController = new FolderController($folderRepo, $userRepo);
-$fileController = new FileController($fileRepo, $userRepo, $uploadDir, $database);
+$fileController = new FileController($fileRepo, $userRepo, $folderRepo, $uploadDir, $database);
 $shareController = new ShareController($database);
 
 // Slim App
@@ -183,6 +187,8 @@ $app->get('/files/{id}', [$fileController, 'show'])->add($authMiddleware);
 $app->get('/files/{id}/download', [$fileController, 'download'])->add($authMiddleware);
 $app->delete('/files/{id}', [$fileController, 'delete'])->add($authMiddleware);
 $app->put('/files/{id}', [$fileController, 'rename'])->add($authMiddleware);
+$app->post('/files/{id}/move', [$fileController, 'move'])->add($authMiddleware);
+$app->post('/files/{id}/duplicate', [$fileController, 'duplicate'])->add($authMiddleware);
 
 // Corbeille Files
 $app->get('/trash/files', [$fileController, 'listTrash'])->add($authMiddleware);

@@ -16,15 +16,18 @@ CREATE TABLE IF NOT EXISTS folders (
     user_id INT NOT NULL,
     parent_id INT NULL,
     name VARCHAR(255) NOT NULL,
+    is_root TINYINT(1) DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_user (user_id)
+    FOREIGN KEY (parent_id) REFERENCES folders(id) ON DELETE CASCADE,
+    INDEX idx_user (user_id),
+    INDEX idx_parent (parent_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS files (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    folder_id INT NULL,
+    folder_id INT NOT NULL,
+    source_id INT NULL,
     filename VARCHAR(255) NOT NULL,
     stored_name VARCHAR(255) NOT NULL,
     size BIGINT NOT NULL,
@@ -32,9 +35,9 @@ CREATE TABLE IF NOT EXISTS files (
     checksum VARCHAR(64) NULL,
     current_version INT DEFAULT 1,
     uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE SET NULL,
-    INDEX idx_user (user_id)
+    FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
+    FOREIGN KEY (source_id) REFERENCES files(id) ON DELETE SET NULL,
+    INDEX idx_folder (folder_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS settings (

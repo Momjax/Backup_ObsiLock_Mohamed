@@ -27,24 +27,21 @@
 .theme-switch {
     -fx-background-color: #32373d;
     -fx-background-radius: 20;
-    -fx-min-width: 50;
-    -fx-max-width: 50;
-    -fx-min-height: 26;
-    -fx-max-height: 26;
+    -fx-min-width: 60;
+    -fx-max-width: 60;
+    -fx-min-height: 30;
+    -fx-max-height: 30;
     -fx-padding: 0;
     -fx-cursor: hand;
     -fx-border-color: #444c56;
     -fx-border-radius: 20;
+    -fx-font-size: 16px;
+    -fx-text-fill: #c9d1d9;
 }
 .theme-switch:selected {
     -fx-background-color: #2ecc71;
     -fx-border-color: #27ae60;
-}
-.theme-switch .thumb {
-    -fx-background-color: white;
-    -fx-background-radius: 15;
-    -fx-pref-width: 20;
-    -fx-pref-height: 20;
+    -fx-text-fill: white;
 }
 .main-title-green {
     -fx-fill: #2ecc71;

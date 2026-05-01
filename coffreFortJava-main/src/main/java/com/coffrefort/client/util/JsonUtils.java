@@ -341,6 +341,16 @@ public class JsonUtils {
      */
     public static PagedVersionsResponse parsePagedVersionsResponse(String json) {
         try {
+            // FIX: Gère le cas où le serveur renvoie [] (array) au lieu d'un objet paginé {}
+            if (json != null && json.trim().startsWith("[")) {
+                List<VersionEntry> list = mapper.readValue(json, mapper.getTypeFactory().constructCollectionType(List.class, VersionEntry.class));
+                PagedVersionsResponse resp = new PagedVersionsResponse();
+                resp.setVersions(list);
+                resp.setTotal(list.size());
+                resp.setOffset(0);
+                resp.setLimit(list.size());
+                return resp;
+            }
             return mapper.readValue(json, PagedVersionsResponse.class);
         } catch (Exception e) {
             throw new RuntimeException("JSON parse error: " + e.getMessage(), e);

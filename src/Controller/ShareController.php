@@ -71,7 +71,8 @@ class ShareController
         // Vérifier que l'utilisateur est propriétaire de la ressource
         if ($kind === 'file') {
             $resource = $this->fileRepo->find($targetId);
-            if (!$resource || $resource['user_id'] !== $userId) {
+            $ownerId = $this->fileRepo->getOwnerId($targetId);
+            if (!$resource || $ownerId !== $userId) {
                 $response->getBody()->write(json_encode([
                     'error' => 'File not found or access denied'
                 ]));
@@ -84,6 +85,15 @@ class ShareController
                     'error' => 'Folder not found or access denied'
                 ]));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Vérification si le dossier est vide (pour empêcher le partage inutile)
+            $filesCount = $this->db->count('files', ['folder_id' => $targetId]);
+            if ($filesCount === 0) {
+                $response->getBody()->write(json_encode([
+                    'error' => 'Impossible de partager un dossier vide'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
         }
 
@@ -337,6 +347,9 @@ class ShareController
         // TÉLÉCHARGEMENT FICHIER UNIQUE
         if ($share['kind'] === 'file') {
             $file = $this->fileRepo->find($share['target_id']);
+            if ($file) {
+                $file['user_id'] = $this->fileRepo->getOwnerId($share['target_id']);
+            }
             
             if (!$file) {
                 $this->logModel->create($share['id'], $ip, $userAgent, false, 'File not found');
@@ -368,21 +381,28 @@ class ShareController
 
             // Reconstruction chemin
             $storedName = $version['stored_name'];
-            $storedNameWithoutExt = str_replace('.enc', '', $storedName);
-            $parts = explode('_', $storedNameWithoutExt);
-            $timestamp = end($parts);
+            $isBdd = ($storedName === 'bdd_storage' || !empty($file['encrypted_data']));
             
-            if (!is_numeric($timestamp)) {
-                 $encryptedPath = $uploadDir . DIRECTORY_SEPARATOR . $storedName;
+            if ($isBdd) {
+                $encryptedPath = sys_get_temp_dir() . '/' . uniqid('share_enc_', true);
+                file_put_contents($encryptedPath, $file['encrypted_data']);
             } else {
-                $date = date('Y/m', (int)$timestamp);
-                $encryptedPath = sprintf('%s/%d/%s/%s', $uploadDir, $file['user_id'], $date, $storedName);
-            }
+                $storedNameWithoutExt = str_replace('.enc', '', $storedName);
+                $parts = explode('_', $storedNameWithoutExt);
+                $timestamp = end($parts);
+                
+                if (!is_numeric($timestamp)) {
+                     $encryptedPath = $uploadDir . DIRECTORY_SEPARATOR . $storedName;
+                } else {
+                    $date = date('Y/m', (int)$timestamp);
+                    $encryptedPath = sprintf('%s/%d/%s/%s', $uploadDir, $file['user_id'], $date, $storedName);
+                }
 
-            if (!file_exists($encryptedPath)) {
-                $this->logModel->create($share['id'], $ip, $userAgent, false, 'File missing on disk');
-                $response->getBody()->write(json_encode(['error' => 'File not found on server']));
-                return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+                if (!file_exists($encryptedPath)) {
+                    $this->logModel->create($share['id'], $ip, $userAgent, false, 'File missing on disk');
+                    $response->getBody()->write(json_encode(['error' => 'File not found on server']));
+                    return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+                }
             }
 
             try {
@@ -406,6 +426,7 @@ class ShareController
                 
                 $fileSize = filesize($tempPath);
                 unlink($tempPath); // Nettoyage immédiat
+                if ($isBdd && file_exists($encryptedPath)) unlink($encryptedPath);
 
                 return $response
                     ->withHeader('Content-Type', $file['mime_type'] ?? 'application/octet-stream')
@@ -429,6 +450,12 @@ class ShareController
 
             // Récupérer les fichiers du dossier
             $files = $this->fileRepo->listByUser($folder['user_id'], $folder['id']);
+            
+            // Injection du user_id pour reconstruire les chemins de stockage
+            foreach ($files as &$f) {
+                $f['user_id'] = $folder['user_id'];
+            }
+            unset($f);
             
             if (empty($files)) {
                 $response->getBody()->write(json_encode(['error' => 'Folder is empty']));
@@ -457,17 +484,24 @@ class ShareController
 
                 // Chemin chiffré
                 $storedName = $version['stored_name'];
-                $parts = explode('_', str_replace('.enc', '', $storedName));
-                $timestamp = end($parts);
+                $isBdd = ($storedName === 'bdd_storage' || !empty($file['encrypted_data']));
                 
-                if (!is_numeric($timestamp)) {
-                     $encryptedPath = $uploadDir . DIRECTORY_SEPARATOR . $storedName;
+                if ($isBdd) {
+                    $encryptedPath = sys_get_temp_dir() . '/' . uniqid('zip_enc_', true);
+                    file_put_contents($encryptedPath, $file['encrypted_data']);
                 } else {
-                    $date = date('Y/m', (int)$timestamp);
-                    $encryptedPath = sprintf('%s/%d/%s/%s', $uploadDir, $file['user_id'], $date, $storedName);
-                }
+                    $parts = explode('_', str_replace('.enc', '', $storedName));
+                    $timestamp = end($parts);
+                    
+                    if (!is_numeric($timestamp)) {
+                         $encryptedPath = $uploadDir . DIRECTORY_SEPARATOR . $storedName;
+                    } else {
+                        $date = date('Y/m', (int)$timestamp);
+                        $encryptedPath = sprintf('%s/%d/%s/%s', $uploadDir, $file['user_id'], $date, $storedName);
+                    }
 
-                if (!file_exists($encryptedPath)) continue;
+                    if (!file_exists($encryptedPath)) continue;
+                }
 
                 try {
                     $tempDecrypted = sys_get_temp_dir() . '/' . uniqid('zip_entry_', true);
@@ -482,6 +516,7 @@ class ShareController
                     // Ajouter au ZIP
                     $zip->addFile($tempDecrypted, $file['filename']);
                     $tempFiles[] = $tempDecrypted;
+                    if ($isBdd && file_exists($encryptedPath)) unlink($encryptedPath);
                 } catch (\Exception $e) {
                     // Skip failed file or log warning
                     continue;

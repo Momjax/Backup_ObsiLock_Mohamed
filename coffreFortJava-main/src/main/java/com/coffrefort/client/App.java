@@ -40,13 +40,15 @@ public class App extends Application {
 
     public static void updateThemeButton(javafx.scene.control.Control button) {
         if (button == null) return;
-        
+
         if (button instanceof javafx.scene.control.ToggleButton) {
             javafx.scene.control.ToggleButton tb = (javafx.scene.control.ToggleButton) button;
-            // Mode clair (Green) -> switch activé (vert)
-            // Mode sombre (Dark) -> switch désactivé (gris)
             tb.setSelected(!isDarkTheme);
-            tb.getStyleClass().add("theme-switch"); // S'assurer que la classe est présente
+            if (!tb.getStyleClass().contains("theme-switch")) {
+                tb.getStyleClass().add("theme-switch");
+            }
+            // Afficher l'icône selon le thème actuel
+            tb.setText(isDarkTheme ? "🌙" : "☀️");
         } else if (button instanceof javafx.scene.control.Button) {
             javafx.scene.control.Button b = (javafx.scene.control.Button) button;
             if (isDarkTheme) {

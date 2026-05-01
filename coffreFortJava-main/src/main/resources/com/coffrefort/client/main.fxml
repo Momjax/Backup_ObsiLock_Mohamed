@@ -88,7 +88,7 @@
                 
                 <Button fx:id="returnToRootButton" onAction="#handleGoToRoot" maxWidth="Infinity" alignment="CENTER_LEFT" 
                         style="-fx-background-color: transparent; -fx-text-fill: #2ecc71; -fx-padding: 8 0; -fx-font-size: 14px; -fx-cursor: hand;" 
-                        text="📁  Ma Racine" />
+                        text="📁  Mon Coffre-Fort" />
 
                 <TreeView fx:id="treeView" showRoot="false" style="-fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS" />
             </VBox>

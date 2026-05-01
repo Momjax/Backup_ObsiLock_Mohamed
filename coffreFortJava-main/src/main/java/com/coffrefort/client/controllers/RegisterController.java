@@ -43,7 +43,7 @@ public class RegisterController {
     @FXML private Label successLabel1;
 
     @FXML private Button registerButton1;
-    @FXML private Button themeToggleButton;
+    @FXML private ToggleButton themeToggleButton;
     @FXML private javafx.scene.image.ImageView logoView;
     @FXML private Label statusLabel1;
     @FXML private Hyperlink mentionsLegales;

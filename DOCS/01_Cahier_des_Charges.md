@@ -1,55 +1,41 @@
-# 🛡️ 01. CAHIER DES CHARGES - ObsiLock
+# Cahier des Charges - ObsiLock
 
-## 1. Contexte et Problématique
-**ObsiLock** est un coffre-fort numérique sécurisé. 
-*   **Problème :** Les solutions cloud (Drive, Dropbox) possèdent les clés de chiffrement et peuvent lire vos fichiers.
-*   **Solution :** ObsiLock utilise le "chiffrement au repos". Aucun fichier n'est stocké en clair sur le serveur.
+## 1. Présentation du Projet
+**ObsiLock** est une solution de coffre-fort numérique sécurisé permettant de stocker, d'organiser et de partager des fichiers. La particularité du projet est de garantir la confidentialité des données grâce à un chiffrement systématique avant le stockage sur le serveur.
 
-## 2. Architecture Globale
-Le projet repose sur une architecture **Client/Serveur découplée et Stateless**.
+## 2. Objectifs
+- Fournir une plateforme sécurisée pour le stockage de documents sensibles.
+- Garantir que même en cas de compromission du serveur, les données restent illisibles (chiffrement au repos).
+- Permettre un partage contrôlé et temporaire de fichiers via des liens sécurisés.
 
-```mermaid
-flowchart LR
-    subgraph Frontend [Client Bureau]
-        Java("☕ JavaFX 17<br/>Interface Riche")
-    end
-    
-    subgraph API [Serveur Backend]
-        PHP("🐘 PHP 8 (Slim)<br/>Chiffrement Flux")
-        DB[("🐬 MariaDB<br/>Métadonnées")]
-        FS[("📂 Stockage<br/>Fichiers .enc")]
-    end
-    
-    Java -- "HTTPS / JSON / JWT" --> PHP
-    PHP <--> DB
-    PHP <--> FS
-```
+## 3. Besoins Fonctionnels
+### 3.1 Gestion des Utilisateurs
+- Création de compte (Inscription).
+- Authentification sécurisée via JWT (JSON Web Token).
+- Gestion du quota de stockage par utilisateur.
 
-## 3. Analyse des Besoins
-### Besoins Fonctionnels :
-- **Authentification :** JWT (Json Web Tokens).
-- **Gestion Fichiers :** Upload, Téléchargement, Dossiers, Arborescence.
-- **Sécurité :** Soft Delete (Corbeille) et Versioning (Historique).
-- **Partage :** Liens publics avec limite d'utilisation.
-- **Thème :** Switch Dark/Light en pur CSS.
+### 3.2 Gestion des Fichiers et Dossiers
+- Organisation en arborescence (dossiers et sous-dossiers illimités).
+- Chaque utilisateur possède un dossier "Racine" système créé à l'inscription.
+- Un fichier appartient obligatoirement à un dossier parent.
+- Déplacement et Duplication : les éléments peuvent être déplacés ou dupliqués entre dossiers.
+- Gestion des versions : conservation de l'historique des modifications d'un fichier.
 
-### Besoins Non-Fonctionnels :
-- **Sécurité :** Algorithme LibSodium (XSalsa20-Poly1305).
-- **Performance :** Streaming par blocs de 8 Ko (pas de saturation RAM).
-- **Portabilité :** Environnement Dockerisé.
+### 3.3 Partage Sécurisé
+- Génération de liens de partage pour des fichiers ou des dossiers (Spécialisation XT).
+- Protection par token unique et signature.
+- Double condition d'expiration : par date (expires_at) ET/OU par nombre d'utilisations (max_uses). Le lien devient invalide dès que la première limite est atteinte.
+- **Règle de sécurité** : Le partage d'un dossier vide est bloqué par le système (Alerte utilisateur).
+- Possibilité de révoquer un partage manuellement à tout moment.
 
-## 4. Planning de Réalisation
-```mermaid
-gantt
-    title Cycle de Développement ObsiLock
-    dateFormat  YYYY-MM-DD
-    section Analyse
-    Conception & MCD        :done, 2026-02-10, 2d
-    section Backend
-    API & Auth JWT          :done, 2026-02-12, 3d
-    LibSodium Streaming     :done, 2026-02-15, 2d
-    section Frontend
-    JavaFX UI & Thème       :done, 2026-02-17, 4d
-    section Finalisation
-    Docker & Tests          :done, 2026-02-21, 2d
-```
+### 3.4 Journalisation et Sécurité
+- Suivi détaillé des accès via les partages (IP, User-Agent, succès/échec).
+- Journalisation des tentatives d'upload et des erreurs système.
+- Protection contre les abus (Rate Limiting).
+
+## 4. Contraintes Techniques
+- **Backend** : PHP 8.1 avec le micro-framework Slim 4.
+- **Frontend** : Application JavaFX (Java 17).
+- **Base de données** : MySQL 8.0.
+- **Sécurité** : Utilisation de la bibliothèque LibSodium pour le chiffrement XSalsa20-Poly1305.
+- **Déploiement** : Architecture conteneurisée (Docker) derrière un reverse proxy (Traefik).

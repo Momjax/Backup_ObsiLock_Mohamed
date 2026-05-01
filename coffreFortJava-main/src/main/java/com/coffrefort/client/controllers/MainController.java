@@ -66,7 +66,7 @@ public class MainController {
     @FXML private Button refreshQuotaButton;
     @FXML private Button gestionQuota;
     @FXML private Pagination pagination;
-    @FXML private javafx.scene.control.ToggleButton themeToggleButton;
+    @FXML private ToggleButton themeToggleButton;
     @FXML private javafx.scene.image.ImageView logoView;
 
     private boolean isDarkTheme = true;
@@ -113,8 +113,11 @@ public class MainController {
 
                 if (node.getType() == NodeItem.NodeType.FOLDER){
                     currentFolder = node;
+                    shareButton.setDisable(false); // Partage disponible pour les dossiers
                     loadFiles(currentFolder);
                 }
+            } else {
+                shareButton.setDisable(true); // Aucun dossier sélectionné
             }
         });
 
@@ -242,9 +245,10 @@ public class MainController {
         table.setItems(fileList);
 
         // Activer/désactiver les boutons selon la sélection
+        // Note: shareButton n'est PAS activé ici car le partage est réservé aux DOSSIERS uniquement
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             boolean hasSelection = newVal != null;
-            shareButton.setDisable(!hasSelection);
+            shareButton.setDisable(true); // Partage = dossiers uniquement, géré par le TreeView
             deleteButton.setDisable(!hasSelection);
         });
 
@@ -306,15 +310,40 @@ public class MainController {
                             .otherwise(contextMenu)
             );
 
-            //ouvrir les détails d'un fichier en double cliquant dessus
+            // Double-clic : naviguer dans un dossier OU ouvrir un fichier
             row.setOnMouseClicked(event -> {
-                if(event.getClickCount() == 2 && !row.isEmpty()){
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
                     FileEntry selected = row.getItem();
-                    handleOpenFile(selected);
+                    if (selected.isFolder()) {
+                        // Naviguer dans ce sous-dossier
+                        NodeItem folderNode = selected.getFolderNode();
+                        currentFolder = folderNode;
+                        shareButton.setDisable(false);
+                        // Sélectionner dans le TreeView
+                        TreeItem<NodeItem> treeItem = findTreeItem(treeView.getRoot(), folderNode.getId());
+                        if (treeItem != null) {
+                            treeView.getSelectionModel().select(treeItem);
+                            treeItem.setExpanded(true);
+                        }
+                        loadFiles(folderNode);
+                    } else {
+                        handleOpenFile(selected);
+                    }
                 }
             });
             return row;
         });
+    }
+
+    /** Cherche un TreeItem par l'id du NodeItem (recherche récursive) */
+    private TreeItem<NodeItem> findTreeItem(TreeItem<NodeItem> root, int id) {
+        if (root == null) return null;
+        if (root.getValue() != null && root.getValue().getId() == id) return root;
+        for (TreeItem<NodeItem> child : root.getChildren()) {
+            TreeItem<NodeItem> found = findTreeItem(child, id);
+            if (found != null) return found;
+        }
+        return null;
     }
 
     /**
@@ -377,25 +406,16 @@ public class MainController {
             }
         });
 
-        MenuItem shareItem = new MenuItem("Partager ce dossier");
-        shareItem.setOnAction(event -> {
-            NodeItem folder = cell.getItem();
-            if (folder != null){
-                handleShareFolder(folder);
-            }
-        });
-
         MenuItem deleteItem = new MenuItem("Supprimer ce dossier...");
         deleteItem.setOnAction(event -> {
             NodeItem folder = cell.getItem();
             TreeItem<NodeItem> treeItem = cell.getTreeItem();
-
             if (folder != null && treeItem != null) {
                 handleDeleteFolder(folder, treeItem);
             }
         });
 
-        menu.getItems().addAll(createInside, renameItem, shareItem, new SeparatorMenuItem(), deleteItem);
+        menu.getItems().addAll(createInside, renameItem, new SeparatorMenuItem(), deleteItem);
         return menu;
     }
 
@@ -485,10 +505,19 @@ public class MainController {
                     currentFolder = null;
                     loadFiles(null);
 
-                    //vider la table tant qu'aucun dossier n'est choisi
-                    //fileList.clear();
+                    // Vérification si aucun dossier n'existe (première connexion)
+                    if (root.getChildren().isEmpty()) {
+                        uploadButton.setDisable(true);
+                        UIDialogs.showInfo("Bienvenue sur ObsiLock !", 
+                                "C'est votre première connexion.", 
+                                "Pour garantir la sécurité et l'organisation de vos fichiers, vous devez créer au moins un dossier avant de pouvoir uploader des documents.");
+                        statusLabel.setText("Veuillez créer un dossier");
+                    } else {
+                        uploadButton.setDisable(false);
+                        statusLabel.setText("Données chargées");
+                    }
+
                     updateFileCount();
-                    statusLabel.setText("Données chargées");
                 });
 
                 // Charger les quotas avec endpoint
@@ -545,35 +574,50 @@ public class MainController {
         statusLabel.setText("Chargement des fichiers ...");
 
         new Thread(() -> {
-            try{
+            try {
                 Integer folderId = (folder != null) ? folder.getId() : null;
                 int offset = page * FILES_PER_PAGE;
 
-                PagedFilesResponse response = apiClient.listFilesPaginated(folderId, FILES_PER_PAGE, offset );
-                //var files = apiClient.listFiles(folder.getId()); => sans pagination
+                PagedFilesResponse response = apiClient.listFilesPaginated(folderId, FILES_PER_PAGE, offset);
+
+                // Récupérer les sous-dossiers depuis le TreeView (déjà chargés)
+                java.util.List<FileEntry> folderEntries = new java.util.ArrayList<>();
+                if (folder != null) {
+                    TreeItem<NodeItem> currentTreeItem = findTreeItem(treeView.getRoot(), folder.getId());
+                    if (currentTreeItem != null) {
+                        for (TreeItem<NodeItem> child : currentTreeItem.getChildren()) {
+                            if (child.getValue() != null && child.getValue().getType() == NodeItem.NodeType.FOLDER) {
+                                folderEntries.add(FileEntry.fromFolder(child.getValue()));
+                            }
+                        }
+                    }
+                }
+
+                final java.util.List<FileEntry> subFolders = folderEntries;
 
                 Platform.runLater(() -> {
-                    fileList.setAll(response.getFiles());
-                    totalFiles = response.getTotal();
+                    // Sous-dossiers en premier, puis fichiers (comme l'explorateur Windows)
+                    java.util.List<FileEntry> all = new java.util.ArrayList<>(subFolders);
+                    all.addAll(response.getFiles());
+                    fileList.setAll(all);
 
-                    //mise à jour la pagination
+                    totalFiles = response.getTotal();
                     int totalPages = (int) Math.ceil((double) totalFiles / FILES_PER_PAGE);
                     pagination.setPageCount(Math.max(1, totalPages));
                     pagination.setCurrentPageIndex(page);
 
-                   //afficher/ masquer la pagination
                     boolean showPagination = totalPages > 1;
                     pagination.setVisible(showPagination);
                     pagination.setManaged(showPagination);
 
                     updateFileCount();
-                    statusLabel.setText("Fichier chargés");
+                    statusLabel.setText("Fichiers chargés");
                 });
 
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 Platform.runLater(() -> {
-                    fileList.clear(); //vider en cas d'erreur
+                    fileList.clear();
                     pagination.setVisible(false);
                     pagination.setManaged(false);
                     UIDialogs.showError("Erreur", null, "Impossible de charger les fichiers: " + e.getMessage());
@@ -693,7 +737,12 @@ public class MainController {
                         quotaLabel.getStyleClass().add("quota-label");
                     }
 
-                    // couleur
+                    // couleur et état du bouton upload
+                    boolean hasFolders = false;
+                    if (treeView != null && treeView.getRoot() != null) {
+                        hasFolders = !treeView.getRoot().getChildren().isEmpty();
+                    }
+
                     if (ratio >= 0.9) {
                         quotaColor = "#ff4757"; // rouge néon
                         quotaLabel.getStyleClass().add("quota-label-alert");
@@ -702,11 +751,13 @@ public class MainController {
                     }
                     else if (ratio >= 0.8) {
                         quotaColor = "#f0ad4e"; // orange
-                        uploadButton.setDisable(false);
+                        uploadButton.setDisable(!hasFolders);
+                        if (!hasFolders) statusLabel.setText("Veuillez créer un dossier");
                     }
-                    else{
+                    else {
                         quotaColor = "#2ecc71"; // vert émeraude standard
-                        uploadButton.setDisable(false);
+                        uploadButton.setDisable(!hasFolders);
+                        if (!hasFolders) statusLabel.setText("Veuillez créer un dossier");
                     }
 
                     // restyle
@@ -790,68 +841,12 @@ public class MainController {
      */
     @FXML
     private void handleShare() {
-        FileEntry selected = table.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
-
-        shareButton.setDisable(true);
-
-        try{
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/coffrefort/client/share.fxml")
-            );
-
-            VBox root =  loader.load();
-
-            //récupération du contrôleur
-            ShareController controller = loader.getController();
-
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle(("Créer un lien de partage"));
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(shareButton.getScene().getWindow());
-
-            //interdire de redimensionner  la fenêtre => taille fixe
-            dialogStage.setResizable(false);
-            Scene scene = new Scene(root);
-            com.coffrefort.client.App.applyTheme(scene);
-            dialogStage.setScene(scene);
-
-            controller.setStage(dialogStage);
-            controller.setItemName(selected.getName());
-
-            //callback => quand user clique sur partage
-            controller.setOnShare(data -> {
-                statusLabel.setText("Partage en cours... ");
-
-                new Thread(() -> {
-                    try{
-                        String url  = apiClient.shareFile(selected.getId(), data);
-
-                        Platform.runLater(() -> {
-                            statusLabel.setText("Lien: " + url);
-                            showShareDialog(url);
-                        });
-                        System.out.println(url);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Platform.runLater(() -> {
-                            UIDialogs.showError("Partage", null,"Erreur " + e.getMessage());
-                            statusLabel.setText("Erreur pendant le partage");
-                        });
-                    }
-                }).start(); //lancement du Thread
-            });
-
-            //réactivation du bouton de partage
-            dialogStage.setOnHidden(event -> shareButton.setDisable(false));
-
-            dialogStage.showAndWait();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            UIDialogs.showError("Erreur", null,"Impossible d'ouvrir la fenêtre de partage "+e.getMessage());
-            shareButton.setDisable(false);
+        // Le partage s'applique au dossier actuellement sélectionné dans le TreeView
+        if (currentFolder == null) {
+            UIDialogs.showError("Partage", null, "Sélectionnez un dossier dans l'explorateur à gauche.");
+            return;
         }
+        handleShareFolder(currentFolder);
     }
 
     /**
@@ -1032,6 +1027,14 @@ public class MainController {
      */
     @FXML
     private void handleUpload() {
+
+        // Vérifier si un dossier est sélectionné ET que ce n'est pas "Ma Racine" (ID 0)
+        if (currentFolder == null || currentFolder.getId() == 0) {
+            UIDialogs.showInfo("Action impossible", 
+                    "Aucun dossier sélectionné", 
+                    "Veuillez créer ou sélectionner un dossier d'abord.");
+            return;
+        }
 
         if(currentQuota != null && currentQuota.getUsed() >= currentQuota.getMax()){
             UIDialogs.showError("Quota atteint",

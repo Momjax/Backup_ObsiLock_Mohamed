@@ -79,6 +79,25 @@ services:
     networks:
       - obsilock-internal
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2.1
+    container_name: obsilock-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    networks:
+      - obsilock-internal
+      - admin_proxy
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: admin_proxy
+      traefik.http.routers.obsilock-pma.entrypoints: websecure
+      traefik.http.routers.obsilock-pma.rule: Host(`phpmyadmin.obsilock.iris.a3n.fr`)
+      traefik.http.routers.obsilock-pma.tls: "true"
+      traefik.http.routers.obsilock-pma.tls.certresolver: letsencrypt
+      traefik.http.services.obsilock-pma.loadbalancer.server.port: "80"
+
 volumes:
   obsilock-mysql-data:
 

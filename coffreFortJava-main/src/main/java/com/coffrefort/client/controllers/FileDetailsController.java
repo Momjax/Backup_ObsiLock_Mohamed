@@ -188,7 +188,9 @@ public class FileDetailsController {
                 FileEntry fresh = apiClient.getFile(file.getId());
 
                 Platform.runLater(() -> {
-                    this.file = fresh; // => mise à jour les valeurs de header (en-tête)
+                    if (fresh != null) {
+                        this.file = fresh; // => mise à jour seulement si on a reçu des données
+                    }
                     refresh(); // => appelle refreshHeader() ET loadVersions()
                     updateTitle();
                 });
@@ -561,7 +563,9 @@ public class FileDetailsController {
         }
 
         if(apiClient == null || file == null) {
-            UIDialogs.showError("Erreur", null,"API ou fichier non initilalisé");
+            String details = (apiClient == null ? "apiClient " : "") + (file == null ? "file " : "") + "est null";
+            System.err.println("FileDetailsController - ERREUR: " + details);
+            UIDialogs.showError("Erreur", null,"API ou fichier non initialisé (" + details + ")");
             return;
         }
 
@@ -687,8 +691,10 @@ public class FileDetailsController {
 
         if(sel == null) return;
 
-        if(file == null) {
-            UIDialogs.showError("Erreur", null, "Fichier non initialise.");
+        if(apiClient == null || file == null) {
+            String details = (apiClient == null ? "apiClient " : "") + (file == null ? "file " : "") + "est null";
+            System.err.println("FileDetailsController - ERREUR: " + details);
+            UIDialogs.showError("Erreur", null,"API ou fichier non initialisé (" + details + ")");
             return;
         }
 

@@ -22,6 +22,25 @@ public class FileEntry {
     @JsonProperty("current_version")
     private int version;
 
+    // Champ virtuel pour représenter un dossier dans le tableau (non sérialisé)
+    private transient boolean folder = false;
+    private transient NodeItem folderNode = null;
+
+    /** Fabrique un FileEntry représentant un dossier (affiché en tête de liste) */
+    public static FileEntry fromFolder(NodeItem node) {
+        FileEntry e = new FileEntry();
+        e.id = node.getId();
+        e.name = "📁  " + node.getName();
+        e.size = -1;
+        e.folder = true;
+        e.folderNode = node;
+        return e;
+    }
+
+    public boolean isFolder() { return folder; }
+    public NodeItem getFolderNode() { return folderNode; }
+
+
     public FileEntry(){}
 
     public FileEntry(int id, String name, long size, String createdAt, String updatedAt, int version) {
@@ -56,6 +75,7 @@ public class FileEntry {
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 
     public String getFormattedSize() {
+        if (folder) return "Dossier";
         long bytes = size;
         if (bytes < 1024) return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(1024));

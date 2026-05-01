@@ -35,7 +35,8 @@ class UserRepository
     {
         $sql = "SELECT SUM(file_versions.size) FROM file_versions 
                 JOIN files ON file_versions.file_id = files.id 
-                WHERE files.user_id = :user_id";
+                JOIN folders ON files.folder_id = folders.id
+                WHERE folders.user_id = :user_id";
         $total = $this->db->query($sql, [':user_id' => $userId])->fetchColumn();
         
         $this->db->update('users', ['quota_used' => (int)$total], ['id' => $userId]);
