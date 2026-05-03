@@ -13,10 +13,9 @@
       prefWidth="480" 
       spacing="20" 
       styleClass="root"
-      stylesheets="@style-javafx.css" 
       xmlns="http://javafx.com/javafx/25" 
       xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.coffrefort.client.controllers.ConfirmDeleteFolderController">
+      fx:controller="com.coffrefort.client.controllers.ConfirmDeleteController">
 
     <padding>
         <Insets bottom="30" left="30" right="30" top="30"/>
@@ -30,7 +29,7 @@
         </VBox>
         <VBox spacing="4">
             <Text text="Action irréversible" fill="#ff4757" styleClass="title-futuristic" style="-fx-font-size: 20px;"/>
-            <Text text="Supprimer le dossier et son contenu ?" fill="#8b949e" style="-fx-font-size: 13px;"/>
+            <Text text="Supprimer le dossier et son contenu ?" styleClass="label-dim" style="-fx-font-size: 13px;"/>
         </VBox>
     </HBox>
 
@@ -38,13 +37,13 @@
 
     <!-- Zone de message -->
     <VBox spacing="10" alignment="CENTER">
-        <Label wrapText="true" textAlignment="CENTER" 
-               style="-fx-text-fill: #e6edf3; -fx-font-size: 14px;" 
-               text="Voulez-vous vraiment supprimer ce dossier ainsi que tous les fichiers qu'il contient ?"/>
+        <Label fx:id="messageLabel" wrapText="true" textAlignment="CENTER" 
+               styleClass="main-title" style="-fx-font-size: 14px;" 
+               text="Voulez-vous vraiment supprimer ce dossier ainsi que tous les ..."/>
         
-        <Label fx:id="folderNameLabel" wrapText="true" textAlignment="CENTER" 
+        <Label fx:id="fileNameLabel" wrapText="true" textAlignment="CENTER" 
                style="-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 15px;" 
-               text="Nom du dossier"/>
+               text="TESR2"/>
     </VBox>
 
     <Region VBox.vgrow="ALWAYS"/>

@@ -389,6 +389,20 @@
             70% { transform: scale(1.1); }
             100% { transform: scale(1); opacity: 1; }
         }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+        .tree-item:last-child { border-bottom: none; }
+        .tree-item:hover { transform: translateX(5px); }
+        .tree-icon { width: 24px; text-align: center; }
+        .tree-name { color: var(--text-main); font-weight: 500; }
     </style>
 </head>
 
@@ -440,6 +454,13 @@
                     <div class="tag-list" id="tag-list">
                         <!-- Tags inserted here -->
                     </div>
+                </div>
+            </div>
+
+            <div id="folder-explorer" style="display: none; margin-bottom: 32px;">
+                <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">📁 Contenu du dossier :</p>
+                <div id="file-tree" style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 16px; border: 1px solid var(--border); max-height: 250px; overflow-y: auto;">
+                    <!-- Liste des fichiers insérée ici -->
                 </div>
             </div>
 
@@ -593,9 +614,36 @@
 
                 // Button setup
                 const btn = document.getElementById('dl-btn');
+                
                 if (share.kind === 'folder') {
-                    // Update button for folder
-                    btn.querySelector('span').textContent = 'Télécharger ZIP';
+                    btn.querySelector('span').textContent = 'Télécharger tout (ZIP)';
+                    
+                    // Affichage du contenu du dossier
+                    if (meta.contents && meta.contents.length > 0) {
+                        const explorer = document.getElementById('folder-explorer');
+                        explorer.style.display = 'block';
+                        const list = document.getElementById('file-tree');
+                        list.innerHTML = '';
+                        
+                        function renderItems(items, container, level = 0) {
+                            items.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = 'tree-item';
+                                div.style.paddingLeft = `${level * 20}px`;
+                                
+                                const icon = getFileEmoji(item.name, item.type === 'folder');
+                                const sizeStr = item.size ? ` <span style="color:var(--text-dim); font-size:0.7rem;">(${formatSize(item.size)})</span>` : '';
+                                
+                                div.innerHTML = `<span class="tree-icon">${icon}</span> <span class="tree-name">${item.name}</span>${sizeStr}`;
+                                container.appendChild(div);
+                                
+                                if (item.type === 'folder' && item.children) {
+                                    renderItems(item.children, container, level + 1);
+                                }
+                            });
+                        }
+                        renderItems(meta.contents, list);
+                    }
                 }
 
                 btn.addEventListener('click', () => startDownload(token, meta.name, share.kind === 'folder'));

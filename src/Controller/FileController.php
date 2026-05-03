@@ -44,13 +44,13 @@ class FileController
 
     private function ok(Response $response, array $data, int $status = 200): Response
     {
-        $response->getBody()->write(json_encode($data));
+        $response->getBody()->write(json_encode($data), JSON_UNESCAPED_UNICODE);
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 
     private function err(Response $response, string $msg, int $status = 400): Response
     {
-        $response->getBody()->write(json_encode(['error' => $msg]));
+        $response->getBody()->write(json_encode(['error' => $msg]), JSON_UNESCAPED_UNICODE);
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 
@@ -230,8 +230,16 @@ class FileController
         if (!$version) return $response->withStatus(404);
 
         $newStoredName = uniqid('f_', true) . '_' . time() . '.enc';
-        $oldPath = $this->findEncFile($user['user_id'], $version['stored_name']);
-        if ($oldPath) copy($oldPath, dirname($oldPath) . '/' . $newStoredName);
+        $encryptedData = $file['encrypted_data']; // Données BLOB si présentes
+
+        // Si stockage physique (disque)
+        if ($version['stored_name'] !== 'bdd_storage' && empty($encryptedData)) {
+            $oldPath = $this->findEncFile($user['user_id'], $version['stored_name']);
+            if ($oldPath && file_exists($oldPath)) {
+                $newPath = dirname($oldPath) . '/' . $newStoredName;
+                copy($oldPath, $newPath);
+            }
+        }
 
         $newFileId = $this->files->create([
             'folder_id'       => $file['folder_id'],
@@ -240,6 +248,7 @@ class FileController
             'size'            => $file['size'],
             'mime_type'       => $file['mime_type'],
             'checksum'        => $file['checksum'],
+            'encrypted_data'  => $encryptedData, // On duplique les données BLOB
             'current_version' => 1,
         ]);
 

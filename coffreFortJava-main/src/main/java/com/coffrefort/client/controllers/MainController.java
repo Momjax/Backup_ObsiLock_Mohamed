@@ -245,11 +245,19 @@ public class MainController {
         table.setItems(fileList);
 
         // Activer/désactiver les boutons selon la sélection
-        // Note: shareButton n'est PAS activé ici car le partage est réservé aux DOSSIERS uniquement
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             boolean hasSelection = newVal != null;
-            shareButton.setDisable(true); // Partage = dossiers uniquement, géré par le TreeView
             deleteButton.setDisable(!hasSelection);
+            
+            // Si on sélectionne un dossier dans le tableau, on permet le partage
+            if (hasSelection && newVal.isFolder()) {
+                shareButton.setDisable(false);
+            } else if (currentFolder != null) {
+                // Sinon, on garde le bouton actif si un dossier est sélectionné à gauche
+                shareButton.setDisable(false);
+            } else {
+                shareButton.setDisable(true);
+            }
         });
 
         //clique sur une ligne
@@ -298,6 +306,16 @@ public class MainController {
                 FileEntry file = row.getItem();
                 if (file != null) {
                     openFileDetailsDialog(file);
+                }
+            });
+
+            contextMenu.setOnShowing(event -> {
+                FileEntry file = row.getItem();
+                if (file != null) {
+                    boolean isFolder = file.isFolder();
+                    openItem.setDisable(isFolder);
+                    detailsItem.setDisable(isFolder);
+                    downloadItem.setDisable(isFolder);
                 }
             });
 
@@ -841,12 +859,21 @@ public class MainController {
      */
     @FXML
     private void handleShare() {
-        // Le partage s'applique au dossier actuellement sélectionné dans le TreeView
-        if (currentFolder == null) {
-            UIDialogs.showError("Partage", null, "Sélectionnez un dossier dans l'explorateur à gauche.");
-            return;
+        FileEntry tableSelected = table.getSelectionModel().getSelectedItem();
+        TreeItem<NodeItem> treeSelected = treeView.getSelectionModel().getSelectedItem();
+
+        if (tableSelected != null && tableSelected.isFolder()) {
+            handleShareFolder(tableSelected.getFolderNode());
+        } else if (tableSelected != null && !tableSelected.isFolder()) {
+            // 2. Sinon, si c'est un fichier sélectionné dans le tableau
+            handleShareFile(tableSelected);
+        } else if (treeSelected != null && treeSelected.getValue() != null) {
+            handleShareFolder(treeSelected.getValue());
+        } else if (currentFolder != null) {
+            handleShareFolder(currentFolder);
+        } else {
+            UIDialogs.showError("Partage impossible", null, "Veuillez sélectionner un dossier ou un fichier à partager.");
         }
-        handleShareFolder(currentFolder);
     }
 
     /**
@@ -948,6 +975,51 @@ public class MainController {
         }
     }
 
+    /**
+     * Gestion de share des fichiers
+     */
+    private void handleShareFile(FileEntry file){
+        if(file == null) return;
+
+        try{
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/coffrefort/client/share.fxml"));
+            VBox root = loader.load();
+
+            ShareController controller = loader.getController();
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Partager le fichier");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(treeView.getScene().getWindow());
+            dialogStage.setResizable(false);
+            
+            Scene scene = new Scene(root);
+            com.coffrefort.client.App.applyTheme(scene);
+            dialogStage.setScene(scene);
+
+            controller.setStage(dialogStage);
+            controller.setItemName(file.getName());
+
+            controller.setOnShare(data -> {
+                statusLabel.setText("Partage du fichier en cours... ");
+                new Thread(() -> {
+                    try{
+                        String url = apiClient.shareFile(file.getId(), data);
+                        Platform.runLater(() -> {
+                            statusLabel.setText("Lien: " + url);
+                            showShareDialog(url);
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Platform.runLater(() -> UIDialogs.showError("Partage", null, "Erreur " + e.getMessage()));
+                    }
+                }).start();
+            });
+            dialogStage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     /**
      * gestion de "Mes partages"
      */
@@ -1367,7 +1439,7 @@ public class MainController {
 
         new Thread(() -> {
             try {
-                apiClient.downloadFileTo(file.getId(), target);
+                apiClient.downloadFileTo(file.getId(), target, file.isFolder());
 
                 Platform.runLater(() -> {
                     statusLabel.setText("Téléchargé " + target.getAbsolutePath());
@@ -1812,7 +1884,7 @@ public class MainController {
                 String tempDir = System.getProperty("java.io.tmpdir");
                 File tempFile = new File(tempDir, "obsilock_" + System.currentTimeMillis() + "_" + fileEntry.getName());
                 
-                apiClient.downloadFileTo(fileEntry.getId(), tempFile);
+                apiClient.downloadFileTo(fileEntry.getId(), tempFile, fileEntry.isFolder());
 
                 Platform.runLater(() -> {
                     try {

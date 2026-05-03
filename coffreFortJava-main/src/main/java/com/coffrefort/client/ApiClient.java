@@ -775,13 +775,15 @@ public class ApiClient {
      * @param target
      * @throws Exception
      */
-    public void downloadFileTo(long fileId, File target) throws Exception {
+    public void downloadFileTo(long fileId, File target, boolean isFolder) throws Exception {
         if(authToken == null || authToken.isEmpty()) {
             throw new IllegalStateException("Utilisateur non authentifié (auth.token manquant).");
         }
 
+        String url = baseUrl + (isFolder ? "/folders/" : "/files/") + fileId + "/download";
+
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + "/files/" + fileId + "/download"))
+                .uri(URI.create(url))
                 .GET()
                 .header("Authorization", "Bearer " + authToken)
                 .build();

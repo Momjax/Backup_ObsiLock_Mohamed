@@ -15,7 +15,6 @@
       prefWidth="500" 
       spacing="20" 
       styleClass="root"
-      stylesheets="@style-javafx.css" 
       xmlns="http://javafx.com/javafx/25" 
       xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="com.coffrefort.client.controllers.ShareController">
@@ -32,7 +31,7 @@
         </VBox>
         <VBox spacing="4">
             <Text text="Partager" fill="#2ecc71" styleClass="title-futuristic" style="-fx-font-size: 24px;"/>
-            <Text text="Générez un lien d'accès sécurisé" fill="#8b949e" style="-fx-font-size: 13px;"/>
+            <Text text="Générez un lien d'accès sécurisé" styleClass="label-dim" style="-fx-font-size: 13px;"/>
         </VBox>
     </HBox>
 
@@ -42,12 +41,11 @@
     <VBox spacing="18" VBox.vgrow="ALWAYS">
         
         <!-- Ressource cible -->
-        <VBox spacing="6" alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.03); -fx-background-radius: 10; -fx-padding: 15;">
+        <VBox spacing="6" alignment="CENTER" style="-fx-background-color: rgba(0,0,0,0.05); -fx-background-radius: 10; -fx-padding: 15;" styleClass="preview-box">
             <Label text="Élément à partager" styleClass="label-dim" style="-fx-font-size: 11px;"/>
             <Label fx:id="itemNameLabel" text="Nom de la ressource" wrapText="true" textAlignment="CENTER"
-                   style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+                   styleClass="main-title" style="-fx-font-weight: bold; -fx-font-size: 15px;"/>
         </VBox>
-
 
         <!-- Configuration -->
         <HBox spacing="15">
@@ -87,11 +85,9 @@
             </VBox>
             <VBox spacing="8">
                 <Label text="Note pour le destinataire (facultatif)" styleClass="label-dim" style="-fx-font-size: 11px; -fx-opacity: 0.7;"/>
-                <TextField fx:id="recipientNoteField" promptText="Apparaîtra sur la page du lien..." prefHeight="40.0" 
-                           style="-fx-background-color: rgba(255,255,255,0.02); -fx-border-color: rgba(255,255,255,0.05);"/>
+                <TextField fx:id="recipientNoteField" promptText="Apparaîtra sur la page du lien..." prefHeight="40.0" />
             </VBox>
         </VBox>
-
 
         <Label fx:id="errorLabel" visible="false" managed="false" style="-fx-text-fill: #ff4757; -fx-font-weight: bold;"/>
     </VBox>

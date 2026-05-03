@@ -23,10 +23,10 @@ public final class UIDialogs {
 
         // Style personnalisé
         DialogPane pane = alert.getDialogPane();
-        pane.getStylesheets().add(UIDialogs.class.getResource("/com/coffrefort/client/style-javafx.css").toExternalForm());
         pane.getStyleClass().add("root");
         pane.setMinWidth(500);
-        pane.setStyle("-fx-background-color: #0d1117;");
+
+        com.coffrefort.client.App.applyTheme(pane.getScene());
 
         Label icon = new Label("i");
         icon.setStyle(
@@ -115,10 +115,10 @@ public final class UIDialogs {
 
         // Style personnalisé
         DialogPane pane = alert.getDialogPane();
-        pane.getStylesheets().add(UIDialogs.class.getResource("/com/coffrefort/client/style-javafx.css").toExternalForm());
         pane.getStyleClass().add("root");
         pane.setMinWidth(500);
-        pane.setStyle("-fx-background-color: #0d1117;");
+
+        com.coffrefort.client.App.applyTheme(pane.getScene());
 
         Label icon = new Label("!");
         icon.setStyle(
@@ -155,11 +155,11 @@ public final class UIDialogs {
 
         // Style personnalisé
         DialogPane pane = alert.getDialogPane();
-        pane.getStylesheets().add(UIDialogs.class.getResource("/com/coffrefort/client/style-javafx.css").toExternalForm());
         pane.getStyleClass().add("root");
         pane.setMinWidth(500);
         pane.setMinHeight(250);
-        pane.setStyle("-fx-background-color: #0d1117;");
+
+        com.coffrefort.client.App.applyTheme(pane.getScene());
 
         // Icône bordeaux
         Label icon = new Label("!");

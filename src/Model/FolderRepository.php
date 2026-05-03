@@ -11,9 +11,17 @@ class FolderRepository
         $this->db = $db;
     }
 
-    public function listByUser(int $userId): array
+    public function getDb(): Medoo
     {
-        $where = ['user_id' => $userId];
+        return $this->db;
+    }
+
+    public function listByUser(?int $userId, ?int $parentId = null): array
+    {
+        $where = [];
+        if ($userId !== null) $where['user_id'] = $userId;
+        if ($parentId !== null) $where['parent_id'] = $parentId;
+        
         return $this->db->select('folders', '*', $where);
     }
 

@@ -13,7 +13,6 @@
       prefWidth="450" 
       spacing="20" 
       styleClass="root"
-      stylesheets="@style-javafx.css" 
       xmlns="http://javafx.com/javafx/25" 
       xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="com.coffrefort.client.controllers.ConfirmDeleteController">
@@ -30,7 +29,7 @@
         </VBox>
         <VBox spacing="4">
             <Text text="Action irréversible" fill="#ff4757" styleClass="title-futuristic" style="-fx-font-size: 20px;"/>
-            <Text text="Confirmez-vous la suppression ?" fill="#8b949e" style="-fx-font-size: 13px;"/>
+            <Text text="Confirmez-vous la suppression ?" styleClass="label-dim" style="-fx-font-size: 13px;"/>
         </VBox>
     </HBox>
 
@@ -39,7 +38,7 @@
     <!-- Zone de message -->
     <VBox spacing="10" alignment="CENTER">
         <Label fx:id="messageLabel" wrapText="true" textAlignment="CENTER" 
-               style="-fx-text-fill: #e6edf3; -fx-font-size: 14px;" 
+               styleClass="main-title" style="-fx-font-size: 14px;" 
                text="Voulez-vous vraiment supprimer cet élément ?"/>
         
         <Label fx:id="fileNameLabel" wrapText="true" textAlignment="CENTER" 

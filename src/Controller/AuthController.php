@@ -25,19 +25,19 @@ class AuthController
         $data = $request->getParsedBody();
         
         if (empty($data['email']) || empty($data['password'])) {
-            $response->getBody()->write(json_encode(['error' => 'Email et password requis']));
+            $response->getBody()->write(json_encode(['error' => 'Email et password requis']), JSON_UNESCAPED_UNICODE);
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
         $password = $data['password'];
-        if (strlen($password) < 12 || !preg_match('/[A-Z]/', $password) || !preg_match('/[^a-zA-Z0-9]/', $password)) {
-            $response->getBody()->write(json_encode(['error' => 'Le mot de passe doit contenir au moins 12 caractères, une majuscule et un caractère spécial.']));
+        if (strlen($password) < 8) {
+            $response->getBody()->write(json_encode(['error' => 'Le mot de passe doit contenir au moins 8 caractères.']), JSON_UNESCAPED_UNICODE);
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
         // Vérifie si l'email existe déjà
         if ($this->users->findByEmail($data['email'])) {
-            $response->getBody()->write(json_encode(['error' => 'Email déjà utilisé']));
+            $response->getBody()->write(json_encode(['error' => 'Email déjà utilisé']), JSON_UNESCAPED_UNICODE);
             return $response->withHeader('Content-Type', 'application/json')->withStatus(409);
         }
 
@@ -62,14 +62,14 @@ class AuthController
         $data = $request->getParsedBody();
 
         if (empty($data['email']) || empty($data['password'])) {
-            $response->getBody()->write(json_encode(['error' => 'Email et password requis']));
+            $response->getBody()->write(json_encode(['error' => 'Email et password requis']), JSON_UNESCAPED_UNICODE);
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
         $user = $this->users->findByEmail($data['email']);
 
         if (!$user || !password_verify($data['password'], $user['password'])) {
-            $response->getBody()->write(json_encode(['error' => 'Identifiants invalides']));
+            $response->getBody()->write(json_encode(['error' => 'Identifiants invalides']), JSON_UNESCAPED_UNICODE);
             return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
         }
 
@@ -93,9 +93,9 @@ class AuthController
     // Fonction simple pour générer un JWT
     private function generateJWT(array $payload): string
     {
-        $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
+        $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256'], JSON_UNESCAPED_UNICODE);
         $payload['exp'] = time() + 3600; // expire dans 1h
-        $payload = json_encode($payload);
+        $payload = json_encode($payload, JSON_UNESCAPED_UNICODE);
 
         $base64Header = $this->base64url($header);
         $base64Payload = $this->base64url($payload);

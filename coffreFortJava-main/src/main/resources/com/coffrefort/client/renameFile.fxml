@@ -10,14 +10,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox prefHeight="350" 
+<VBox prefHeight="320" 
       prefWidth="450" 
       spacing="20" 
       styleClass="root"
-      stylesheets="@style-javafx.css" 
       xmlns="http://javafx.com/javafx/25" 
       xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.coffrefort.client.controllers.RenameFileController">
+      fx:controller="com.coffrefort.client.controllers.RenameController">
 
     <padding>
         <Insets bottom="30" left="30" right="30" top="30"/>
@@ -30,37 +29,32 @@
             <Text text="✏️" fill="#2ecc71" style="-fx-font-size: 24px;"/>
         </VBox>
         <VBox spacing="4">
-            <Text text="Renommer" fill="#2ecc71" styleClass="title-futuristic" style="-fx-font-size: 20px;"/>
-            <Text text="Modification du nom de fichier" fill="#8b949e" style="-fx-font-size: 13px;"/>
+            <Text text="Renommer" fill="#2ecc71" styleClass="title-futuristic" style="-fx-font-size: 22px;"/>
+            <Text text="Modifiez le nom de votre ressource" styleClass="label-dim" style="-fx-font-size: 13px;"/>
         </VBox>
     </HBox>
 
     <Separator opacity="0.1"/>
 
     <!-- Formulaire -->
-    <VBox spacing="15">
-        <VBox spacing="5">
-            <Label text="Nom actuel" styleClass="label-dim" style="-fx-font-size: 12px;"/>
-            <Label fx:id="currentNameLabel" text="NomDuFichier.ext" wrapText="true" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+    <VBox spacing="15" VBox.vgrow="ALWAYS">
+        <VBox spacing="8">
+            <Label text="Ancien nom" styleClass="label-dim" style="-fx-font-size: 12px;"/>
+            <Label fx:id="currentNameLabel" text="NomDuFichier.ext" wrapText="true" styleClass="main-title" style="-fx-font-weight: bold;"/>
         </VBox>
 
         <VBox spacing="8">
-            <Label text="Nouveau nom (sans extension)" styleClass="label-dim" style="-fx-font-size: 12px;"/>
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <TextField fx:id="nameField" promptText="Nouveau nom..." HBox.hgrow="ALWAYS" prefHeight="45.0"/>
-                <Label fx:id="extensionLabel" text=".pdf" style="-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 15px;"/>
-            </HBox>
+            <Label text="Nouveau nom" styleClass="label-dim" style="-fx-font-size: 12px;"/>
+            <TextField fx:id="newNameField" promptText="Saisissez le nouveau nom..." prefHeight="45.0"/>
         </VBox>
     </VBox>
-
-    <Label fx:id="errorLabel" visible="false" managed="false" style="-fx-text-fill: #ff4757; -fx-font-weight: bold;"/>
 
     <Region VBox.vgrow="ALWAYS"/>
 
     <!-- Boutons -->
     <HBox alignment="CENTER_RIGHT" spacing="15">
-        <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel" styleClass="button-secondary" prefWidth="100" prefHeight="40"/>
-        <Button fx:id="confirmButton" text="Confirmer" onAction="#handleConfirm" styleClass="button-primary" prefWidth="120" prefHeight="40"/>
+        <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel" styleClass="button-secondary" prefWidth="100" prefHeight="45"/>
+        <Button fx:id="renameButton" text="Appliquer" onAction="#handleRename" styleClass="button-vibrant" prefWidth="130" prefHeight="45"/>
     </HBox>
 
 </VBox>

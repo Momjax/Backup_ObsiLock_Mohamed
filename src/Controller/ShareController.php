@@ -275,9 +275,34 @@ class ShareController
             ];
         } else {
             $resource = $this->folderRepo->find($share['target_id']);
+            
+            // Fonction récursive pour construire l'arborescence pour l'affichage public
+            $buildTree = function($folderId) use (&$buildTree) {
+                $files = $this->fileRepo->listByUser(null, $folderId);
+                $subfolders = $this->folderRepo->listByUser(null, $folderId);
+                
+                $content = [];
+                foreach ($subfolders as $sub) {
+                    $content[] = [
+                        'name' => $sub['name'],
+                        'type' => 'folder',
+                        'children' => $buildTree($sub['id'])
+                    ];
+                }
+                foreach ($files as $f) {
+                    $content[] = [
+                        'name' => $f['filename'],
+                        'type' => 'file',
+                        'size' => $f['size']
+                    ];
+                }
+                return $content;
+            };
+
             $metadata = [
                 'name' => $resource['name'] ?? 'Unknown',
-                'type' => 'folder'
+                'type' => 'folder',
+                'contents' => $buildTree($share['target_id'])
             ];
         }
 
@@ -314,7 +339,7 @@ class ShareController
 
         if (!$share) {
             $this->logModel->create(0, $ip, $userAgent, false, 'Share not found');
-            $response->getBody()->write(json_encode(['error' => 'Share not found']));
+            $response->getBody()->write(json_encode(['error' => 'Share not found']), JSON_UNESCAPED_UNICODE);
             return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
         }
 
@@ -329,7 +354,7 @@ class ShareController
                 'no_uses_left' => 'This share has no remaining uses'
             ];
             $errorMessage = $errorMessages[$validation['reason']] ?? 'This share is no longer valid';
-            $response->getBody()->write(json_encode(['error' => $errorMessage]));
+            $response->getBody()->write(json_encode(['error' => $errorMessage]), JSON_UNESCAPED_UNICODE);
             return $response->withStatus(410)->withHeader('Content-Type', 'application/json');
         }
 
@@ -337,7 +362,7 @@ class ShareController
         if ($share['max_uses'] !== null) {
             if (!$this->shareModel->decrementUses($share['id'])) {
                 $this->logModel->create($share['id'], $ip, $userAgent, false, 'No uses left');
-                $response->getBody()->write(json_encode(['error' => 'This share has no remaining uses']));
+                $response->getBody()->write(json_encode(['error' => 'This share has no remaining uses']), JSON_UNESCAPED_UNICODE);
                 return $response->withStatus(410)->withHeader('Content-Type', 'application/json');
             }
         }
@@ -353,7 +378,7 @@ class ShareController
             
             if (!$file) {
                 $this->logModel->create($share['id'], $ip, $userAgent, false, 'File not found');
-                $response->getBody()->write(json_encode(['error' => 'File not found']));
+                $response->getBody()->write(json_encode(['error' => 'File not found']), JSON_UNESCAPED_UNICODE);
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
 
@@ -375,7 +400,7 @@ class ShareController
             // Si toujours rien, impossible de déchiffrer
             if (!$version) {
                  $this->logModel->create($share['id'], $ip, $userAgent, false, 'Encryption metadata missing');
-                 $response->getBody()->write(json_encode(['error' => 'File metadata corrupted']));
+                 $response->getBody()->write(json_encode(['error' => 'File metadata corrupted']), JSON_UNESCAPED_UNICODE);
                  return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
             }
 
@@ -400,7 +425,7 @@ class ShareController
 
                 if (!file_exists($encryptedPath)) {
                     $this->logModel->create($share['id'], $ip, $userAgent, false, 'File missing on disk');
-                    $response->getBody()->write(json_encode(['error' => 'File not found on server']));
+                    $response->getBody()->write(json_encode(['error' => 'File not found on server']), JSON_UNESCAPED_UNICODE);
                     return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
                 }
             }
@@ -436,7 +461,7 @@ class ShareController
             } catch (\Exception $e) {
                 if (isset($tempPath) && file_exists($tempPath)) unlink($tempPath);
                 $this->logModel->create($share['id'], $ip, $userAgent, false, 'Decryption error: ' . $e->getMessage());
-                $response->getBody()->write(json_encode(['error' => 'Download failed']));
+                $response->getBody()->write(json_encode(['error' => 'Download failed']), JSON_UNESCAPED_UNICODE);
                 return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
             }
 
@@ -444,84 +469,85 @@ class ShareController
             // TÉLÉCHARGEMENT DOSSIER (ZIP)
             $folder = $this->folderRepo->find($share['target_id']);
             if (!$folder) {
-                $response->getBody()->write(json_encode(['error' => 'Folder not found']));
+                $response->getBody()->write(json_encode(['error' => 'Folder not found']), JSON_UNESCAPED_UNICODE);
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
 
-            // Récupérer les fichiers du dossier
-            $files = $this->fileRepo->listByUser($folder['user_id'], $folder['id']);
-            
-            // Injection du user_id pour reconstruire les chemins de stockage
-            foreach ($files as &$f) {
-                $f['user_id'] = $folder['user_id'];
-            }
-            unset($f);
-            
-            if (empty($files)) {
-                $response->getBody()->write(json_encode(['error' => 'Folder is empty']));
-                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
-            }
+            // Préparation de la récursion
+
 
             $zipPath = sys_get_temp_dir() . '/' . uniqid('folder_', true) . '.zip';
             $zip = new \ZipArchive();
             
             if ($zip->open($zipPath, \ZipArchive::CREATE) !== TRUE) {
-                $response->getBody()->write(json_encode(['error' => 'Could not create zip']));
+                $response->getBody()->write(json_encode(['error' => 'Could not create zip']), JSON_UNESCAPED_UNICODE);
                 return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
             }
 
             $encryption = new \App\Service\EncryptionService();
-            $tempFiles = []; // Pour supprimer après
+            $tempFiles = [];
 
-            foreach ($files as $file) {
-                 // Récupérer version courante
-                 $version = $this->db->get('file_versions', '*', [
-                    'file_id' => $file['id'],
-                    'version' => $file['current_version'] ?? 1
-                ]);
-
-                if (!$version) continue; // Skip corrupted files
-
-                // Chemin chiffré
-                $storedName = $version['stored_name'];
-                $isBdd = ($storedName === 'bdd_storage' || !empty($file['encrypted_data']));
-                
-                if ($isBdd) {
-                    $encryptedPath = sys_get_temp_dir() . '/' . uniqid('zip_enc_', true);
-                    file_put_contents($encryptedPath, $file['encrypted_data']);
-                } else {
-                    $parts = explode('_', str_replace('.enc', '', $storedName));
-                    $timestamp = end($parts);
+            // Fonction récursive pour parcourir l'arborescence et remplir le ZIP
+            $addFolderToZip = function ($folderId, $zipPathInZip) use (&$addFolderToZip, $zip, $encryption, &$tempFiles, $uploadDir) {
+                // 1. Ajouter les fichiers de ce dossier
+                $files = $this->fileRepo->listByUser(null, $folderId);
+                foreach ($files as $file) {
+                    // On récupère le user_id du fichier (pour le chemin de stockage)
+                    $ownerId = $this->fileRepo->getOwnerId($file['id']);
                     
-                    if (!is_numeric($timestamp)) {
-                         $encryptedPath = $uploadDir . DIRECTORY_SEPARATOR . $storedName;
+                    $version = $this->db->get('file_versions', '*', [
+                        'file_id' => $file['id'],
+                        'version' => $file['current_version'] ?? 1
+                    ]);
+
+                    if (!$version) continue;
+
+                    $storedName = $version['stored_name'];
+                    $isBdd = ($storedName === 'bdd_storage' || !empty($file['encrypted_data']));
+                    
+                    if ($isBdd) {
+                        $encryptedPath = sys_get_temp_dir() . '/' . uniqid('zip_enc_', true);
+                        file_put_contents($encryptedPath, $file['encrypted_data']);
                     } else {
-                        $date = date('Y/m', (int)$timestamp);
-                        $encryptedPath = sprintf('%s/%d/%s/%s', $uploadDir, $file['user_id'], $date, $storedName);
+                        $parts = explode('_', str_replace('.enc', '', $storedName));
+                        $timestamp = end($parts);
+                        $date = is_numeric($timestamp) ? date('Y/m', (int)$timestamp) : null;
+                        
+                        if ($date) {
+                            $encryptedPath = sprintf('%s/%d/%s/%s', $uploadDir, $ownerId, $date, $storedName);
+                        } else {
+                            $encryptedPath = $uploadDir . DIRECTORY_SEPARATOR . $storedName;
+                        }
+                        if (!file_exists($encryptedPath)) continue;
                     }
 
-                    if (!file_exists($encryptedPath)) continue;
+                    try {
+                        $tempDecrypted = sys_get_temp_dir() . '/' . uniqid('zip_entry_', true);
+                        $encryption->decryptFile(
+                            $encryptedPath,
+                            $tempDecrypted,
+                            $version['key_envelope'],
+                            $version['key_nonce'],
+                            $version['nonce']
+                        );
+                        
+                        // Ajouter au ZIP avec son chemin relatif
+                        $zip->addFile($tempDecrypted, $zipPathInZip . $file['filename']);
+                        $tempFiles[] = $tempDecrypted;
+                        if ($isBdd && file_exists($encryptedPath)) unlink($encryptedPath);
+                    } catch (\Exception $e) { continue; }
                 }
 
-                try {
-                    $tempDecrypted = sys_get_temp_dir() . '/' . uniqid('zip_entry_', true);
-                    $encryption->decryptFile(
-                        $encryptedPath,
-                        $tempDecrypted,
-                        $version['key_envelope'],
-                        $version['key_nonce'],
-                        $version['nonce']
-                    );
-                    
-                    // Ajouter au ZIP
-                    $zip->addFile($tempDecrypted, $file['filename']);
-                    $tempFiles[] = $tempDecrypted;
-                    if ($isBdd && file_exists($encryptedPath)) unlink($encryptedPath);
-                } catch (\Exception $e) {
-                    // Skip failed file or log warning
-                    continue;
+                // 2. Parcourir les sous-dossiers récursivement
+                $subfolders = $this->folderRepo->listByUser(null, $folderId);
+                foreach ($subfolders as $sub) {
+                    $addFolderToZip($sub['id'], $zipPathInZip . $sub['name'] . '/');
                 }
-            }
+            };
+
+            // Lancer la récursion
+            $addFolderToZip($share['target_id'], '');
+
 
             $zip->close();
 
@@ -531,7 +557,7 @@ class ShareController
             }
 
             if (!file_exists($zipPath)) {
-                $response->getBody()->write(json_encode(['error' => 'Zip creation failed']));
+                $response->getBody()->write(json_encode(['error' => 'Zip creation failed']), JSON_UNESCAPED_UNICODE);
                 return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
             }
 

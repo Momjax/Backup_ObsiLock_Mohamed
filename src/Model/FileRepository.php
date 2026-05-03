@@ -15,9 +15,12 @@ class FileRepository
      * Liste les fichiers d'un utilisateur, optionnellement dans un dossier spécifique.
      * Utilise une jointure car la table 'files' n'a plus de user_id direct.
      */
-    public function listByUser(int $userId, ?int $folderId = null): array
+    public function listByUser(?int $userId, ?int $folderId = null): array
     {
-        $where = ["folders.user_id" => $userId];
+        $where = [];
+        if ($userId !== null) {
+            $where["folders.user_id"] = $userId;
+        }
         if ($folderId !== null) {
             $where["files.folder_id"] = $folderId;
         }

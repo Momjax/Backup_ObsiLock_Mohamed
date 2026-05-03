@@ -174,6 +174,7 @@ $app->get('/folders', [$folderController, 'list'])->add($authMiddleware);
 $app->post('/folders', [$folderController, 'create'])->add($authMiddleware);
 $app->delete('/folders/{id}', [$folderController, 'delete'])->add($authMiddleware);
 $app->put('/folders/{id}', [$folderController, 'rename'])->add($authMiddleware);
+$app->get('/folders/{id}/download', [$folderController, 'download'])->add($authMiddleware);
 
 // Corbeille Folders
 $app->get('/trash/folders', [$folderController, 'listTrash'])->add($authMiddleware);
