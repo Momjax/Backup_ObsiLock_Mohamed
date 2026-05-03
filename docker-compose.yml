@@ -17,7 +17,7 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       obsilock_network:
-        ipv4_address: 192.168.10.2
+        ipv4_address: 192.168.115.2
 
   # phpMyAdmin
   phpmyadmin:
@@ -37,7 +37,7 @@ services:
       - db
     networks:
       obsilock_network:
-        ipv4_address: 192.168.10.3
+        ipv4_address: 192.168.115.3
       admin_proxy:
     labels:
       - "traefik.enable=true"
@@ -55,7 +55,7 @@ services:
       dockerfile: Dockerfile
     container_name: obsilock_api
     ports:
-      - "8080:80"
+      - "9000:80"
     hostname: obsilock_api
     restart: unless-stopped
     volumes:
@@ -72,7 +72,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     networks:
       obsilock_network:
-        ipv4_address: 192.168.10.4
+        ipv4_address: 192.168.115.4
       admin_proxy:
         ipv4_address: 172.100.10.100 
     labels:
@@ -93,6 +93,6 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 192.168.10.0/24
+        - subnet: 192.168.115.0/24
   admin_proxy:
     external: true

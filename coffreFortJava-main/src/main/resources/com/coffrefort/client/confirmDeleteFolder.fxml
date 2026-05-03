@@ -15,7 +15,7 @@
       styleClass="root"
       xmlns="http://javafx.com/javafx/25" 
       xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.coffrefort.client.controllers.ConfirmDeleteController">
+      fx:controller="com.coffrefort.client.controllers.ConfirmDeleteFolderController">
 
     <padding>
         <Insets bottom="30" left="30" right="30" top="30"/>
